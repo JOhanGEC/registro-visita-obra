@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Registro Visita Obra</title>
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f6f8;
+    margin: 0;
+    padding: 20px;
+}
+
+.contenedor {
+    max-width: 500px;
+    margin: auto;
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+input, textarea, select, button {
+    width: 100%;
+    padding: 10px;
+    margin-top: 8px;
+    margin-bottom: 15px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+}
+
+button {
+    background-color: #003366;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #0055aa;
+}
+</style>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+</head>
+
+<body>
+
+<!-- LOGIN -->
+<div id="pantallaLogin" class="contenedor">
+    <h2>Ingreso al Sistema</h2>
+    <input type="text" id="usuarioInput" placeholder="Escriba su usuario">
+    <button id="btnIngresar">Ingresar</button>
+</div>
+
+<!-- REGISTRO -->
+<div id="pantallaRegistro" class="contenedor" style="display:none;">
+
+    <h2>Nueva Observación</h2>
+    <p id="usuarioActivo"></p>
+
+    <label>Foto:</label>
+    <input type="file" accept="image/*" capture="environment" id="fotoInput">
+
+    <label>Observación:</label>
+    <textarea id="observacion"></textarea>
+
+    <label>Disciplina:</label>
+    <select id="disciplina">
+        <option value="">Seleccione</option>
+        <option>Civil</option>
+        <option>Eléctrica</option>
+        <option>Mecánica</option>
+        <option>Arquitectónica</option>
+        <option>Estructural</option>
+    </select>
+
+    <label>Nivel de Impacto:</label>
+    <select id="impacto">
+        <option value="">Seleccione</option>
+        <option>Bajo</option>
+        <option>Medio</option>
+        <option>Alto</option>
+        <option>Crítico</option>
+    </select>
+
+    <button id="btnAgregar">Agregar Registro</button>
+
+    <h3>Registros</h3>
+    <div id="listaRegistros"></div>
+
+    <button id="btnPDF">Exportar PDF</button>
+
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+
+    const usuariosPermitidos = ["johan", "supervisor1", "inspector2"];
+    let usuarioActivo = "";
+    let registros = [];
+
+    // LOGIN
+    document.getElementById("btnIngresar").addEventListener("click", function() {
+
+        const usuario = document
+            .getElementById("usuarioInput")
+            .value
+            .trim()
+            .toLowerCase();
+
+        if (usuariosPermitidos.includes(usuario)) {
+
+            usuarioActivo = usuario;
+
+            document.getElementById("pantallaLogin").style.display = "none";
+            document.getElementById("pantallaRegistro").style.display = "block";
+
+            document.getElementById("usuarioActivo").innerText =
+                "Usuario: " + usuarioActivo;
+
+        } else {
+            alert("Usuario no autorizado");
+        }
+
+    });
+
+    // AGREGAR REGISTRO
+    document.getElementById("btnAgregar").addEventListener("click", function() {
+
+        const file = document.getElementById("fotoInput").files[0];
+        const obs = document.getElementById("observacion").value;
+        const disciplina = document.getElementById("disciplina").value;
+        const impacto = document.getElementById("impacto").value;
+
+        if (!file || !obs || !disciplina || !impacto) {
+            alert("Debe completar todos los campos");
+            return;
+        }
+
+        const reader = new FileReader();
+
+        reader.onload = function () {
+
+            const registro = {
+                usuario: usuarioActivo,
+                fecha: new Date().toLocaleString(),
+                foto: reader.result,
+                observacion: obs,
+                disciplina: disciplina,
+                impacto: impacto
+            };
+
+            registros.push(registro);
+            mostrarRegistros();
+            limpiarFormulario();
+        };
+
+        reader.readAsDataURL(file);
+    });
+
+    // MOSTRAR REGISTROS
+    function mostrarRegistros() {
+
+        const contenedor = document.getElementById("listaRegistros");
+        contenedor.innerHTML = "";
+
+        registros.forEach((r, index) => {
+
+            contenedor.innerHTML += `
+                <div style="background:#f9f9f9;padding:10px;margin-top:10px;border-radius:8px;">
+                    <p><b>Registro ${index + 1}</b></p>
+                    <p><b>Fecha:</b> ${r.fecha}</p>
+                    <img src="${r.foto}" width="100%">
+                    <p><b>Disciplina:</b> ${r.disciplina}</p>
+                    <p><b>Impacto:</b> ${r.impacto}</p>
+                    <p>${r.observacion}</p>
+                </div>
+            `;
+        });
+    }
+
+    function limpiarFormulario() {
+        document.getElementById("fotoInput").value = "";
+        document.getElementById("observacion").value = "";
+        document.getElementById("disciplina").value = "";
+        document.getElementById("impacto").value = "";
+    }
+
+    // EXPORTAR PDF
+    document.getElementById("btnPDF").addEventListener("click", function() {
+
+        if (registros.length === 0) {
+            alert("No hay registros para exportar");
+            return;
+        }
+
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        let y = 10;
+
+        doc.setFontSize(16);
+        doc.text("REPORTE VISITA DE OBRA", 10, y);
+        y += 10;
+
+        registros.forEach((r, index) => {
+
+            if (y > 250) {
+                doc.addPage();
+                y = 10;
+            }
+
+            doc.setFontSize(12);
+            doc.text(`Registro ${index + 1}`, 10, y);
+            y += 6;
+
+            doc.text(`Usuario: ${r.usuario}`, 10, y);
+            y += 6;
+
+            doc.text(`Fecha: ${r.fecha}`, 10, y);
+            y += 6;
+
+            doc.text(`Disciplina: ${r.disciplina}`, 10, y);
+            y += 6;
+
+            doc.text(`Impacto: ${r.impacto}`, 10, y);
+            y += 6;
+
+            doc.text("Observación:", 10, y);
+            y += 6;
+
+            const texto = doc.splitTextToSize(r.observacion, 180);
+            doc.text(texto, 10, y);
+            y += texto.length * 6;
+
+            doc.addImage(r.foto, "JPEG", 10, y, 60, 60);
+            y += 70;
+        });
+
+        doc.save("reporte_visita_obra.pdf");
+    });
+
+});
+</script>
+
+</body>
+</html>
