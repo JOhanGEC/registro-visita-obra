@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Registro Visita Obra</title>
+<title>Visita Técnica de Obra</title>
 
 <style>
 body {
@@ -20,9 +20,38 @@ body {
     padding: 20px;
     border-radius: 10px;
     box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    text-align: center;
 }
 
-input, textarea, select, button {
+h1 {
+    margin-bottom: 10px;
+    color: #003366;
+}
+
+h2 {
+    margin-bottom: 20px;
+}
+
+/* Campo usuario más angosto */
+#usuarioInput {
+    width: 70%;
+    margin: auto;
+    display: block;
+}
+
+/* Botón rojo */
+#btnIngresar {
+    background-color: #c62828;
+    color: white;
+    font-weight: bold;
+    border: none;
+}
+
+#btnIngresar:hover {
+    background-color: #a31515;
+}
+
+input, textarea, select {
     width: 100%;
     padding: 10px;
     margin-top: 8px;
@@ -32,10 +61,16 @@ input, textarea, select, button {
 }
 
 button {
-    background-color: #003366;
-    color: white;
+    width: 100%;
+    padding: 10px;
+    margin-top: 8px;
+    margin-bottom: 15px;
+    border-radius: 6px;
+    border: none;
     font-weight: bold;
     cursor: pointer;
+    background-color: #003366;
+    color: white;
 }
 
 button:hover {
@@ -51,7 +86,9 @@ button:hover {
 
 <!-- LOGIN -->
 <div id="pantallaLogin" class="contenedor">
+    <h1>Visita Técnica de Obra</h1>
     <h2>Ingreso al Sistema</h2>
+
     <input type="text" id="usuarioInput" placeholder="Escriba su usuario">
     <button id="btnIngresar">Ingresar</button>
 </div>
@@ -162,7 +199,6 @@ document.addEventListener("DOMContentLoaded", function() {
         reader.readAsDataURL(file);
     });
 
-    // MOSTRAR REGISTROS
     function mostrarRegistros() {
 
         const contenedor = document.getElementById("listaRegistros");

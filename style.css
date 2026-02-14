@@ -1,3 +1,4 @@
+<style>
 body {
     font-family: Arial, sans-serif;
     background-color: #f4f6f8;
@@ -12,9 +13,34 @@ body {
     padding: 20px;
     border-radius: 10px;
     box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    text-align: center;
 }
 
-input, textarea, select, button {
+h1 {
+    margin-bottom: 20px;
+    color: #003366;
+}
+
+/* Campo usuario más pequeño */
+#usuarioInput {
+    width: 70%;
+    margin: auto;
+    display: block;
+}
+
+/* Botón rojo */
+#btnIngresar {
+    background-color: #c62828;
+    color: white;
+    font-weight: bold;
+    border: none;
+}
+
+#btnIngresar:hover {
+    background-color: #a31515;
+}
+
+input, textarea, select {
     width: 100%;
     padding: 10px;
     margin-top: 8px;
@@ -24,12 +50,13 @@ input, textarea, select, button {
 }
 
 button {
-    background-color: #003366;
-    color: white;
+    width: 100%;
+    padding: 10px;
+    margin-top: 8px;
+    margin-bottom: 15px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
     font-weight: bold;
     cursor: pointer;
 }
-
-button:hover {
-    background-color: #0055aa;
-}
+</style>
