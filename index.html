@@ -25,19 +25,19 @@ body {
 
 h1 {
     margin-bottom: 10px;
-    color: #003366;
+    color: #000000;
 }
 
 h2 {
     margin-bottom: 20px;
-    color: #003366;
+    color: #000000;
 }
 
 /* Animación del ingeniero */
 .banner-animacion {
     width: 100%;
     height: 150px;
-    background: linear-gradient(135deg, #003366 0%, #0055aa 100%);
+    background: linear-gradient(180deg, #87CEEB 0%, #B0E0E6 100%); /* Azul cielo claro */
     border-radius: 10px;
     margin-bottom: 20px;
     position: relative;
@@ -73,16 +73,16 @@ h2 {
     height: 40px;
     background: repeating-linear-gradient(
         45deg,
-        #ffd700,
-        #ffd700 10px,
+        #FFD700,
+        #FFD700 10px,
         #000 10px,
         #000 20px
     );
-    opacity: 0.3;
+    opacity: 0.6;
 }
 
 /* Campo usuario más angosto */
-#usuarioInput, #proyectoInput {
+#usuarioInput {
     width: 70%;
     margin: auto;
     display: block;
@@ -118,16 +118,17 @@ button {
     border: none;
     font-weight: bold;
     cursor: pointer;
-    background-color: #003366;
+    background-color: #c62828;
     color: white;
 }
 
 button:hover {
-    background-color: #0055aa;
+    background-color: #a31515;
 }
 
 .btn-secundario {
     background-color: #757575;
+    color: white;
 }
 
 .btn-secundario:hover {
@@ -135,11 +136,12 @@ button:hover {
 }
 
 .info-proyecto {
-    background-color: #e3f2fd;
+    background-color: #f0f0f0;
     padding: 10px;
     border-radius: 6px;
     margin-bottom: 15px;
     font-size: 14px;
+    color: #000000;
 }
 
 .preview-foto {
@@ -169,7 +171,15 @@ button:hover {
     padding: 15px;
     margin-top: 10px;
     border-radius: 8px;
-    border-left: 4px solid #003366;
+    border-left: 4px solid #c62828;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+.registro-card p {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    margin: 5px 0;
 }
 
 .registro-card img {
@@ -189,32 +199,118 @@ button:hover {
 <div id="pantallaLogin" class="contenedor">
     <div class="banner-animacion">
         <div class="construccion-fondo"></div>
+        
+        <!-- EDIFICIO EN CONSTRUCCIÓN -->
+        <svg class="edificio" viewBox="0 0 200 150" style="position: absolute; left: 50px; bottom: 40px; width: 120px; height: 110px;">
+            <!-- Estructura del edificio -->
+            <rect x="20" y="60" width="80" height="90" fill="#757575" stroke="#424242" stroke-width="2"/>
+            <!-- Ventanas -->
+            <rect x="30" y="70" width="15" height="15" fill="#FFD700"/>
+            <rect x="50" y="70" width="15" height="15" fill="#FFD700"/>
+            <rect x="70" y="70" width="15" height="15" fill="#FFD700"/>
+            <rect x="30" y="90" width="15" height="15" fill="#FFD700"/>
+            <rect x="50" y="90" width="15" height="15" fill="#000000"/>
+            <rect x="70" y="90" width="15" height="15" fill="#FFD700"/>
+            <rect x="30" y="110" width="15" height="15" fill="#FFD700"/>
+            <rect x="50" y="110" width="15" height="15" fill="#FFD700"/>
+            <rect x="70" y="110" width="15" height="15" fill="#000000"/>
+            <rect x="30" y="130" width="15" height="15" fill="#000000"/>
+            <rect x="50" y="130" width="15" height="15" fill="#FFD700"/>
+            <rect x="70" y="130" width="15" height="15" fill="#FFD700"/>
+        </svg>
+        
+        <!-- CAMIÓN MEZCLADOR DE CONCRETO -->
+        <svg class="camion-concreto" viewBox="0 0 200 100" style="position: absolute; right: 200px; bottom: 40px; width: 140px; height: 80px;">
+            <!-- Cabina del camión -->
+            <rect x="10" y="50" width="35" height="30" fill="#c62828" rx="3"/>
+            <rect x="15" y="55" width="12" height="10" fill="#87CEEB"/>
+            <rect x="30" y="55" width="10" height="10" fill="#87CEEB"/>
+            
+            <!-- Chasis -->
+            <rect x="10" y="78" width="120" height="8" fill="#424242"/>
+            
+            <!-- Tambor mezclador (cilindro giratorio) -->
+            <ellipse cx="85" cy="60" rx="40" ry="28" fill="#757575" stroke="#424242" stroke-width="2"/>
+            <ellipse cx="85" cy="60" rx="35" ry="23" fill="#9E9E9E"/>
+            
+            <!-- Líneas del tambor (efecto espiral) -->
+            <path d="M 60 55 Q 85 45 110 55" stroke="#FFD700" stroke-width="3" fill="none"/>
+            <path d="M 58 65 Q 85 58 112 65" stroke="#FFD700" stroke-width="3" fill="none"/>
+            
+            <!-- Canal de salida -->
+            <rect x="115" y="68" width="15" height="6" fill="#424242" rx="2"/>
+            
+            <!-- Ruedas -->
+            <circle cx="25" cy="86" r="8" fill="#000000"/>
+            <circle cx="25" cy="86" r="4" fill="#757575"/>
+            <circle cx="55" cy="86" r="8" fill="#000000"/>
+            <circle cx="55" cy="86" r="4" fill="#757575"/>
+            <circle cx="95" cy="86" r="10" fill="#000000"/>
+            <circle cx="95" cy="86" r="5" fill="#757575"/>
+            <circle cx="115" cy="86" r="10" fill="#000000"/>
+            <circle cx="115" cy="86" r="5" fill="#757575"/>
+        </svg>
+        
+        <!-- GRÚA TORRE -->
+        <svg class="grua" viewBox="0 0 300 200" style="position: absolute; right: 80px; bottom: 40px; width: 180px; height: 150px;">
+            <!-- Torre vertical -->
+            <rect x="140" y="80" width="8" height="120" fill="#c62828"/>
+            <rect x="138" y="80" width="12" height="4" fill="#424242"/>
+            <rect x="138" y="100" width="12" height="4" fill="#424242"/>
+            <rect x="138" y="120" width="12" height="4" fill="#424242"/>
+            <rect x="138" y="140" width="12" height="4" fill="#424242"/>
+            <rect x="138" y="160" width="12" height="4" fill="#424242"/>
+            <rect x="138" y="180" width="12" height="4" fill="#424242"/>
+            
+            <!-- Brazo horizontal -->
+            <rect x="50" y="76" width="200" height="6" fill="#FFD700"/>
+            
+            <!-- Cabina -->
+            <rect x="135" y="68" width="18" height="12" fill="#424242"/>
+            
+            <!-- Cable con gancho -->
+            <line x1="200" y1="82" x2="200" y2="140" stroke="#000000" stroke-width="2"/>
+            <rect x="195" y="140" width="10" height="8" fill="#757575"/>
+            
+            <!-- Contrapeso -->
+            <rect x="55" y="70" width="20" height="15" fill="#424242"/>
+        </svg>
+        
         <div class="ingeniero">
             <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                <!-- Casco -->
-                <ellipse cx="50" cy="30" rx="20" ry="18" fill="#ffd700"/>
-                <rect x="30" y="28" width="40" height="5" fill="#ff6600"/>
+                <!-- Casco BLANCO -->
+                <ellipse cx="50" cy="30" rx="20" ry="18" fill="#FFFFFF"/>
+                <rect x="30" y="28" width="40" height="5" fill="#757575"/>
                 <!-- Cabeza -->
                 <circle cx="50" cy="45" r="12" fill="#ffdbac"/>
                 <!-- Cuerpo -->
-                <rect x="40" y="55" width="20" height="25" fill="#ff6600" rx="3"/>
+                <rect x="40" y="55" width="20" height="25" fill="#757575" rx="3"/>
                 <!-- Brazos -->
-                <rect x="32" y="58" width="8" height="20" fill="#ff6600" rx="3"/>
-                <rect x="60" y="58" width="8" height="20" fill="#ff6600" rx="3"/>
+                <rect x="32" y="58" width="8" height="20" fill="#757575" rx="3"/>
+                <rect x="60" y="58" width="8" height="20" fill="#757575" rx="3"/>
                 <!-- Piernas -->
-                <rect x="42" y="78" width="7" height="18" fill="#003366" rx="2"/>
-                <rect x="51" y="78" width="7" height="18" fill="#003366" rx="2"/>
+                <rect x="42" y="78" width="7" height="18" fill="#000000" rx="2"/>
+                <rect x="51" y="78" width="7" height="18" fill="#000000" rx="2"/>
                 <!-- Maletín -->
-                <rect x="65" y="70" width="12" height="10" fill="#8b4513" rx="2"/>
+                <rect x="65" y="70" width="12" height="10" fill="#424242" rx="2"/>
             </svg>
         </div>
     </div>
     
     <h1>Visita Técnica de Obra</h1>
+    <h2 style="margin-top: 5px; margin-bottom: 5px; font-size: 14px; color: #c62828; font-weight: bold; line-height: 1.3;">
+        SECRETARIA DISTRITAL DE SEGURIDAD,<br>CONVIVENCIA Y JUSTICIA
+    </h2>
+    <h2 style="margin-top: 10px; margin-bottom: 5px; font-size: 16px;">Dirección de Bienes</h2>
+    <h2 style="margin-top: 0px; margin-bottom: 20px; font-size: 18px; font-weight: bold;">2026</h2>
     <h2>Ingreso al Sistema</h2>
 
     <input type="text" id="usuarioInput" placeholder="Escriba su usuario">
     <button id="btnIngresar">Ingresar</button>
+    
+    <p style="font-size: 11px; color: #757575; margin-top: 20px;">
+        Desarrollado por: Ing. Johan Manuel Cardenas Leal, MSc
+    </p>
 </div>
 
 <!-- PANTALLA 2: NOMBRE DEL PROYECTO -->
@@ -222,8 +318,17 @@ button:hover {
     <h2>Información del Proyecto</h2>
     <p id="usuarioActivo"></p>
 
-    <label>Nombre del Proyecto:</label>
-    <input type="text" id="proyectoInput" placeholder="Ingrese el nombre del proyecto">
+    <label>Seleccione el Proyecto:</label>
+    <select id="proyectoInput">
+        <option value="">-- Seleccione un proyecto --</option>
+        <option value="BRIGADA XIII">BRIGADA XIII</option>
+        <option value="CAMPO VERDE">CAMPO VERDE</option>
+        <option value="CER FASE II">CER FASE II</option>
+        <option value="CTP">CTP</option>
+        <option value="PREDIOS">PREDIOS</option>
+        <option value="URI NORTE">URI NORTE</option>
+        <option value="URI TUNJUELITO">URI TUNJUELITO</option>
+    </select>
     <button id="btnGuardarProyecto">Continuar</button>
 </div>
 
@@ -253,6 +358,9 @@ button:hover {
         <option>Arquitectónica</option>
         <option>Estructural</option>
     </select>
+
+    <label>Lugar:</label>
+    <input type="text" id="lugar" placeholder="Ej: Piso 1 baños admin">
 
     <label>Nivel de Impacto:</label>
     <select id="impacto">
@@ -288,7 +396,16 @@ button:hover {
 <script>
 document.addEventListener("DOMContentLoaded", function() {
 
-    const usuariosPermitidos = ["johan", "supervisor1", "inspector2"];
+    const usuariosPermitidos = [
+        "johan",
+        "johan.cardenas",
+        "luis.ramirez",
+        "david.barrios",
+        "nicolas.rodriguez",
+        "sebastian.beleno",
+        "andres.hernandez",
+        "gabriel.mayorga"
+    ];
     let usuarioActivo = "";
     let nombreProyecto = "";
     let registros = [];
@@ -380,47 +497,112 @@ document.addEventListener("DOMContentLoaded", function() {
                 // Dibujar imagen original
                 ctx.drawImage(img, 0, 0);
                 
-                // Preparar metadata
-                const fecha = new Date();
-                const fechaStr = fecha.toLocaleDateString('es-CO');
-                const horaStr = fecha.toLocaleTimeString('es-CO');
+                // ========== MARCA DE AGUA DIAGONAL CENTRAL (MUY VISIBLE) ==========
+                ctx.save();
+                ctx.translate(canvas.width / 2, canvas.height / 2);
+                ctx.rotate(-45 * Math.PI / 180);
                 
-                let metadataTexto = [
-                    `Proyecto: ${nombreProyecto}`,
-                    `Fecha: ${fechaStr}`,
-                    `Hora: ${horaStr}`
-                ];
+                // Tamaño basado en el ancho de la imagen
+                const marcaAguaSize = Math.min(canvas.width, canvas.height) / 15;
+                ctx.font = `bold ${marcaAguaSize}px Arial`;
+                ctx.fillStyle = 'rgba(220, 220, 220, 0.5)'; // Gris muy claro, más visible
+                ctx.strokeStyle = 'rgba(180, 180, 180, 0.3)'; // Contorno gris
+                ctx.lineWidth = 2;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                
+                const marcaAgua1 = 'SECRETARIA DISTRITAL DE';
+                const marcaAgua2 = 'SEGURIDAD, CONVIVENCIA';
+                const marcaAgua3 = 'Y JUSTICIA';
+                
+                const lineSpacing = marcaAguaSize * 1.2;
+                
+                // Dibujar con contorno para mayor visibilidad
+                ctx.strokeText(marcaAgua1, 0, -lineSpacing);
+                ctx.fillText(marcaAgua1, 0, -lineSpacing);
+                
+                ctx.strokeText(marcaAgua2, 0, 0);
+                ctx.fillText(marcaAgua2, 0, 0);
+                
+                ctx.strokeText(marcaAgua3, 0, lineSpacing);
+                ctx.fillText(marcaAgua3, 0, lineSpacing);
+                
+                ctx.restore();
+                
+                // ========== PREPARAR METADATA PARA ESQUINA SUPERIOR DERECHA ==========
+                const fecha = new Date();
+                const dia = String(fecha.getDate()).padStart(2, '0');
+                const mes = String(fecha.getMonth() + 1).padStart(2, '0');
+                const año = fecha.getFullYear();
+                const horas = String(fecha.getHours()).padStart(2, '0');
+                const minutos = String(fecha.getMinutes()).padStart(2, '0');
+                const segundos = String(fecha.getSeconds()).padStart(2, '0');
+                
+                const fechaStr = `${dia}/${mes}/${año}, ${horas}:${minutos}:${segundos} a.m.`;
+                
+                let metadataTexto = [fechaStr];
                 
                 if (position) {
-                    const lat = position.coords.latitude.toFixed(6);
-                    const lon = position.coords.longitude.toFixed(6);
-                    const alt = position.coords.altitude ? position.coords.altitude.toFixed(1) + ' m' : 'N/A';
-                    
-                    metadataTexto.push(`Lat: ${lat}, Lon: ${lon}`);
-                    metadataTexto.push(`Altitud: ${alt}`);
-                    metadataTexto.push(`Bogotá, Colombia`);
+                    const lat = position.coords.latitude.toFixed(7);
+                    const lon = position.coords.longitude.toFixed(7);
+                    metadataTexto.push(`+${lat},${lon}`);
+                    metadataTexto.push(`Carrera 8A 51-23`);
                 } else {
-                    metadataTexto.push(`Ubicación: No disponible`);
+                    metadataTexto.push(`Sin GPS`);
+                    metadataTexto.push(`Carrera 8A 51-23`);
                 }
                 
-                // Dibujar overlay negro semi-transparente
-                const overlayHeight = 80;
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.75)';
-                ctx.fillRect(0, canvas.height - overlayHeight, canvas.width, overlayHeight);
+                metadataTexto.push(`110621`);
+                metadataTexto.push(`Bogotá`);
+                metadataTexto.push(`Colombia`);
+                metadataTexto.push(`${nombreProyecto}`);
+                metadataTexto.push(`Usuario: ${usuarioActivo}`);
                 
-                // Configurar texto
-                ctx.fillStyle = '#ffffff';
-                ctx.font = 'bold 16px Arial';
+                // ========== DIBUJAR ESTAMPA SIN FONDO - SOLO TEXTO BLANCO CON SOMBRA ==========
+                const fontSize = Math.min(canvas.width, canvas.height) / 40; // Tamaño proporcional
+                const lineHeight = fontSize * 1.3;
+                const padding = 20;
                 
-                // Dibujar cada línea de metadata
-                let yPos = canvas.height - overlayHeight + 20;
+                // Posición en esquina superior derecha (MÁS ABAJO para que no se corte)
+                const startX = canvas.width - 20;
+                let yPos = fontSize + 40; // Comenzar más abajo
+                
+                // Configurar texto blanco grande con sombra negra para visibilidad
+                ctx.textAlign = 'right';
+                ctx.font = `bold ${fontSize}px Arial`;
+                
+                // Dibujar cada línea con sombra
                 metadataTexto.forEach(linea => {
-                    ctx.fillText(linea, 10, yPos);
-                    yPos += 18;
+                    // Sombra negra (para que se vea sobre cualquier fondo)
+                    ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+                    ctx.fillText(linea, startX + 2, yPos + 2);
+                    ctx.fillText(linea, startX - 2, yPos + 2);
+                    ctx.fillText(linea, startX + 2, yPos - 2);
+                    ctx.fillText(linea, startX - 2, yPos - 2);
+                    
+                    // Texto blanco principal
+                    ctx.fillStyle = '#FFFFFF';
+                    ctx.fillText(linea, startX, yPos);
+                    
+                    yPos += lineHeight;
                 });
                 
                 // Guardar imagen con metadata
-                fotoConMetadata = canvas.toDataURL('image/jpeg', 0.9);
+                fotoConMetadata = canvas.toDataURL('image/jpeg', 0.95);
+                
+                // ========== GUARDAR FOTO EN EL CELULAR ==========
+                try {
+                    const link = document.createElement('a');
+                    const timestamp = new Date().getTime();
+                    link.download = `Visita_Obra_${timestamp}.jpg`;
+                    link.href = fotoConMetadata;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    console.log("Foto guardada en el dispositivo");
+                } catch (error) {
+                    console.error("Error al guardar foto:", error);
+                }
                 
                 // Mostrar preview
                 const preview = document.getElementById("previewFoto");
@@ -439,9 +621,10 @@ document.addEventListener("DOMContentLoaded", function() {
 
         const obs = document.getElementById("observacion").value.trim();
         const disciplina = document.getElementById("disciplina").value;
+        const lugar = document.getElementById("lugar").value.trim();
         const impacto = document.getElementById("impacto").value;
 
-        if (!fotoConMetadata || !obs || !disciplina || !impacto) {
+        if (!fotoConMetadata || !obs || !disciplina || !lugar || !impacto) {
             alert("Debe completar todos los campos y tomar una foto");
             return;
         }
@@ -453,6 +636,7 @@ document.addEventListener("DOMContentLoaded", function() {
             foto: fotoConMetadata,
             observacion: obs,
             disciplina: disciplina,
+            lugar: lugar,
             impacto: impacto
         };
 
@@ -469,6 +653,7 @@ document.addEventListener("DOMContentLoaded", function() {
         document.getElementById("fotoInput").value = "";
         document.getElementById("observacion").value = "";
         document.getElementById("disciplina").value = "";
+        document.getElementById("lugar").value = "";
         document.getElementById("impacto").value = "";
         document.getElementById("previewFoto").style.display = "none";
         fotoConMetadata = null;
@@ -514,6 +699,7 @@ document.addEventListener("DOMContentLoaded", function() {
                     <h3>Observación #${index + 1}</h3>
                     <p><strong>Fecha:</strong> ${r.fecha}</p>
                     <p><strong>Disciplina:</strong> ${r.disciplina}</p>
+                    <p><strong>Lugar:</strong> ${r.lugar}</p>
                     <p><strong>Impacto:</strong> ${r.impacto}</p>
                     <p><strong>Descripción:</strong></p>
                     <p>${r.observacion}</p>
@@ -523,7 +709,7 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
-    // EXPORTAR PDF MEJORADO
+    // EXPORTAR PDF MEJORADO CON DISEÑO PROFESIONAL
     document.getElementById("btnPDF").addEventListener("click", function() {
 
         if (registros.length === 0) {
@@ -533,92 +719,497 @@ document.addEventListener("DOMContentLoaded", function() {
 
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
-        const pageHeight = 280; // Altura útil de la página
+        const pageHeight = 280;
         let y = 20;
 
-        // PORTADA
-        doc.setFontSize(20);
-        doc.setFont(undefined, 'bold');
-        doc.text("REPORTE DE VISITA TÉCNICA", 105, y, { align: 'center' });
-        y += 15;
+        // Función para agregar encabezado en cada página
+        function agregarEncabezado(doc, numeroPagina) {
+            // Línea superior roja
+            doc.setFillColor(198, 40, 40);
+            doc.rect(0, 0, 210, 8, 'F');
+            
+            // Título en la línea roja
+            doc.setFontSize(10);
+            doc.setTextColor(255, 255, 255);
+            doc.setFont(undefined, 'bold');
+            doc.text("SECRETARIA DISTRITAL DE SEGURIDAD, CONVIVENCIA Y JUSTICIA", 105, 5, { align: 'center' });
+            
+            // Restaurar color negro
+            doc.setTextColor(0, 0, 0);
+        }
 
+        // Función para agregar pie de página
+        function agregarPiePagina(doc, numeroPagina, totalPaginas) {
+            // Línea inferior gris
+            doc.setDrawColor(180, 180, 180);
+            doc.setLineWidth(0.5);
+            doc.line(20, 285, 190, 285);
+            
+            // Número de página
+            doc.setFontSize(9);
+            doc.setTextColor(100, 100, 100);
+            doc.text(`Página ${numeroPagina} de ${totalPaginas}`, 105, 290, { align: 'center' });
+            
+            // Créditos del desarrollador
+            doc.setFontSize(8);
+            doc.setTextColor(150, 150, 150);
+            doc.text("Desarrollado por: Ing. Johan Manuel Cardenas Leal, MSc", 105, 295, { align: 'center' });
+            
+            doc.setTextColor(0, 0, 0);
+        }
+
+        // Calcular total de páginas (portada + 1 por registro)
+        const totalPaginas = 1 + registros.length;
+
+        // ========== PORTADA ==========
+        agregarEncabezado(doc, 1);
+        
+        y = 30;
+        
+        // Título principal
+        doc.setFontSize(22);
+        doc.setFont(undefined, 'bold');
+        doc.setTextColor(0, 0, 0);
+        doc.text("REPORTE DE VISITA TÉCNICA DE OBRA", 105, y, { align: 'center' });
+        
+        y += 12;
+        
+        // Secretaría en rojo
         doc.setFontSize(14);
-        doc.setFont(undefined, 'normal');
-        doc.text(`Proyecto: ${nombreProyecto}`, 105, y, { align: 'center' });
+        doc.setTextColor(198, 40, 40);
+        doc.text("SECRETARIA DISTRITAL DE SEGURIDAD,", 105, y, { align: 'center' });
+        y += 6;
+        doc.text("CONVIVENCIA Y JUSTICIA", 105, y, { align: 'center' });
+        
         y += 10;
         
+        // Dirección de Bienes
         doc.setFontSize(12);
-        doc.text(`Usuario: ${usuarioActivo}`, 105, y, { align: 'center' });
+        doc.setTextColor(0, 0, 0);
+        doc.setFont(undefined, 'normal');
+        doc.text("Dirección de Bienes", 105, y, { align: 'center' });
+        
         y += 8;
         
+        // Año 2026
+        doc.setFontSize(14);
+        doc.setFont(undefined, 'bold');
+        doc.text("2026", 105, y, { align: 'center' });
+        
+        y += 20;
+
+        // Información del proyecto
+        doc.setFillColor(255, 255, 255);
+        doc.setDrawColor(200, 200, 200);
+        doc.setLineWidth(0.5);
+        doc.roundedRect(20, y, 170, 60, 3, 3, 'FD');
+        
+        y += 12;
+        doc.setFontSize(12);
+        doc.setFont(undefined, 'bold');
+        doc.setTextColor(198, 40, 40);
+        doc.text("INFORMACIÓN DEL PROYECTO", 30, y);
+        
+        y += 10;
+        doc.setFontSize(11);
+        doc.setFont(undefined, 'bold');
+        doc.setTextColor(0, 0, 0);
+        doc.text("Proyecto:", 30, y);
+        doc.setFont(undefined, 'normal');
+        doc.text(`${nombreProyecto}`, 55, y);
+        
+        y += 10;
+        doc.setFont(undefined, 'bold');
+        doc.text("Usuario:", 30, y);
+        doc.setFont(undefined, 'normal');
+        doc.text(`${usuarioActivo}`, 55, y);
+        
+        y += 10;
         const fechaReporte = new Date().toLocaleString('es-CO');
-        doc.text(`Fecha del reporte: ${fechaReporte}`, 105, y, { align: 'center' });
-        y += 8;
+        doc.setFont(undefined, 'bold');
+        doc.text("Fecha:", 30, y);
+        doc.setFont(undefined, 'normal');
+        doc.text(`${fechaReporte}`, 55, y);
         
-        doc.text(`Total de observaciones: ${registros.length}`, 105, y, { align: 'center' });
+        y += 10;
+        doc.setFont(undefined, 'bold');
+        doc.text("Observaciones:", 30, y);
+        doc.setFont(undefined, 'normal');
+        doc.text(`${registros.length}`, 65, y);
         
-        // REGISTROS
+        // Pie de página en portada
+        agregarPiePagina(doc, 1, totalPaginas);
+        
+        // ========== REGISTROS ==========
         registros.forEach((r, index) => {
 
-            // Nueva página para cada registro
             doc.addPage();
+            const paginaActual = index + 2;
+            agregarEncabezado(doc, paginaActual);
+            
             y = 20;
 
-            // Encabezado del registro
-            doc.setFontSize(16);
+            // Encabezado del registro con fondo
+            doc.setFillColor(198, 40, 40);
+            doc.rect(10, y, 190, 12, 'F');
+            
+            doc.setFontSize(14);
             doc.setFont(undefined, 'bold');
-            doc.text(`OBSERVACIÓN #${index + 1}`, 10, y);
-            y += 10;
+            doc.setTextColor(255, 255, 255);
+            doc.text(`OBSERVACIÓN #${index + 1}`, 15, y + 8);
+            
+            doc.setTextColor(0, 0, 0);
+            y += 20;
 
-            // Información básica
-            doc.setFontSize(11);
+            // Caja de información (altura dinámica según lugar)
+            // Primero calcular cuántas líneas ocupa el lugar
+            const lugarLineas = doc.splitTextToSize(r.lugar, 155);
+            const alturaExtra = (lugarLineas.length - 1) * 5;
+            const alturaRecuadro = 42 + alturaExtra;
+            
+            doc.setFillColor(250, 250, 250);
+            doc.setDrawColor(220, 220, 220);
+            doc.roundedRect(10, y, 190, alturaRecuadro, 2, 2, 'FD');
+            
+            y += 8;
+            doc.setFontSize(10);
+            doc.setFont(undefined, 'bold');
+            doc.text("Fecha:", 15, y);
+            doc.setFont(undefined, 'normal');
+            doc.text(`${r.fecha}`, 35, y);
+
+            y += 7;
+            doc.setFont(undefined, 'bold');
+            doc.text("Usuario:", 15, y);
+            doc.setFont(undefined, 'normal');
+            doc.text(`${r.usuario}`, 35, y);
+
+            y += 7;
+            doc.setFont(undefined, 'bold');
+            doc.text("Disciplina:", 15, y);
+            doc.setFont(undefined, 'normal');
+            doc.text(`${r.disciplina}`, 38, y);
+            
+            doc.setFont(undefined, 'bold');
+            doc.text("Impacto:", 100, y);
             doc.setFont(undefined, 'normal');
             
-            doc.text(`Fecha: ${r.fecha}`, 10, y);
-            y += 7;
-
-            doc.text(`Usuario: ${r.usuario}`, 10, y);
-            y += 7;
-
-            doc.text(`Disciplina: ${r.disciplina}`, 10, y);
-            y += 7;
-
-            doc.text(`Nivel de Impacto: ${r.impacto}`, 10, y);
-            y += 10;
-
-            // Observación (con salto de línea automático)
-            doc.setFont(undefined, 'bold');
-            doc.text("Descripción:", 10, y);
-            y += 7;
+            // Color según nivel de impacto
+            if (r.impacto === 'Crítico') doc.setTextColor(198, 40, 40);
+            else if (r.impacto === 'Alto') doc.setTextColor(255, 140, 0);
+            else if (r.impacto === 'Medio') doc.setTextColor(255, 193, 7);
+            else doc.setTextColor(76, 175, 80);
             
-            doc.setFont(undefined, 'normal');
-            const textoObservacion = doc.splitTextToSize(r.observacion, 180);
-            doc.text(textoObservacion, 10, y);
-            y += (textoObservacion.length * 7) + 10;
+            doc.setFont(undefined, 'bold');
+            doc.text(`${r.impacto}`, 120, y);
+            doc.setTextColor(0, 0, 0);
 
-            // Foto (tamaño ajustado para que quepa bien)
+            y += 7;
+            doc.setFont(undefined, 'bold');
+            doc.text("Lugar:", 15, y);
+            doc.setFont(undefined, 'normal');
+            
+            // Dividir el texto del lugar si es muy largo
+            const lugarTextoLineas = doc.splitTextToSize(r.lugar, 155);
+            doc.text(lugarTextoLineas, 32, y);
+            
+            // Ajustar y según las líneas que ocupa el lugar
+            y += 15 + ((lugarTextoLineas.length - 1) * 5);
+
+            // Foto centrada (con espacio suficiente)
             try {
                 const imgWidth = 180;
-                const imgHeight = 135; // Proporción 4:3
+                const imgHeight = 135;
                 
-                // Verificar si cabe en la página actual
-                if (y + imgHeight > pageHeight) {
+                // Verificar si cabe en la página con margen
+                if (y + imgHeight + 20 > pageHeight - 15) {
                     doc.addPage();
+                    agregarEncabezado(doc, paginaActual);
                     y = 20;
                 }
                 
-                doc.addImage(r.foto, "JPEG", 10, y, imgWidth, imgHeight);
-                y += imgHeight + 10;
+                // Centrar la imagen (página tiene 210mm de ancho)
+                const imgX = (210 - imgWidth) / 2;
+                
+                // Borde de la imagen
+                doc.setDrawColor(200, 200, 200);
+                doc.setLineWidth(1);
+                doc.rect(imgX, y, imgWidth, imgHeight, 'S');
+                
+                doc.addImage(r.foto, "JPEG", imgX, y, imgWidth, imgHeight);
+                y += imgHeight + 10; // Reducido de 20 a 10 para dejar menos espacio
                 
             } catch (error) {
                 console.error("Error al agregar imagen:", error);
-                doc.text("Error al cargar la imagen", 10, y);
-                y += 10;
             }
+
+            // Recuadro de OBSERVACIÓN (que ocupa el resto de la página)
+            // El pie de página está en y=285, dejamos margen hasta y=275
+            const limitePiePagina = 275;
+            const espacioDisponible = limitePiePagina - y;
+            
+            // Calcular altura del recuadro según el texto
+            const textoObservacion = doc.splitTextToSize(r.observacion, 170);
+            const alturaTextoCalculada = (textoObservacion.length * 5) + 20;
+            
+            let alturaRecuadroObs;
+            
+            // Si el texto necesita más espacio del disponible, usar nueva página
+            if (alturaTextoCalculada > espacioDisponible) {
+                doc.addPage();
+                agregarEncabezado(doc, paginaActual);
+                y = 20;
+                // En página nueva, usar todo el espacio disponible
+                alturaRecuadroObs = limitePiePagina - y;
+            } else {
+                // Usar todo el espacio disponible en la página actual
+                alturaRecuadroObs = espacioDisponible;
+            }
+            
+            doc.setFillColor(250, 250, 250);
+            doc.setDrawColor(220, 220, 220);
+            doc.roundedRect(10, y, 190, alturaRecuadroObs, 2, 2, 'FD');
+            
+            y += 10;
+            doc.setFont(undefined, 'bold');
+            doc.setFontSize(11);
+            doc.text("OBSERVACIÓN:", 15, y);
+            y += 7;
+            
+            doc.setFont(undefined, 'normal');
+            doc.setFontSize(10);
+            doc.text(textoObservacion, 15, y);
+            
+            // Pie de página
+            agregarPiePagina(doc, paginaActual, totalPaginas);
         });
 
-        // Guardar PDF
-        const nombreArchivo = `Reporte_${nombreProyecto.replace(/\s+/g, '_')}_${new Date().getTime()}.pdf`;
+        // ========== PÁGINA DE ESTADÍSTICAS ==========
+        doc.addPage();
+        const paginaEstadisticas = totalPaginas + 1;
+        agregarEncabezado(doc, paginaEstadisticas);
+        
+        y = 25;
+        
+        // Título de estadísticas
+        doc.setFillColor(198, 40, 40);
+        doc.rect(10, y, 190, 12, 'F');
+        doc.setFontSize(14);
+        doc.setFont(undefined, 'bold');
+        doc.setTextColor(255, 255, 255);
+        doc.text("ESTADÍSTICAS DEL PROYECTO", 105, y + 8, { align: 'center' });
+        doc.setTextColor(0, 0, 0);
+        
+        y += 25;
+        
+        // Contar observaciones por disciplina
+        const porDisciplina = {};
+        const porImpacto = {};
+        const porDisciplinaImpacto = {};
+        
+        registros.forEach(r => {
+            // Por disciplina
+            porDisciplina[r.disciplina] = (porDisciplina[r.disciplina] || 0) + 1;
+            
+            // Por impacto
+            porImpacto[r.impacto] = (porImpacto[r.impacto] || 0) + 1;
+            
+            // Por disciplina e impacto
+            const key = `${r.disciplina}-${r.impacto}`;
+            porDisciplinaImpacto[key] = (porDisciplinaImpacto[key] || 0) + 1;
+        });
+        
+        // GRÁFICA 1: Observaciones por Disciplina
+        doc.setFontSize(12);
+        doc.setFont(undefined, 'bold');
+        doc.text("Observaciones por Disciplina", 105, y, { align: 'center' });
+        y += 10;
+        
+        // Dibujar barras
+        const maxCount = Math.max(...Object.values(porDisciplina));
+        const barWidth1 = 30;
+        const maxBarHeight = 50;
+        let xBar = 20;
+        
+        Object.entries(porDisciplina).forEach(([disciplina, count]) => {
+            const barHeight = (count / maxCount) * maxBarHeight;
+            
+            // Barra
+            doc.setFillColor(198, 40, 40);
+            doc.rect(xBar, y + maxBarHeight - barHeight, barWidth1, barHeight, 'F');
+            
+            // Valor encima
+            doc.setFontSize(10);
+            doc.setFont(undefined, 'bold');
+            doc.text(count.toString(), xBar + barWidth1/2, y + maxBarHeight - barHeight - 3, { align: 'center' });
+            
+            // Etiqueta abajo
+            doc.setFontSize(8);
+            doc.setFont(undefined, 'normal');
+            const labelLines = doc.splitTextToSize(disciplina, barWidth1);
+            doc.text(labelLines, xBar + barWidth1/2, y + maxBarHeight + 5, { align: 'center' });
+            
+            xBar += barWidth1 + 8;
+        });
+        
+        y += maxBarHeight + 25;
+        
+        // GRÁFICA 2: Observaciones por Nivel de Impacto (DESGLOSADO POR DISCIPLINA)
+        doc.setFontSize(12);
+        doc.setFont(undefined, 'bold');
+        doc.text("Observaciones por Nivel de Impacto (por Disciplina)", 105, y, { align: 'center' });
+        y += 10;
+        
+        const impactos = ['Bajo', 'Medio', 'Alto', 'Crítico'];
+        const coloresImpacto = {
+            'Bajo': [76, 175, 80],
+            'Medio': [255, 193, 7],
+            'Alto': [255, 140, 0],
+            'Crítico': [198, 40, 40]
+        };
+        
+        const disciplinas = Object.keys(porDisciplina);
+        const coloresDisciplina = ['#c62828', '#757575', '#424242', '#9E9E9E', '#616161'];
+        
+        let xBarGroup = 20;
+        const barWidth2 = 12;
+        const groupSpacing = 35;
+        
+        impactos.forEach(impacto => {
+            let xBar = xBarGroup;
+            let maxHeightInGroup = 0;
+            
+            disciplinas.forEach((disciplina, idx) => {
+                const key = `${disciplina}-${impacto}`;
+                const count = porDisciplinaImpacto[key] || 0;
+                const barHeight = count > 0 ? (count / maxCount) * maxBarHeight : 0;
+                
+                if (barHeight > maxHeightInGroup) maxHeightInGroup = barHeight;
+                
+                // Convertir color hex a RGB
+                const colorHex = coloresDisciplina[idx % coloresDisciplina.length];
+                const r = parseInt(colorHex.slice(1,3), 16);
+                const g = parseInt(colorHex.slice(3,5), 16);
+                const b = parseInt(colorHex.slice(5,7), 16);
+                
+                doc.setFillColor(r, g, b);
+                doc.rect(xBar, y + maxBarHeight - barHeight, barWidth2, barHeight, 'F');
+                
+                xBar += barWidth2 + 1;
+            });
+            
+            // Etiqueta del impacto debajo del grupo
+            doc.setTextColor(0, 0, 0);
+            doc.setFontSize(9);
+            doc.setFont(undefined, 'bold');
+            const color = coloresImpacto[impacto];
+            doc.setTextColor(color[0], color[1], color[2]);
+            doc.text(impacto, xBarGroup + (disciplinas.length * (barWidth2 + 1))/2, y + maxBarHeight + 5, { align: 'center' });
+            doc.setTextColor(0, 0, 0);
+            
+            xBarGroup += groupSpacing;
+        });
+        
+        // Leyenda de disciplinas
+        y += maxBarHeight + 15;
+        doc.setFontSize(8);
+        doc.setFont(undefined, 'normal');
+        doc.text("Leyenda:", 15, y);
+        let xLegend = 35;
+        disciplinas.forEach((disc, idx) => {
+            const colorHex = coloresDisciplina[idx % coloresDisciplina.length];
+            const r = parseInt(colorHex.slice(1,3), 16);
+            const g = parseInt(colorHex.slice(3,5), 16);
+            const b = parseInt(colorHex.slice(5,7), 16);
+            
+            doc.setFillColor(r, g, b);
+            doc.rect(xLegend, y - 3, 4, 4, 'F');
+            doc.text(disc, xLegend + 6, y);
+            xLegend += 35;
+        });
+        
+        y += 15;
+        
+        // TABLA: Resumen por Disciplina e Impacto (SIMPLIFICADA)
+        doc.setFontSize(12);
+        doc.setFont(undefined, 'bold');
+        doc.text("Detalle: Disciplina vs Impacto", 105, y, { align: 'center' });
+        y += 10;
+        
+        const inicioTabla = y;
+        const colWidths = [80, 27.5, 27.5, 27.5, 27.5]; // Ancho de columnas
+        const tableWidth = 190;
+        
+        // Línea superior de la tabla
+        doc.setDrawColor(100, 100, 100);
+        doc.setLineWidth(0.5);
+        doc.line(10, y, 200, y);
+        
+        y += 7;
+        
+        // Encabezado de tabla (solo texto, sin fondo)
+        doc.setFontSize(10);
+        doc.setFont(undefined, 'bold');
+        doc.setTextColor(0, 0, 0);
+        doc.text("Disciplina", 15, y);
+        doc.text("Bajo", 90 + 13.75, y, { align: 'center' });
+        doc.text("Medio", 117.5 + 13.75, y, { align: 'center' });
+        doc.text("Alto", 145 + 13.75, y, { align: 'center' });
+        doc.text("Crítico", 172.5 + 13.75, y, { align: 'center' });
+        
+        y += 3;
+        
+        // Línea después del encabezado
+        doc.line(10, y, 200, y);
+        
+        y += 7;
+        
+        // Filas de la tabla (solo texto)
+        doc.setFont(undefined, 'normal');
+        doc.setFontSize(9);
+        Object.keys(porDisciplina).forEach(disciplina => {
+            const bajo = porDisciplinaImpacto[`${disciplina}-Bajo`] || 0;
+            const medio = porDisciplinaImpacto[`${disciplina}-Medio`] || 0;
+            const alto = porDisciplinaImpacto[`${disciplina}-Alto`] || 0;
+            const critico = porDisciplinaImpacto[`${disciplina}-Crítico`] || 0;
+            
+            doc.setTextColor(0, 0, 0);
+            doc.text(disciplina, 15, y);
+            doc.text(bajo.toString(), 90 + 13.75, y, { align: 'center' });
+            doc.text(medio.toString(), 117.5 + 13.75, y, { align: 'center' });
+            doc.text(alto.toString(), 145 + 13.75, y, { align: 'center' });
+            doc.text(critico.toString(), 172.5 + 13.75, y, { align: 'center' });
+            
+            y += 7;
+        });
+        
+        // Línea inferior de la tabla
+        doc.line(10, y - 2, 200, y - 2);
+        
+        // Líneas verticales de la tabla
+        doc.line(10, inicioTabla, 10, y - 2); // Izquierda
+        doc.line(90, inicioTabla, 90, y - 2); // Después de Disciplina
+        doc.line(117.5, inicioTabla, 117.5, y - 2); // Después de Bajo
+        doc.line(145, inicioTabla, 145, y - 2); // Después de Medio
+        doc.line(172.5, inicioTabla, 172.5, y - 2); // Después de Alto
+        doc.line(200, inicioTabla, 200, y - 2); // Derecha
+        
+        agregarPiePagina(doc, paginaEstadisticas, totalPaginas + 1);
+
+        // Guardar PDF con nomenclatura oficial
+        // Convertir nombre de proyecto a siglas
+        const siglasProyecto = {
+            'CER FASE II': 'CPA',
+            'URI NORTE': 'URN',
+            'URI TUNJUELITO': 'URT',
+            'CTP': 'CTP',
+            'CAMPO VERDE': 'CMV',
+            'BRIGADA XIII': 'BRI',
+            'PREDIOS': 'AVP'
+        };
+        
+        const sigla = siglasProyecto[nombreProyecto] || 'PRY';
+        const nombreArchivo = `SCJ-VIS-TEC-INF-${sigla}.pdf`;
         doc.save(nombreArchivo);
         
         alert(`PDF generado exitosamente con ${registros.length} observaciones`);
