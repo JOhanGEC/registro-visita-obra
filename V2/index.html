@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Visita Técnica de Obra</title>
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f6f8;
+    margin: 0;
+    padding: 20px;
+}
+
+.contenedor {
+    max-width: 500px;
+    margin: auto;
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    text-align: center;
+}
+
+h1 {
+    margin-bottom: 10px;
+    color: #003366;
+}
+
+h2 {
+    margin-bottom: 20px;
+    color: #003366;
+}
+
+/* Animación del ingeniero */
+.banner-animacion {
+    width: 100%;
+    height: 150px;
+    background: linear-gradient(135deg, #003366 0%, #0055aa 100%);
+    border-radius: 10px;
+    margin-bottom: 20px;
+    position: relative;
+    overflow: hidden;
+}
+
+.ingeniero {
+    position: absolute;
+    bottom: 20px;
+    width: 80px;
+    height: 80px;
+    animation: caminar 4s linear infinite;
+}
+
+@keyframes caminar {
+    0% {
+        left: -100px;
+    }
+    100% {
+        left: calc(100% + 20px);
+    }
+}
+
+.ingeniero svg {
+    width: 100%;
+    height: 100%;
+}
+
+.construccion-fondo {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 40px;
+    background: repeating-linear-gradient(
+        45deg,
+        #ffd700,
+        #ffd700 10px,
+        #000 10px,
+        #000 20px
+    );
+    opacity: 0.3;
+}
+
+/* Campo usuario más angosto */
+#usuarioInput, #proyectoInput {
+    width: 70%;
+    margin: auto;
+    display: block;
+}
+
+/* Botón rojo */
+#btnIngresar, #btnGuardarProyecto {
+    background-color: #c62828;
+    color: white;
+    font-weight: bold;
+    border: none;
+}
+
+#btnIngresar:hover, #btnGuardarProyecto:hover {
+    background-color: #a31515;
+}
+
+input, textarea, select {
+    width: 100%;
+    padding: 10px;
+    margin-top: 8px;
+    margin-bottom: 15px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+}
+
+button {
+    width: 100%;
+    padding: 10px;
+    margin-top: 8px;
+    margin-bottom: 15px;
+    border-radius: 6px;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+    background-color: #003366;
+    color: white;
+}
+
+button:hover {
+    background-color: #0055aa;
+}
+
+.btn-secundario {
+    background-color: #757575;
+}
+
+.btn-secundario:hover {
+    background-color: #616161;
+}
+
+.info-proyecto {
+    background-color: #e3f2fd;
+    padding: 10px;
+    border-radius: 6px;
+    margin-bottom: 15px;
+    font-size: 14px;
+}
+
+.preview-foto {
+    position: relative;
+    margin: 10px 0;
+}
+
+.preview-foto img {
+    width: 100%;
+    border-radius: 6px;
+}
+
+.metadata-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 10px;
+    font-size: 10px;
+    border-radius: 0 0 6px 6px;
+}
+
+.registro-card {
+    background: #f9f9f9;
+    padding: 15px;
+    margin-top: 10px;
+    border-radius: 8px;
+    border-left: 4px solid #003366;
+}
+
+.registro-card img {
+    width: 100%;
+    border-radius: 4px;
+    margin: 10px 0;
+}
+</style>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+</head>
+
+<body>
+
+<!-- PANTALLA 1: LOGIN -->
+<div id="pantallaLogin" class="contenedor">
+    <div class="banner-animacion">
+        <div class="construccion-fondo"></div>
+        <div class="ingeniero">
+            <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                <!-- Casco -->
+                <ellipse cx="50" cy="30" rx="20" ry="18" fill="#ffd700"/>
+                <rect x="30" y="28" width="40" height="5" fill="#ff6600"/>
+                <!-- Cabeza -->
+                <circle cx="50" cy="45" r="12" fill="#ffdbac"/>
+                <!-- Cuerpo -->
+                <rect x="40" y="55" width="20" height="25" fill="#ff6600" rx="3"/>
+                <!-- Brazos -->
+                <rect x="32" y="58" width="8" height="20" fill="#ff6600" rx="3"/>
+                <rect x="60" y="58" width="8" height="20" fill="#ff6600" rx="3"/>
+                <!-- Piernas -->
+                <rect x="42" y="78" width="7" height="18" fill="#003366" rx="2"/>
+                <rect x="51" y="78" width="7" height="18" fill="#003366" rx="2"/>
+                <!-- Maletín -->
+                <rect x="65" y="70" width="12" height="10" fill="#8b4513" rx="2"/>
+            </svg>
+        </div>
+    </div>
+    
+    <h1>Visita Técnica de Obra</h1>
+    <h2>Ingreso al Sistema</h2>
+
+    <input type="text" id="usuarioInput" placeholder="Escriba su usuario">
+    <button id="btnIngresar">Ingresar</button>
+</div>
+
+<!-- PANTALLA 2: NOMBRE DEL PROYECTO -->
+<div id="pantallaProyecto" class="contenedor" style="display:none;">
+    <h2>Información del Proyecto</h2>
+    <p id="usuarioActivo"></p>
+
+    <label>Nombre del Proyecto:</label>
+    <input type="text" id="proyectoInput" placeholder="Ingrese el nombre del proyecto">
+    <button id="btnGuardarProyecto">Continuar</button>
+</div>
+
+<!-- PANTALLA 3: REGISTRO / AGREGAR OBSERVACIÓN -->
+<div id="pantallaRegistro" class="contenedor" style="display:none;">
+
+    <h2>Nueva Observación</h2>
+    
+    <div class="info-proyecto">
+        <strong>Proyecto:</strong> <span id="nombreProyectoDisplay"></span><br>
+        <strong>Usuario:</strong> <span id="usuarioDisplay"></span>
+    </div>
+
+    <label>Foto:</label>
+    <input type="file" accept="image/*" capture="environment" id="fotoInput">
+    <div id="previewFoto" class="preview-foto" style="display:none;"></div>
+
+    <label>Observación:</label>
+    <textarea id="observacion" rows="4"></textarea>
+
+    <label>Disciplina:</label>
+    <select id="disciplina">
+        <option value="">Seleccione</option>
+        <option>Civil</option>
+        <option>Eléctrica</option>
+        <option>Mecánica</option>
+        <option>Arquitectónica</option>
+        <option>Estructural</option>
+    </select>
+
+    <label>Nivel de Impacto:</label>
+    <select id="impacto">
+        <option value="">Seleccione</option>
+        <option>Bajo</option>
+        <option>Medio</option>
+        <option>Alto</option>
+        <option>Crítico</option>
+    </select>
+
+    <button id="btnAgregar">Agregar Observación</button>
+    <button id="btnVerObservaciones" class="btn-secundario">Ver Observaciones (<span id="contadorObs">0</span>)</button>
+
+</div>
+
+<!-- PANTALLA 4: VER OBSERVACIONES -->
+<div id="pantallaObservaciones" class="contenedor" style="display:none;">
+
+    <h2>Observaciones Registradas</h2>
+    
+    <div class="info-proyecto">
+        <strong>Proyecto:</strong> <span id="nombreProyectoDisplay2"></span><br>
+        <strong>Total:</strong> <span id="totalObs">0</span> observaciones
+    </div>
+
+    <div id="listaRegistros"></div>
+
+    <button id="btnVolverRegistro" class="btn-secundario">← Agregar Nueva Observación</button>
+    <button id="btnPDF">📄 Exportar PDF</button>
+
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+
+    const usuariosPermitidos = ["johan", "supervisor1", "inspector2"];
+    let usuarioActivo = "";
+    let nombreProyecto = "";
+    let registros = [];
+    let fotoConMetadata = null;
+
+    // PANTALLA 1: LOGIN
+    document.getElementById("btnIngresar").addEventListener("click", function() {
+
+        const usuario = document
+            .getElementById("usuarioInput")
+            .value
+            .trim()
+            .toLowerCase();
+
+        if (usuariosPermitidos.includes(usuario)) {
+
+            usuarioActivo = usuario;
+
+            document.getElementById("pantallaLogin").style.display = "none";
+            document.getElementById("pantallaProyecto").style.display = "block";
+
+            document.getElementById("usuarioActivo").innerText =
+                "Usuario: " + usuarioActivo;
+
+        } else {
+            alert("Usuario no autorizado");
+        }
+
+    });
+
+    // PANTALLA 2: NOMBRE DEL PROYECTO
+    document.getElementById("btnGuardarProyecto").addEventListener("click", function() {
+
+        const proyecto = document.getElementById("proyectoInput").value.trim();
+
+        if (!proyecto) {
+            alert("Debe ingresar el nombre del proyecto");
+            return;
+        }
+
+        nombreProyecto = proyecto;
+
+        document.getElementById("pantallaProyecto").style.display = "none";
+        document.getElementById("pantallaRegistro").style.display = "block";
+
+        document.getElementById("nombreProyectoDisplay").innerText = nombreProyecto;
+        document.getElementById("usuarioDisplay").innerText = usuarioActivo;
+
+    });
+
+    // CAPTURA DE FOTO CON GEOLOCALIZACIÓN
+    document.getElementById("fotoInput").addEventListener("change", function(e) {
+        
+        const file = e.target.files[0];
+        if (!file) return;
+
+        // Obtener geolocalización
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                function(position) {
+                    procesarFotoConGeo(file, position);
+                },
+                function(error) {
+                    console.error("Error al obtener ubicación:", error);
+                    procesarFotoConGeo(file, null);
+                }
+            );
+        } else {
+            procesarFotoConGeo(file, null);
+        }
+    });
+
+    function procesarFotoConGeo(file, position) {
+        
+        const reader = new FileReader();
+        
+        reader.onload = function(e) {
+            
+            const img = new Image();
+            img.onload = function() {
+                
+                // Crear canvas para agregar metadata
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                
+                canvas.width = img.width;
+                canvas.height = img.height;
+                
+                // Dibujar imagen original
+                ctx.drawImage(img, 0, 0);
+                
+                // Preparar metadata
+                const fecha = new Date();
+                const fechaStr = fecha.toLocaleDateString('es-CO');
+                const horaStr = fecha.toLocaleTimeString('es-CO');
+                
+                let metadataTexto = [
+                    `Proyecto: ${nombreProyecto}`,
+                    `Fecha: ${fechaStr}`,
+                    `Hora: ${horaStr}`
+                ];
+                
+                if (position) {
+                    const lat = position.coords.latitude.toFixed(6);
+                    const lon = position.coords.longitude.toFixed(6);
+                    const alt = position.coords.altitude ? position.coords.altitude.toFixed(1) + ' m' : 'N/A';
+                    
+                    metadataTexto.push(`Lat: ${lat}, Lon: ${lon}`);
+                    metadataTexto.push(`Altitud: ${alt}`);
+                    metadataTexto.push(`Bogotá, Colombia`);
+                } else {
+                    metadataTexto.push(`Ubicación: No disponible`);
+                }
+                
+                // Dibujar overlay negro semi-transparente
+                const overlayHeight = 80;
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.75)';
+                ctx.fillRect(0, canvas.height - overlayHeight, canvas.width, overlayHeight);
+                
+                // Configurar texto
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 16px Arial';
+                
+                // Dibujar cada línea de metadata
+                let yPos = canvas.height - overlayHeight + 20;
+                metadataTexto.forEach(linea => {
+                    ctx.fillText(linea, 10, yPos);
+                    yPos += 18;
+                });
+                
+                // Guardar imagen con metadata
+                fotoConMetadata = canvas.toDataURL('image/jpeg', 0.9);
+                
+                // Mostrar preview
+                const preview = document.getElementById("previewFoto");
+                preview.innerHTML = `<img src="${fotoConMetadata}" alt="Vista previa">`;
+                preview.style.display = 'block';
+            };
+            
+            img.src = e.target.result;
+        };
+        
+        reader.readAsDataURL(file);
+    }
+
+    // AGREGAR REGISTRO
+    document.getElementById("btnAgregar").addEventListener("click", function() {
+
+        const obs = document.getElementById("observacion").value.trim();
+        const disciplina = document.getElementById("disciplina").value;
+        const impacto = document.getElementById("impacto").value;
+
+        if (!fotoConMetadata || !obs || !disciplina || !impacto) {
+            alert("Debe completar todos los campos y tomar una foto");
+            return;
+        }
+
+        const registro = {
+            usuario: usuarioActivo,
+            proyecto: nombreProyecto,
+            fecha: new Date().toLocaleString('es-CO'),
+            foto: fotoConMetadata,
+            observacion: obs,
+            disciplina: disciplina,
+            impacto: impacto
+        };
+
+        registros.push(registro);
+        
+        // Actualizar contador
+        document.getElementById("contadorObs").innerText = registros.length;
+        
+        alert("Observación agregada exitosamente");
+        limpiarFormulario();
+    });
+
+    function limpiarFormulario() {
+        document.getElementById("fotoInput").value = "";
+        document.getElementById("observacion").value = "";
+        document.getElementById("disciplina").value = "";
+        document.getElementById("impacto").value = "";
+        document.getElementById("previewFoto").style.display = "none";
+        fotoConMetadata = null;
+    }
+
+    // VER OBSERVACIONES
+    document.getElementById("btnVerObservaciones").addEventListener("click", function() {
+        
+        if (registros.length === 0) {
+            alert("No hay observaciones registradas aún");
+            return;
+        }
+        
+        document.getElementById("pantallaRegistro").style.display = "none";
+        document.getElementById("pantallaObservaciones").style.display = "block";
+        
+        document.getElementById("nombreProyectoDisplay2").innerText = nombreProyecto;
+        document.getElementById("totalObs").innerText = registros.length;
+        
+        mostrarRegistros();
+    });
+
+    // VOLVER A REGISTRO
+    document.getElementById("btnVolverRegistro").addEventListener("click", function() {
+        document.getElementById("pantallaObservaciones").style.display = "none";
+        document.getElementById("pantallaRegistro").style.display = "block";
+    });
+
+    function mostrarRegistros() {
+
+        const contenedor = document.getElementById("listaRegistros");
+        contenedor.innerHTML = "";
+
+        if (registros.length === 0) {
+            contenedor.innerHTML = "<p>No hay observaciones registradas</p>";
+            return;
+        }
+
+        registros.forEach((r, index) => {
+
+            contenedor.innerHTML += `
+                <div class="registro-card">
+                    <h3>Observación #${index + 1}</h3>
+                    <p><strong>Fecha:</strong> ${r.fecha}</p>
+                    <p><strong>Disciplina:</strong> ${r.disciplina}</p>
+                    <p><strong>Impacto:</strong> ${r.impacto}</p>
+                    <p><strong>Descripción:</strong></p>
+                    <p>${r.observacion}</p>
+                    <img src="${r.foto}" alt="Foto observación ${index + 1}">
+                </div>
+            `;
+        });
+    }
+
+    // EXPORTAR PDF MEJORADO
+    document.getElementById("btnPDF").addEventListener("click", function() {
+
+        if (registros.length === 0) {
+            alert("No hay registros para exportar");
+            return;
+        }
+
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        const pageHeight = 280; // Altura útil de la página
+        let y = 20;
+
+        // PORTADA
+        doc.setFontSize(20);
+        doc.setFont(undefined, 'bold');
+        doc.text("REPORTE DE VISITA TÉCNICA", 105, y, { align: 'center' });
+        y += 15;
+
+        doc.setFontSize(14);
+        doc.setFont(undefined, 'normal');
+        doc.text(`Proyecto: ${nombreProyecto}`, 105, y, { align: 'center' });
+        y += 10;
+        
+        doc.setFontSize(12);
+        doc.text(`Usuario: ${usuarioActivo}`, 105, y, { align: 'center' });
+        y += 8;
+        
+        const fechaReporte = new Date().toLocaleString('es-CO');
+        doc.text(`Fecha del reporte: ${fechaReporte}`, 105, y, { align: 'center' });
+        y += 8;
+        
+        doc.text(`Total de observaciones: ${registros.length}`, 105, y, { align: 'center' });
+        
+        // REGISTROS
+        registros.forEach((r, index) => {
+
+            // Nueva página para cada registro
+            doc.addPage();
+            y = 20;
+
+            // Encabezado del registro
+            doc.setFontSize(16);
+            doc.setFont(undefined, 'bold');
+            doc.text(`OBSERVACIÓN #${index + 1}`, 10, y);
+            y += 10;
+
+            // Información básica
+            doc.setFontSize(11);
+            doc.setFont(undefined, 'normal');
+            
+            doc.text(`Fecha: ${r.fecha}`, 10, y);
+            y += 7;
+
+            doc.text(`Usuario: ${r.usuario}`, 10, y);
+            y += 7;
+
+            doc.text(`Disciplina: ${r.disciplina}`, 10, y);
+            y += 7;
+
+            doc.text(`Nivel de Impacto: ${r.impacto}`, 10, y);
+            y += 10;
+
+            // Observación (con salto de línea automático)
+            doc.setFont(undefined, 'bold');
+            doc.text("Descripción:", 10, y);
+            y += 7;
+            
+            doc.setFont(undefined, 'normal');
+            const textoObservacion = doc.splitTextToSize(r.observacion, 180);
+            doc.text(textoObservacion, 10, y);
+            y += (textoObservacion.length * 7) + 10;
+
+            // Foto (tamaño ajustado para que quepa bien)
+            try {
+                const imgWidth = 180;
+                const imgHeight = 135; // Proporción 4:3
+                
+                // Verificar si cabe en la página actual
+                if (y + imgHeight > pageHeight) {
+                    doc.addPage();
+                    y = 20;
+                }
+                
+                doc.addImage(r.foto, "JPEG", 10, y, imgWidth, imgHeight);
+                y += imgHeight + 10;
+                
+            } catch (error) {
+                console.error("Error al agregar imagen:", error);
+                doc.text("Error al cargar la imagen", 10, y);
+                y += 10;
+            }
+        });
+
+        // Guardar PDF
+        const nombreArchivo = `Reporte_${nombreProyecto.replace(/\s+/g, '_')}_${new Date().getTime()}.pdf`;
+        doc.save(nombreArchivo);
+        
+        alert(`PDF generado exitosamente con ${registros.length} observaciones`);
+    });
+
+});
+</script>
+
+</body>
+</html>
