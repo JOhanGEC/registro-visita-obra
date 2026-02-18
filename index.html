@@ -4,1219 +4,1283 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Visita Técnica de Obra</title>
-
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;900&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
 <style>
-body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f6f8;
-    margin: 0;
-    padding: 20px;
-}
+:root{ --rojo:#c62828; --rojo-oscuro:#a31515; --rojo-sutil:rgba(198,40,40,0.07); --gris:#757575; --fondo:#f5f5f5; }
+* { box-sizing:border-box; }
+body { font-family:'Open Sans',Arial,sans-serif; background:var(--fondo); margin:0; padding:20px; min-height:100vh; }
 
-.contenedor {
-    max-width: 500px;
-    margin: auto;
-    background: white;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-    text-align: center;
-}
+/* === FONDO GEOMÉTRICO SIEMPRE VISIBLE === */
+.geo-bg { position:fixed; inset:0; z-index:0; overflow:hidden; pointer-events:none; }
+.geo-bg canvas { position:absolute; inset:0; width:100%; height:100%; }
 
-h1 {
-    margin-bottom: 10px;
-    color: #000000;
-}
+/* === CONTENEDOR === */
+.contenedor { position:relative; z-index:1; max-width:520px; margin:auto; background:#fff; padding:28px 24px; border-radius:14px; box-shadow:0 6px 30px rgba(198,40,40,0.10),0 2px 8px rgba(0,0,0,0.08); text-align:center; }
+h1 { font-family:'Montserrat',sans-serif; font-weight:900; margin-bottom:6px; color:#000; font-size:1.35rem; letter-spacing:-0.5px; }
+h2 { font-family:'Montserrat',sans-serif; font-weight:700; color:#000; margin-bottom:12px; }
 
-h2 {
-    margin-bottom: 20px;
-    color: #000000;
-}
+/* === BANNER LOGIN === */
+.banner-animacion { width:100%; height:180px; background:linear-gradient(180deg,#1a2a4a 0%,#2d4a7a 50%,#4a7a9b 100%); border-radius:10px; margin-bottom:18px; position:relative; overflow:hidden; }
+.cielo-nubes { position:absolute; top:0; left:0; width:200%; height:60%; animation:moverNubes 20s linear infinite; }
+.suelo { position:absolute; bottom:0; width:100%; height:38px; background:repeating-linear-gradient(45deg,#FFD700,#FFD700 10px,#222 10px,#222 20px); opacity:0.7; }
+.ingeniero { position:absolute; bottom:38px; width:75px; height:75px; animation:caminar 5s linear infinite; filter:drop-shadow(2px 3px 4px rgba(0,0,0,0.4)); }
+.ingeniero svg { width:100%; height:100%; }
+.camion { position:absolute; bottom:38px; width:120px; height:70px; animation:caminar2 9s linear infinite; animation-delay:-4s; filter:drop-shadow(2px 3px 4px rgba(0,0,0,0.3)); }
+.grua-fija { position:absolute; right:30px; bottom:38px; width:160px; height:140px; }
+.edificio-fijo { position:absolute; left:30px; bottom:38px; width:100px; height:120px; }
 
-/* Animación del ingeniero */
-.banner-animacion {
-    width: 100%;
-    height: 150px;
-    background: linear-gradient(180deg, #87CEEB 0%, #B0E0E6 100%); /* Azul cielo claro */
-    border-radius: 10px;
-    margin-bottom: 20px;
-    position: relative;
-    overflow: hidden;
-}
+@keyframes caminar  { 0%{left:-100px;}  100%{left:calc(100% + 20px);} }
+@keyframes caminar2 { 0%{right:-130px;} 100%{right:calc(100% + 20px);} }
+@keyframes moverNubes { 0%{transform:translateX(0);} 100%{transform:translateX(-50%);} }
+@keyframes gruar { 0%,100%{transform:scaleX(1);} 50%{transform:scaleX(-1);} }
 
-.ingeniero {
-    position: absolute;
-    bottom: 20px;
-    width: 80px;
-    height: 80px;
-    animation: caminar 4s linear infinite;
-}
+/* === VERSION BADGE === */
+.version-badge { position:absolute; top:10px; right:12px; background:var(--rojo); color:#fff; font-family:'Montserrat',sans-serif; font-weight:700; font-size:11px; padding:3px 9px; border-radius:20px; letter-spacing:0.5px; box-shadow:0 2px 6px rgba(198,40,40,0.4); z-index:5; }
 
-@keyframes caminar {
-    0% {
-        left: -100px;
-    }
-    100% {
-        left: calc(100% + 20px);
-    }
-}
+/* === INPUTS === */
+input,textarea,select { width:100%; padding:10px 12px; margin-top:6px; margin-bottom:14px; border-radius:8px; border:1.5px solid #ddd; font-family:'Open Sans',sans-serif; font-size:14px; transition:border-color 0.2s; outline:none; }
+input:focus,textarea:focus,select:focus { border-color:var(--rojo); box-shadow:0 0 0 3px rgba(198,40,40,0.08); }
+label { text-align:left; display:block; font-weight:600; font-size:13px; margin-bottom:2px; }
 
-.ingeniero svg {
-    width: 100%;
-    height: 100%;
-}
+/* === BOTONES === */
+button { width:100%; padding:11px; margin-top:6px; margin-bottom:12px; border-radius:8px; border:none; font-family:'Montserrat',sans-serif; font-weight:700; font-size:14px; cursor:pointer; background:linear-gradient(135deg,var(--rojo) 0%,var(--rojo-oscuro) 100%); color:#fff; letter-spacing:0.3px; box-shadow:0 3px 10px rgba(198,40,40,0.25); transition:transform 0.15s,box-shadow 0.15s; }
+button:hover { transform:translateY(-1px); box-shadow:0 5px 16px rgba(198,40,40,0.35); }
+button:active { transform:translateY(0); }
+.btn-secundario { background:linear-gradient(135deg,#757575 0%,#555 100%); box-shadow:0 3px 10px rgba(0,0,0,0.15); }
+.btn-azul { background:linear-gradient(135deg,#1565c0,#0d47a1); box-shadow:0 3px 10px rgba(21,101,192,0.25); }
+.btn-small { width:auto; padding:7px 16px; font-size:12px; margin:4px; display:inline-block; }
 
-.construccion-fondo {
-    position: absolute;
-    bottom: 0;
-    width: 100%;
-    height: 40px;
-    background: repeating-linear-gradient(
-        45deg,
-        #FFD700,
-        #FFD700 10px,
-        #000 10px,
-        #000 20px
-    );
-    opacity: 0.6;
-}
+/* === INFO PROYECTO === */
+.info-proyecto { background:var(--rojo-sutil); border-left:3px solid var(--rojo); padding:10px 14px; border-radius:0 8px 8px 0; margin-bottom:16px; font-size:13px; color:#333; text-align:left; }
 
-/* Campo usuario más angosto */
-#usuarioInput {
-    width: 70%;
-    margin: auto;
-    display: block;
-}
+/* === TARJETAS MODO === */
+.modo-card { border:2px solid #eee; border-radius:12px; padding:20px 18px; margin:10px 0; cursor:pointer; transition:border-color 0.2s,box-shadow 0.2s,transform 0.15s; text-align:left; background:#fafafa; }
+.modo-card:hover { border-color:var(--rojo); box-shadow:0 4px 18px rgba(198,40,40,0.12); transform:translateY(-2px); }
+.modo-card .modo-icon { font-size:1.8rem; margin-bottom:8px; display:block; }
+.modo-card h3 { font-family:'Montserrat',sans-serif; font-weight:700; font-size:0.95rem; margin:0 0 5px; color:#111; }
+.modo-card p { font-size:12px; color:#666; margin:0; line-height:1.4; }
+.modo-card.nuevo { border-color:var(--rojo); background:var(--rojo-sutil); }
 
-/* Botón rojo */
-#btnIngresar, #btnGuardarProyecto {
-    background-color: #c62828;
-    color: white;
-    font-weight: bold;
-    border: none;
-}
+/* === FOTOS === */
+.fotos-container { margin:10px 0; }
+.foto-item { position:relative; margin:8px 0; border-radius:8px; overflow:hidden; border:1px solid #ddd; }
+.foto-item img { width:100%; display:block; }
+.btn-eliminar-foto { position:absolute; top:6px; right:6px; width:auto; padding:4px 10px; font-size:11px; margin:0; border-radius:20px; background:rgba(198,40,40,0.85); box-shadow:none; }
+.label-fotos-cantidad { font-size:12px; color:var(--gris); text-align:right; margin:-10px 0 8px; display:block; }
 
-#btnIngresar:hover, #btnGuardarProyecto:hover {
-    background-color: #a31515;
-}
+/* === CARRUSEL OBSERVACIONES === */
+.obs-card { background:#fafafa; border-radius:12px; border:1px solid #eee; border-left:4px solid var(--rojo); padding:18px 16px 14px; text-align:left; min-height:160px; }
+.obs-card h3 { font-family:'Montserrat',sans-serif; font-weight:700; color:var(--rojo); margin:0 0 10px; font-size:1rem; }
+.obs-card p { margin:4px 0; font-size:13px; color:#333; word-break:break-word; }
+.nav-obs { display:flex; align-items:center; justify-content:space-between; margin:12px 0 6px; gap:10px; }
+.nav-obs button { width:44px; height:44px; border-radius:50%; padding:0; font-size:18px; margin:0; flex-shrink:0; display:flex; align-items:center; justify-content:center; }
+.nav-obs button:disabled { background:#ccc; box-shadow:none; cursor:not-allowed; transform:none; }
+.nav-obs .obs-indicator { font-family:'Montserrat',sans-serif; font-weight:700; font-size:13px; color:var(--gris); flex:1; text-align:center; }
+.carrusel-fotos { position:relative; margin:12px 0; }
+.carrusel-fotos img { width:100%; border-radius:8px; display:block; border:1px solid #ddd; }
+.nav-fotos { display:flex; align-items:center; justify-content:space-between; margin:6px 0 4px; gap:8px; }
+.nav-fotos button { width:36px; height:36px; border-radius:50%; padding:0; font-size:15px; margin:0; flex-shrink:0; }
+.nav-fotos button:disabled { background:#ccc; box-shadow:none; cursor:not-allowed; transform:none; }
+.nav-fotos .foto-indicator { font-size:12px; color:var(--gris); text-align:center; flex:1; font-family:'Montserrat',sans-serif; font-weight:600; }
+.fotos-barra { display:flex; justify-content:center; gap:6px; margin:6px 0; }
+.fotos-barra span { width:8px; height:8px; border-radius:50%; background:#ddd; display:inline-block; transition:background 0.2s; }
+.fotos-barra span.activo { background:var(--rojo); }
 
-input, textarea, select {
-    width: 100%;
-    padding: 10px;
-    margin-top: 8px;
-    margin-bottom: 15px;
-    border-radius: 6px;
-    border: 1px solid #ccc;
-}
+/* === EDICIÓN === */
+.obs-edit-area { display:none; margin-top:14px; padding-top:14px; border-top:1px solid #eee; }
+.obs-edit-area.activo { display:block; }
 
-button {
-    width: 100%;
-    padding: 10px;
-    margin-top: 8px;
-    margin-bottom: 15px;
-    border-radius: 6px;
-    border: none;
-    font-weight: bold;
-    cursor: pointer;
-    background-color: #c62828;
-    color: white;
-}
-
-button:hover {
-    background-color: #a31515;
-}
-
-.btn-secundario {
-    background-color: #757575;
-    color: white;
-}
-
-.btn-secundario:hover {
-    background-color: #616161;
-}
-
-.info-proyecto {
-    background-color: #f0f0f0;
-    padding: 10px;
-    border-radius: 6px;
-    margin-bottom: 15px;
-    font-size: 14px;
-    color: #000000;
-}
-
-.preview-foto {
-    position: relative;
-    margin: 10px 0;
-}
-
-.preview-foto img {
-    width: 100%;
-    border-radius: 6px;
-}
-
-.metadata-overlay {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: rgba(0, 0, 0, 0.7);
-    color: white;
-    padding: 10px;
-    font-size: 10px;
-    border-radius: 0 0 6px 6px;
-}
-
-.registro-card {
-    background: #f9f9f9;
-    padding: 15px;
-    margin-top: 10px;
-    border-radius: 8px;
-    border-left: 4px solid #c62828;
-    word-wrap: break-word;
-    overflow-wrap: break-word;
-}
-
-.registro-card p {
-    word-wrap: break-word;
-    overflow-wrap: break-word;
-    margin: 5px 0;
-}
-
-.registro-card img {
-    width: 100%;
-    border-radius: 4px;
-    margin: 10px 0;
-}
+/* === COLORES IMPACTO === */
+.impacto-critico { color:#c62828; font-weight:700; }
+.impacto-alto    { color:#e65100; font-weight:700; }
+.impacto-medio   { color:#f57f17; font-weight:700; }
+.impacto-bajo    { color:#2e7d32; font-weight:700; }
 </style>
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
 </head>
-
 <body>
 
-<!-- PANTALLA 1: LOGIN -->
+<!-- FONDO GEOMÉTRICO CANVAS (siempre activo) -->
+<div class="geo-bg"><canvas id="geoCanvas"></canvas></div>
+
+<!-- ===== PANTALLA 1: LOGIN ===== -->
 <div id="pantallaLogin" class="contenedor">
-    <div class="banner-animacion">
-        <div class="construccion-fondo"></div>
-        
-        <!-- EDIFICIO EN CONSTRUCCIÓN -->
-        <svg class="edificio" viewBox="0 0 200 150" style="position: absolute; left: 50px; bottom: 40px; width: 120px; height: 110px;">
-            <!-- Estructura del edificio -->
-            <rect x="20" y="60" width="80" height="90" fill="#757575" stroke="#424242" stroke-width="2"/>
-            <!-- Ventanas -->
-            <rect x="30" y="70" width="15" height="15" fill="#FFD700"/>
-            <rect x="50" y="70" width="15" height="15" fill="#FFD700"/>
-            <rect x="70" y="70" width="15" height="15" fill="#FFD700"/>
-            <rect x="30" y="90" width="15" height="15" fill="#FFD700"/>
-            <rect x="50" y="90" width="15" height="15" fill="#000000"/>
-            <rect x="70" y="90" width="15" height="15" fill="#FFD700"/>
-            <rect x="30" y="110" width="15" height="15" fill="#FFD700"/>
-            <rect x="50" y="110" width="15" height="15" fill="#FFD700"/>
-            <rect x="70" y="110" width="15" height="15" fill="#000000"/>
-            <rect x="30" y="130" width="15" height="15" fill="#000000"/>
-            <rect x="50" y="130" width="15" height="15" fill="#FFD700"/>
-            <rect x="70" y="130" width="15" height="15" fill="#FFD700"/>
-        </svg>
-        
-        <!-- CAMIÓN MEZCLADOR DE CONCRETO -->
-        <svg class="camion-concreto" viewBox="0 0 200 100" style="position: absolute; right: 200px; bottom: 40px; width: 140px; height: 80px;">
-            <!-- Cabina del camión -->
-            <rect x="10" y="50" width="35" height="30" fill="#c62828" rx="3"/>
-            <rect x="15" y="55" width="12" height="10" fill="#87CEEB"/>
-            <rect x="30" y="55" width="10" height="10" fill="#87CEEB"/>
-            
-            <!-- Chasis -->
-            <rect x="10" y="78" width="120" height="8" fill="#424242"/>
-            
-            <!-- Tambor mezclador (cilindro giratorio) -->
-            <ellipse cx="85" cy="60" rx="40" ry="28" fill="#757575" stroke="#424242" stroke-width="2"/>
-            <ellipse cx="85" cy="60" rx="35" ry="23" fill="#9E9E9E"/>
-            
-            <!-- Líneas del tambor (efecto espiral) -->
-            <path d="M 60 55 Q 85 45 110 55" stroke="#FFD700" stroke-width="3" fill="none"/>
-            <path d="M 58 65 Q 85 58 112 65" stroke="#FFD700" stroke-width="3" fill="none"/>
-            
-            <!-- Canal de salida -->
-            <rect x="115" y="68" width="15" height="6" fill="#424242" rx="2"/>
-            
-            <!-- Ruedas -->
-            <circle cx="25" cy="86" r="8" fill="#000000"/>
-            <circle cx="25" cy="86" r="4" fill="#757575"/>
-            <circle cx="55" cy="86" r="8" fill="#000000"/>
-            <circle cx="55" cy="86" r="4" fill="#757575"/>
-            <circle cx="95" cy="86" r="10" fill="#000000"/>
-            <circle cx="95" cy="86" r="5" fill="#757575"/>
-            <circle cx="115" cy="86" r="10" fill="#000000"/>
-            <circle cx="115" cy="86" r="5" fill="#757575"/>
-        </svg>
-        
-        <!-- GRÚA TORRE -->
-        <svg class="grua" viewBox="0 0 300 200" style="position: absolute; right: 80px; bottom: 40px; width: 180px; height: 150px;">
-            <!-- Torre vertical -->
-            <rect x="140" y="80" width="8" height="120" fill="#c62828"/>
-            <rect x="138" y="80" width="12" height="4" fill="#424242"/>
-            <rect x="138" y="100" width="12" height="4" fill="#424242"/>
-            <rect x="138" y="120" width="12" height="4" fill="#424242"/>
-            <rect x="138" y="140" width="12" height="4" fill="#424242"/>
-            <rect x="138" y="160" width="12" height="4" fill="#424242"/>
-            <rect x="138" y="180" width="12" height="4" fill="#424242"/>
-            
-            <!-- Brazo horizontal -->
-            <rect x="50" y="76" width="200" height="6" fill="#FFD700"/>
-            
-            <!-- Cabina -->
-            <rect x="135" y="68" width="18" height="12" fill="#424242"/>
-            
-            <!-- Cable con gancho -->
-            <line x1="200" y1="82" x2="200" y2="140" stroke="#000000" stroke-width="2"/>
-            <rect x="195" y="140" width="10" height="8" fill="#757575"/>
-            
-            <!-- Contrapeso -->
-            <rect x="55" y="70" width="20" height="15" fill="#424242"/>
-        </svg>
-        
-        <div class="ingeniero">
-            <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                <!-- Casco BLANCO -->
-                <ellipse cx="50" cy="30" rx="20" ry="18" fill="#FFFFFF"/>
-                <rect x="30" y="28" width="40" height="5" fill="#757575"/>
-                <!-- Cabeza -->
-                <circle cx="50" cy="45" r="12" fill="#ffdbac"/>
-                <!-- Cuerpo -->
-                <rect x="40" y="55" width="20" height="25" fill="#757575" rx="3"/>
-                <!-- Brazos -->
-                <rect x="32" y="58" width="8" height="20" fill="#757575" rx="3"/>
-                <rect x="60" y="58" width="8" height="20" fill="#757575" rx="3"/>
-                <!-- Piernas -->
-                <rect x="42" y="78" width="7" height="18" fill="#000000" rx="2"/>
-                <rect x="51" y="78" width="7" height="18" fill="#000000" rx="2"/>
-                <!-- Maletín -->
-                <rect x="65" y="70" width="12" height="10" fill="#424242" rx="2"/>
-            </svg>
-        </div>
-    </div>
-    
-    <h1>Visita Técnica de Obra</h1>
-    <h2 style="margin-top: 5px; margin-bottom: 5px; font-size: 14px; color: #c62828; font-weight: bold; line-height: 1.3;">
-        SECRETARIA DISTRITAL DE SEGURIDAD,<br>CONVIVENCIA Y JUSTICIA
-    </h2>
-    <h2 style="margin-top: 10px; margin-bottom: 5px; font-size: 16px;">Dirección de Bienes</h2>
-    <h2 style="margin-top: 0px; margin-bottom: 20px; font-size: 18px; font-weight: bold;">2026</h2>
-    <h2>Ingreso al Sistema</h2>
+  <span class="version-badge">v1.1</span>
+  <div class="banner-animacion">
+    <!-- Nubes SVG animadas -->
+    <svg class="cielo-nubes" viewBox="0 0 800 80" preserveAspectRatio="none" style="position:absolute;top:0;left:0;width:200%;height:55%;">
+      <ellipse cx="80"  cy="30" rx="60" ry="18" fill="rgba(255,255,255,0.18)"/>
+      <ellipse cx="200" cy="20" rx="45" ry="14" fill="rgba(255,255,255,0.13)"/>
+      <ellipse cx="340" cy="35" rx="70" ry="20" fill="rgba(255,255,255,0.16)"/>
+      <ellipse cx="500" cy="18" rx="55" ry="16" fill="rgba(255,255,255,0.12)"/>
+      <ellipse cx="650" cy="28" rx="65" ry="18" fill="rgba(255,255,255,0.15)"/>
+      <ellipse cx="480" cy="42" rx="40" ry="12" fill="rgba(255,255,255,0.10)"/>
+      <ellipse cx="150" cy="50" rx="50" ry="15" fill="rgba(255,255,255,0.11)"/>
+    </svg>
 
-    <input type="text" id="usuarioInput" placeholder="Escriba su usuario">
-    <button id="btnIngresar">Ingresar</button>
-    
-    <p style="font-size: 11px; color: #757575; margin-top: 20px;">
-        Desarrollado por: Ing. Johan Manuel Cardenas Leal, MSc
-    </p>
+    <!-- EDIFICIO EN CONSTRUCCIÓN (fijo) -->
+    <svg class="edificio-fijo" viewBox="0 0 100 130">
+      <rect x="5"  y="40" width="90" height="90" fill="#546e7a" stroke="#37474f" stroke-width="2"/>
+      <rect x="12" y="50" width="16" height="16" fill="#FFD700" opacity="0.9"/>
+      <rect x="34" y="50" width="16" height="16" fill="#FFD700" opacity="0.9"/>
+      <rect x="56" y="50" width="16" height="16" fill="rgba(0,0,0,0.5)"/>
+      <rect x="78" y="50" width="16" height="16" fill="#FFD700" opacity="0.9"/>
+      <rect x="12" y="72" width="16" height="16" fill="rgba(0,0,0,0.5)"/>
+      <rect x="34" y="72" width="16" height="16" fill="#FFD700" opacity="0.9"/>
+      <rect x="56" y="72" width="16" height="16" fill="#FFD700" opacity="0.9"/>
+      <rect x="78" y="72" width="16" height="16" fill="rgba(0,0,0,0.5)"/>
+      <rect x="12" y="94" width="16" height="16" fill="#FFD700" opacity="0.9"/>
+      <rect x="34" y="94" width="16" height="16" fill="rgba(0,0,0,0.5)"/>
+      <rect x="56" y="94" width="16" height="16" fill="#FFD700" opacity="0.9"/>
+      <rect x="78" y="94" width="16" height="16" fill="#FFD700" opacity="0.9"/>
+      <!-- Andamios -->
+      <line x1="0" y1="40" x2="0"   y2="130" stroke="#FFD700" stroke-width="3"/>
+      <line x1="100" y1="40" x2="100" y2="130" stroke="#FFD700" stroke-width="3"/>
+      <line x1="0" y1="55" x2="100" y2="55" stroke="#FFD700" stroke-width="1.5" stroke-dasharray="4,4"/>
+      <line x1="0" y1="75" x2="100" y2="75" stroke="#FFD700" stroke-width="1.5" stroke-dasharray="4,4"/>
+      <line x1="0" y1="95" x2="100" y2="95" stroke="#FFD700" stroke-width="1.5" stroke-dasharray="4,4"/>
+    </svg>
+
+    <!-- GRÚA TORRE (fija derecha) -->
+    <svg class="grua-fija" viewBox="0 0 160 150">
+      <!-- Torre -->
+      <rect x="72" y="20" width="10" height="130" fill="#c62828"/>
+      <line x1="72" y1="30" x2="82" y2="40" stroke="#a31515" stroke-width="1.5"/>
+      <line x1="72" y1="40" x2="82" y2="50" stroke="#a31515" stroke-width="1.5"/>
+      <line x1="72" y1="50" x2="82" y2="60" stroke="#a31515" stroke-width="1.5"/>
+      <line x1="72" y1="60" x2="82" y2="70" stroke="#a31515" stroke-width="1.5"/>
+      <line x1="72" y1="70" x2="82" y2="80" stroke="#a31515" stroke-width="1.5"/>
+      <line x1="72" y1="80" x2="82" y2="90" stroke="#a31515" stroke-width="1.5"/>
+      <!-- Brazo horizontal -->
+      <rect x="10" y="16" width="140" height="7" fill="#FFD700"/>
+      <!-- Cabina -->
+      <rect x="68" y="8" width="18" height="12" fill="#37474f" rx="2"/>
+      <!-- Cable con gancho -->
+      <line x1="115" y1="23" x2="115" y2="75" stroke="#222" stroke-width="1.5"/>
+      <path d="M110,75 Q115,82 120,75" fill="none" stroke="#222" stroke-width="2"/>
+      <!-- Contrapeso -->
+      <rect x="12" y="12" width="22" height="14" fill="#37474f" rx="2"/>
+    </svg>
+
+    <!-- MEZCLADORA DE CONCRETO (animada, viene de la derecha) -->
+    <div class="camion" style="position:absolute;bottom:38px;right:-130px;animation:caminar2 9s linear infinite;animation-delay:-2s;">
+      <svg viewBox="0 0 140 80" width="140" height="80">
+        <!-- Cabina -->
+        <rect x="5"  y="28" width="35" height="30" fill="#c62828" rx="3"/>
+        <rect x="10" y="33" width="13" height="10" fill="#87CEEB" opacity="0.8"/>
+        <rect x="25" y="33" width="10" height="10" fill="#87CEEB" opacity="0.8"/>
+        <!-- Chasis -->
+        <rect x="5" y="56" width="125" height="8" fill="#37474f"/>
+        <!-- Tambor giratorio -->
+        <ellipse cx="88" cy="42" rx="38" ry="26" fill="#757575" stroke="#37474f" stroke-width="2"/>
+        <ellipse cx="88" cy="42" rx="30" ry="20" fill="#9e9e9e"/>
+        <path d="M 65 36 Q 88 26 111 36" stroke="#FFD700" stroke-width="3" fill="none"/>
+        <path d="M 63 48 Q 88 42 113 48" stroke="#FFD700" stroke-width="3" fill="none"/>
+        <!-- Canal salida -->
+        <rect x="118" y="50" width="14" height="5" fill="#37474f" rx="1"/>
+        <!-- Ruedas -->
+        <circle cx="22"  cy="64" r="9" fill="#111"/><circle cx="22"  cy="64" r="4" fill="#555"/>
+        <circle cx="50"  cy="64" r="9" fill="#111"/><circle cx="50"  cy="64" r="4" fill="#555"/>
+        <circle cx="95"  cy="64" r="10" fill="#111"/><circle cx="95"  cy="64" r="4" fill="#555"/>
+        <circle cx="116" cy="64" r="10" fill="#111"/><circle cx="116" cy="64" r="4" fill="#555"/>
+      </svg>
+    </div>
+
+    <!-- INGENIERO CAMINANDO -->
+    <div class="ingeniero">
+      <svg viewBox="0 0 100 110">
+        <!-- Casco amarillo con visera -->
+        <ellipse cx="50" cy="25" rx="22" ry="20" fill="#FFD700"/>
+        <rect x="28" y="34" width="44" height="6" fill="#FFA000" rx="2"/>
+        <!-- Cara -->
+        <circle cx="50" cy="46" r="13" fill="#FFCC99"/>
+        <circle cx="45" cy="44" r="2" fill="#333"/>
+        <circle cx="55" cy="44" r="2" fill="#333"/>
+        <path d="M 45 51 Q 50 55 55 51" stroke="#333" stroke-width="1.5" fill="none"/>
+        <!-- Cuerpo chaleco naranja -->
+        <rect x="38" y="58" width="24" height="26" fill="#E65100" rx="3"/>
+        <rect x="44" y="58" width="12" height="26" fill="#FF8F00" rx="2"/>
+        <!-- Brazos -->
+        <rect x="28" y="60" width="10" height="22" fill="#E65100" rx="3"/>
+        <rect x="62" y="60" width="10" height="22" fill="#E65100" rx="3"/>
+        <!-- Manos -->
+        <circle cx="33" cy="83" r="5" fill="#FFCC99"/>
+        <circle cx="67" cy="83" r="5" fill="#FFCC99"/>
+        <!-- Piernas pantalón gris -->
+        <rect x="40" y="82" width="9"  height="22" fill="#546e7a" rx="3"/>
+        <rect x="51" y="82" width="9"  height="22" fill="#546e7a" rx="3"/>
+        <!-- Botas -->
+        <rect x="38" y="100" width="13" height="8" fill="#333" rx="2"/>
+        <rect x="49" y="100" width="13" height="8" fill="#333" rx="2"/>
+        <!-- Portapapeles -->
+        <rect x="62" y="70" width="14" height="18" fill="#fff" stroke="#aaa" stroke-width="1" rx="1"/>
+        <line x1="64" y1="74" x2="74" y2="74" stroke="#aaa" stroke-width="1"/>
+        <line x1="64" y1="77" x2="74" y2="77" stroke="#aaa" stroke-width="1"/>
+        <line x1="64" y1="80" x2="74" y2="80" stroke="#aaa" stroke-width="1"/>
+      </svg>
+    </div>
+
+    <div class="suelo"></div>
+  </div>
+
+  <h1>Registro Visita Técnica de Obra</h1>
+  <h2 style="margin-top:4px;margin-bottom:4px;font-size:13px;color:var(--rojo);font-weight:700;line-height:1.4;">SECRETARIA DISTRITAL DE SEGURIDAD,<br>CONVIVENCIA Y JUSTICIA</h2>
+  <h2 style="margin-top:6px;margin-bottom:2px;font-size:15px;">Dirección de Bienes</h2>
+  <h2 style="margin-top:0;margin-bottom:16px;font-size:17px;font-weight:900;">2026</h2>
+  <h2>Ingreso al Sistema</h2>
+  <input type="text" id="usuarioInput" placeholder="Escriba su usuario" style="width:70%;margin:auto;display:block;">
+  <button id="btnIngresar">Ingresar</button>
+  <p style="font-size:11px;color:#999;margin-top:16px;">Desarrollado por: Ing. Johan Manuel Cardenas Leal, MSc</p>
 </div>
 
-<!-- PANTALLA 2: NOMBRE DEL PROYECTO -->
+<!-- ===== PANTALLA 1B: SELECCIÓN MODO ===== -->
+<div id="pantallaSeleccion" class="contenedor" style="display:none;">
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+    <button id="btnVolverLogin" class="btn-secundario" style="width:auto;padding:7px 14px;font-size:12px;margin:0;">&#8592; Cambiar Usuario</button>
+    <h2 style="margin:0;flex:1;">Bienvenido, <span id="usuarioSeleccion" style="color:var(--rojo);"></span></h2>
+  </div>
+  <p style="color:#555;font-size:14px;margin-bottom:20px;">¿Qué desea hacer?</p>
+  <div class="modo-card">
+    <span class="modo-icon">📂</span>
+    <h3>Cargar sesión guardada</h3>
+    <p>Continúe donde lo dejó. Cargue un archivo .json exportado anteriormente.</p>
+    <input type="file" id="inputCargarJSON" accept=".json" style="display:none;margin:0;">
+    <button type="button" onclick="document.getElementById('inputCargarJSON').click()" style="margin-top:14px;">📂 Seleccionar archivo JSON</button>
+  </div>
+  <div class="modo-card nuevo">
+    <span class="modo-icon">➕</span>
+    <h3>Generar nueva observación</h3>
+    <p>Inicie una nueva sesión, seleccione el proyecto y registre observaciones.</p>
+    <button type="button" id="btnNuevaSesion" style="margin-top:14px;">➕ Nueva sesión</button>
+  </div>
+</div>
+
+<!-- ===== PANTALLA 2: PROYECTO ===== -->
 <div id="pantallaProyecto" class="contenedor" style="display:none;">
-    <h2>Información del Proyecto</h2>
-    <p id="usuarioActivo"></p>
-
-    <label>Seleccione el Proyecto:</label>
-    <select id="proyectoInput">
-        <option value="">-- Seleccione un proyecto --</option>
-        <option value="BRIGADA XIII">BRIGADA XIII</option>
-        <option value="CAMPO VERDE">CAMPO VERDE</option>
-        <option value="CER FASE II">CER FASE II</option>
-        <option value="CTP">CTP</option>
-        <option value="PREDIOS">PREDIOS</option>
-        <option value="URI NORTE">URI NORTE</option>
-        <option value="URI TUNJUELITO">URI TUNJUELITO</option>
-    </select>
-    <button id="btnGuardarProyecto">Continuar</button>
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+    <button id="btnVolverSeleccion" class="btn-secundario" style="width:auto;padding:7px 14px;font-size:12px;margin:0;">&#8592; Inicio</button>
+    <h2 style="margin:0;flex:1;">Información del Proyecto</h2>
+  </div>
+  <p id="usuarioActivo" style="font-size:14px;color:#555;"></p>
+  <label>Seleccione el Proyecto:</label>
+  <select id="proyectoInput">
+    <option value="">-- Seleccione un proyecto --</option>
+    <option value="BRIGADA XIII">BRIGADA XIII</option>
+    <option value="CAMPO VERDE">CAMPO VERDE</option>
+    <option value="CER FASE II">CER FASE II</option>
+    <option value="CTP">CTP</option>
+    <option value="PREDIOS">PREDIOS</option>
+    <option value="URI NORTE">URI NORTE</option>
+    <option value="URI TUNJUELITO">URI TUNJUELITO</option>
+  </select>
+  <button id="btnGuardarProyecto">Continuar</button>
 </div>
 
-<!-- PANTALLA 3: REGISTRO / AGREGAR OBSERVACIÓN -->
+<!-- ===== PANTALLA 3: NUEVA OBSERVACIÓN ===== -->
 <div id="pantallaRegistro" class="contenedor" style="display:none;">
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+    <button id="btnRegresarProyecto" class="btn-secundario" style="width:auto;padding:7px 14px;font-size:12px;margin:0;">&#8592; Proyecto</button>
+    <h2 style="margin:0;flex:1;font-size:1.1rem;">Nueva Observación</h2>
+  </div>
+  <div class="info-proyecto">
+    <strong>Proyecto:</strong> <span id="nombreProyectoDisplay"></span><br>
+    <strong>Usuario:</strong> <span id="usuarioDisplay"></span>
+  </div>
+  <label>Fotos (máx. 4):</label>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px;">
+    <button type="button" onclick="document.getElementById('fotoInput').click()" class="btn-small" style="width:auto;flex:1;">📷 Tomar Foto</button>
+    <button type="button" onclick="document.getElementById('galeriaInput').click()" class="btn-small btn-secundario" style="width:auto;flex:1;">🖼️ Galería</button>
+  </div>
+  <input type="file" accept="image/*" capture="environment" id="fotoInput" style="display:none;margin:0;">
+  <input type="file" accept="image/*" id="galeriaInput" style="display:none;margin:0;">
+  <span class="label-fotos-cantidad" id="labelCantFotos">0 / 4 fotos</span>
+  <div id="previewFotos" class="fotos-container"></div>
 
-    <h2>Nueva Observación</h2>
-    
-    <div class="info-proyecto">
-        <strong>Proyecto:</strong> <span id="nombreProyectoDisplay"></span><br>
-        <strong>Usuario:</strong> <span id="usuarioDisplay"></span>
-    </div>
+  <label>Observación:</label>
+  <textarea id="observacion" rows="4" placeholder="Describa la observación..."></textarea>
 
-    <label>Foto:</label>
-    <input type="file" accept="image/*" capture="environment" id="fotoInput">
-    <div id="previewFoto" class="preview-foto" style="display:none;"></div>
+  <label>Disciplina:</label>
+  <select id="disciplina">
+    <option value="">Seleccione</option>
+    <option>Arquitectura</option><option>Estructura</option><option>Electrica</option>
+    <option>Hidraulica</option><option>HVAC</option><option>RCI</option>
+    <option>Iluminacion</option><option>Seguridad Electronica</option><option>Comunicaciones</option>
+  </select>
 
-    <label>Observación:</label>
-    <textarea id="observacion" rows="4"></textarea>
+  <label>Lugar / Ubicación:</label>
+  <input type="text" id="lugar" placeholder="Ej: Piso 1 - Baños administración">
 
-    <label>Disciplina:</label>
-    <select id="disciplina">
-        <option value="">Seleccione</option>
-        <option>Civil</option>
-        <option>Eléctrica</option>
-        <option>Mecánica</option>
-        <option>Arquitectónica</option>
-        <option>Estructural</option>
-    </select>
+  <label>Responsable:</label>
+  <input type="text" id="responsable" placeholder="Ej: Contratista / Interventoría / Empresa">
 
-    <label>Lugar:</label>
-    <input type="text" id="lugar" placeholder="Ej: Piso 1 baños admin">
+  <label>Nivel de Impacto:</label>
+  <select id="impacto">
+    <option value="">Seleccione</option>
+    <option>Bajo</option><option>Medio</option><option>Alto</option><option>Crítico</option>
+  </select>
 
-    <label>Nivel de Impacto:</label>
-    <select id="impacto">
-        <option value="">Seleccione</option>
-        <option>Bajo</option>
-        <option>Medio</option>
-        <option>Alto</option>
-        <option>Crítico</option>
-    </select>
-
-    <button id="btnAgregar">Agregar Observación</button>
-    <button id="btnVerObservaciones" class="btn-secundario">Ver Observaciones (<span id="contadorObs">0</span>)</button>
-
+  <button id="btnAgregar">Agregar Observación</button>
+  <button id="btnVerObservaciones" class="btn-secundario">Ver Observaciones (<span id="contadorObs">0</span>)</button>
 </div>
 
-<!-- PANTALLA 4: VER OBSERVACIONES -->
+<!-- ===== PANTALLA 4: VER OBSERVACIONES ===== -->
 <div id="pantallaObservaciones" class="contenedor" style="display:none;">
-
-    <h2>Observaciones Registradas</h2>
-    
-    <div class="info-proyecto">
-        <strong>Proyecto:</strong> <span id="nombreProyectoDisplay2"></span><br>
-        <strong>Total:</strong> <span id="totalObs">0</span> observaciones
+  <h2>Observaciones Registradas</h2>
+  <div class="info-proyecto">
+    <strong>Proyecto:</strong> <span id="nombreProyectoDisplay2"></span><br>
+    <strong>Total:</strong> <span id="totalObs">0</span> observaciones
+  </div>
+  <div id="obsCard" class="obs-card"></div>
+  <!-- Agregar fotos a observación actual -->
+  <div style="background:#fef9f9;border:1.5px dashed rgba(198,40,40,0.35);border-radius:10px;padding:12px 14px;margin:10px 0;">
+    <p style="font-size:12px;color:#666;margin:0 0 8px;text-align:left;"><strong>Agregar fotos a esta observación</strong> (máx. 4 total)</p>
+    <div style="display:flex;gap:8px;">
+      <button type="button" onclick="document.getElementById('addFotoInput').click()" class="btn-small" style="width:auto;flex:1;font-size:12px;">📷 Cámara</button>
+      <button type="button" onclick="document.getElementById('addGaleriaInput').click()" class="btn-small btn-secundario" style="width:auto;flex:1;font-size:12px;">🖼️ Galería</button>
     </div>
-
-    <div id="listaRegistros"></div>
-
-    <button id="btnVolverRegistro" class="btn-secundario">← Agregar Nueva Observación</button>
-    <button id="btnPDF">📄 Exportar PDF</button>
-
+    <input type="file" id="addFotoInput"   accept="image/*" capture="environment" style="display:none;margin:0;">
+    <input type="file" id="addGaleriaInput" accept="image/*" style="display:none;margin:0;">
+    <span id="labelFotosObs" style="font-size:11px;color:#999;display:block;text-align:right;margin-top:4px;"></span>
+  </div>
+  <div class="nav-obs">
+    <button id="btnObsAnterior">&#9664;</button>
+    <span class="obs-indicator" id="obsIndicador">1 / 1</span>
+    <button id="btnObsSiguiente">&#9654;</button>
+  </div>
+  <button id="btnVolverRegistro" class="btn-secundario">&#8592; Nueva Observación</button>
+  <button id="btnPDF">Exportar PDF</button>
+  <button id="btnExportarJSON" class="btn-azul">Exportar JSON</button>
 </div>
 
 <script>
+// === FONDO GEOMÉTRICO CANVAS (tetraedros / polígonos en rojo sutil) ===
+(function() {
+  var canvas = document.getElementById('geoCanvas');
+  var ctx    = canvas.getContext('2d');
+  var shapes = [];
+  var NUM    = 18;
+
+  function resize() {
+    canvas.width  = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  // Tipos de figuras: triángulo, cuadrado rotado, hexágono, tetraedro (proyección)
+  function crearShape() {
+    var tipos = ['tri','square','hex','tetra'];
+    var tipo  = tipos[Math.floor(Math.random()*tipos.length)];
+    return {
+      tipo:   tipo,
+      x:      Math.random()*window.innerWidth,
+      y:      Math.random()*window.innerHeight,
+      size:   30 + Math.random()*70,
+      angle:  Math.random()*Math.PI*2,
+      dAngle: (Math.random()-0.5)*0.008,
+      alpha:  0,
+      dAlpha: 0.002 + Math.random()*0.003,
+      fadeIn: true,
+      maxAlpha: 0.06 + Math.random()*0.08,
+      vx:     (Math.random()-0.5)*0.3,
+      vy:     (Math.random()-0.5)*0.3
+    };
+  }
+
+  for (var i=0; i<NUM; i++) {
+    var s = crearShape();
+    s.alpha = Math.random()*s.maxAlpha; // iniciar en estado aleatorio
+    shapes.push(s);
+  }
+
+  function drawTri(ctx, x, y, r, a) {
+    ctx.beginPath();
+    for (var i=0; i<3; i++) {
+      var ang = a + (i*2*Math.PI/3) - Math.PI/2;
+      i===0 ? ctx.moveTo(x+r*Math.cos(ang), y+r*Math.sin(ang))
+            : ctx.lineTo(x+r*Math.cos(ang), y+r*Math.sin(ang));
+    }
+    ctx.closePath();
+  }
+
+  function drawSquare(ctx, x, y, r, a) {
+    ctx.beginPath();
+    for (var i=0; i<4; i++) {
+      var ang = a + (i*Math.PI/2) + Math.PI/4;
+      i===0 ? ctx.moveTo(x+r*Math.cos(ang), y+r*Math.sin(ang))
+            : ctx.lineTo(x+r*Math.cos(ang), y+r*Math.sin(ang));
+    }
+    ctx.closePath();
+  }
+
+  function drawHex(ctx, x, y, r, a) {
+    ctx.beginPath();
+    for (var i=0; i<6; i++) {
+      var ang = a + (i*Math.PI/3);
+      i===0 ? ctx.moveTo(x+r*Math.cos(ang), y+r*Math.sin(ang))
+            : ctx.lineTo(x+r*Math.cos(ang), y+r*Math.sin(ang));
+    }
+    ctx.closePath();
+  }
+
+  function drawTetra(ctx, x, y, r, a) {
+    // Proyección 2D de tetraedro: triángulo exterior + triángulo interior + líneas
+    drawTri(ctx, x, y, r, a);
+    ctx.stroke();
+    // Triángulo interior girado
+    ctx.save();
+    ctx.translate(x,y);
+    ctx.rotate(a + Math.PI/3);
+    ctx.beginPath();
+    for (var i=0; i<3; i++) {
+      var ang = (i*2*Math.PI/3) - Math.PI/2;
+      i===0 ? ctx.moveTo(r*0.45*Math.cos(ang), r*0.45*Math.sin(ang))
+            : ctx.lineTo(r*0.45*Math.cos(ang), r*0.45*Math.sin(ang));
+    }
+    ctx.closePath();
+    ctx.stroke();
+    // Líneas del vértice al centro
+    for (var i=0; i<3; i++) {
+      var ang = (i*2*Math.PI/3) - Math.PI/2;
+      ctx.beginPath();
+      ctx.moveTo(r*Math.cos(ang + a - (a)), r*Math.sin(ang + a - (a)));
+      ctx.lineTo(0,0);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  function animate() {
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    shapes.forEach(function(s) {
+      // Alpha fade
+      if (s.fadeIn) { s.alpha += s.dAlpha; if (s.alpha >= s.maxAlpha) s.fadeIn=false; }
+      else          { s.alpha -= s.dAlpha*0.5; if (s.alpha <= 0) { Object.assign(s, crearShape()); s.alpha=0; s.fadeIn=true; } }
+
+      s.angle += s.dAngle;
+      s.x += s.vx; s.y += s.vy;
+      // Rebote suave
+      if (s.x < -100) s.x = canvas.width+100;
+      if (s.x > canvas.width+100)  s.x = -100;
+      if (s.y < -100) s.y = canvas.height+100;
+      if (s.y > canvas.height+100) s.y = -100;
+
+      ctx.save();
+      ctx.strokeStyle = 'rgba(198,40,40,' + s.alpha + ')';
+      ctx.lineWidth   = 1.5;
+      ctx.fillStyle   = 'transparent';
+
+      if (s.tipo==='tri')    { drawTri(ctx,s.x,s.y,s.size,s.angle);    ctx.stroke(); }
+      else if (s.tipo==='square') { drawSquare(ctx,s.x,s.y,s.size,s.angle); ctx.stroke(); }
+      else if (s.tipo==='hex')  { drawHex(ctx,s.x,s.y,s.size,s.angle);    ctx.stroke(); }
+      else if (s.tipo==='tetra'){ drawTetra(ctx,s.x,s.y,s.size,s.angle); }
+
+      ctx.restore();
+    });
+
+    requestAnimationFrame(animate);
+  }
+  animate();
+})();
+
+// ============================================================
 document.addEventListener("DOMContentLoaded", function() {
 
-    const usuariosPermitidos = [
-        "johan",
-        "johan.cardenas",
-        "luis.ramirez",
-        "david.barrios",
-        "nicolas.rodriguez",
-        "sebastian.beleno",
-        "andres.hernandez",
-        "gabriel.mayorga"
+  var usuariosPermitidos = [
+    "johan","johan.cardenas","luis.ramirez","david.barrios",
+    "nicolas.rodriguez","sebastian.beleno","andres.hernandez","gabriel.mayorga"
+  ];
+  var usuarioActivo="", nombreProyecto="", registros=[], fotosActuales=[];
+  var obsIndex=0, fotoIndex=0;
+
+  var siglasProyecto = {
+    'CER FASE II':'CPA','URI NORTE':'URN','URI TUNJUELITO':'URT',
+    'CTP':'CTP','CAMPO VERDE':'CMV','BRIGADA XIII':'BRI','PREDIOS':'AVP'
+  };
+
+  // Colores por disciplina (para gráficas)
+  var coloresDisc = {
+    'Arquitectura':[198,40,40],'Estructura':[21,101,192],'Electrica':[255,160,0],
+    'Hidraulica':[0,150,136],'HVAC':[123,31,162],'RCI':[211,47,47],
+    'Iluminacion':[251,192,45],'Seguridad Electronica':[55,71,79],'Comunicaciones':[46,125,50]
+  };
+
+  function ir(id) {
+    ['pantallaLogin','pantallaSeleccion','pantallaProyecto','pantallaRegistro','pantallaObservaciones']
+      .forEach(function(p){ document.getElementById(p).style.display='none'; });
+    document.getElementById(id).style.display='block';
+  }
+
+  // LOGIN
+  document.getElementById("btnIngresar").addEventListener("click", function() {
+    var u = document.getElementById("usuarioInput").value.trim().toLowerCase();
+    if (usuariosPermitidos.indexOf(u)>=0) {
+      usuarioActivo=u;
+      document.getElementById("usuarioSeleccion").innerText=u;
+      ir('pantallaSeleccion');
+    } else { alert("Usuario no autorizado"); }
+  });
+
+  // CARGAR JSON
+  document.getElementById("inputCargarJSON").addEventListener("change", function(e) {
+    var file=e.target.files[0]; if(!file) return;
+    var reader=new FileReader();
+    reader.onload=function(ev){
+      try {
+        var datos=JSON.parse(ev.target.result);
+        if(datos.registros && Array.isArray(datos.registros)){
+          registros=datos.registros;
+          if(datos.proyecto) nombreProyecto=datos.proyecto;
+          if(datos.usuario)  usuarioActivo=datos.usuario;
+          document.getElementById("nombreProyectoDisplay").innerText=nombreProyecto;
+          document.getElementById("usuarioDisplay").innerText=formatearUsuario(usuarioActivo);
+          actualizarContador();
+          alert("Sesion cargada: "+registros.length+" observaciones del proyecto "+nombreProyecto);
+          ir('pantallaRegistro');
+        } else { alert("Archivo JSON invalido"); }
+      } catch(err){ alert("Error al leer el archivo JSON"); }
+    };
+    reader.readAsText(file); e.target.value="";
+  });
+
+  // Formatea usuario: "johan.cardenas" -> "JOHAN CARDENAS"
+  function formatearUsuario(u) {
+    return u.replace(/\./g,' ').toUpperCase();
+  }
+
+  // NUEVA SESIÓN
+  document.getElementById("btnNuevaSesion").addEventListener("click", function() {
+    registros=[]; fotosActuales=[]; nombreProyecto="";
+    document.getElementById("usuarioActivo").innerText="Usuario: "+formatearUsuario(usuarioActivo);
+    ir('pantallaProyecto');
+  });
+
+  // VOLVER AL LOGIN (pantalla 1)
+  document.getElementById("btnVolverLogin").addEventListener("click", function() {
+    document.getElementById("usuarioInput").value = "";
+    usuarioActivo = "";
+    ir('pantallaLogin');
+  });
+
+  // VOLVER A SELECCIÓN DE MODO (pantalla 1B)
+  document.getElementById("btnVolverSeleccion").addEventListener("click", function() {
+    ir('pantallaSeleccion');
+  });
+
+  // REGRESAR A SELECCIÓN DE PROYECTO (pantalla 2)
+  document.getElementById("btnRegresarProyecto").addEventListener("click", function() {
+    ir('pantallaProyecto');
+  });
+
+  // PROYECTO
+  document.getElementById("btnGuardarProyecto").addEventListener("click", function() {
+    var p=document.getElementById("proyectoInput").value.trim();
+    if(!p){ alert("Debe seleccionar el proyecto"); return; }
+    nombreProyecto=p;
+    document.getElementById("nombreProyectoDisplay").innerText=p;
+    document.getElementById("usuarioDisplay").innerText=formatearUsuario(usuarioActivo);
+    ir('pantallaRegistro');
+  });
+
+  // FOTOS
+  document.getElementById("fotoInput").addEventListener("change",function(e){ manejarFoto(e.target.files[0]); e.target.value=""; });
+  document.getElementById("galeriaInput").addEventListener("change",function(e){ manejarFoto(e.target.files[0]); e.target.value=""; });
+
+  function manejarFoto(file){
+    if(!file) return;
+    if(fotosActuales.length>=4){ alert("Maximo 4 fotos"); return; }
+    if(navigator.geolocation){
+      navigator.geolocation.getCurrentPosition(
+        function(pos){ procesarFoto(file,pos); },
+        function(){     procesarFoto(file,null); }
+      );
+    } else { procesarFoto(file,null); }
+  }
+
+  function procesarFoto(file,position){
+    var reader=new FileReader();
+    reader.onload=function(e){
+      var img=new Image();
+      img.onload=function(){
+        var canvas=document.createElement('canvas');
+        var ctx=canvas.getContext('2d');
+        canvas.width=img.width; canvas.height=img.height;
+        ctx.drawImage(img,0,0);
+        // Marca agua
+        ctx.save();
+        ctx.translate(canvas.width/2,canvas.height/2);
+        ctx.rotate(-45*Math.PI/180);
+        var mws=Math.min(canvas.width,canvas.height)/15;
+        ctx.font='bold '+mws+'px Arial';
+        ctx.fillStyle='rgba(220,220,220,0.45)';
+        ctx.textAlign='center'; ctx.textBaseline='middle';
+        ['SECRETARIA DISTRITAL DE','SEGURIDAD, CONVIVENCIA','Y JUSTICIA'].forEach(function(t,i){
+          ctx.fillText(t,0,(i-1)*mws*1.2);
+        });
+        ctx.restore();
+        // Metadata
+        var f=new Date();
+        var pad=function(n){ return String(n).padStart(2,'0'); };
+        var fs=pad(f.getDate())+'/'+pad(f.getMonth()+1)+'/'+f.getFullYear()+' '+pad(f.getHours())+':'+pad(f.getMinutes());
+        var meta=[fs];
+        if(position) meta.push(position.coords.latitude.toFixed(5)+','+position.coords.longitude.toFixed(5));
+        else meta.push('Sin GPS');
+        meta.push('Bogota, Colombia'); meta.push(nombreProyecto); meta.push('Usuario: '+usuarioActivo);
+        var fsz=Math.min(canvas.width,canvas.height)/40;
+        ctx.textAlign='right'; ctx.font='bold '+fsz+'px Arial';
+        var yp=fsz+40;
+        meta.forEach(function(linea){
+          ctx.fillStyle='rgba(0,0,0,0.75)';
+          ctx.fillText(linea,canvas.width-18,yp+2);
+          ctx.fillText(linea,canvas.width-22,yp+2);
+          ctx.fillStyle='#FFF';
+          ctx.fillText(linea,canvas.width-20,yp);
+          yp+=fsz*1.3;
+        });
+        var dataUrl=canvas.toDataURL('image/jpeg',0.92);
+        fotosActuales.push(dataUrl);
+        actualizarPreviewFotos();
+        try{ var a=document.createElement('a'); a.download='VisitaObra_'+Date.now()+'.jpg'; a.href=dataUrl; document.body.appendChild(a); a.click(); document.body.removeChild(a); }catch(e){}
+      };
+      img.src=e.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function actualizarPreviewFotos(){
+    var cont=document.getElementById("previewFotos");
+    cont.innerHTML="";
+    document.getElementById("labelCantFotos").innerText=fotosActuales.length+" / 4 fotos";
+    fotosActuales.forEach(function(src,i){
+      var div=document.createElement('div'); div.className='foto-item';
+      div.innerHTML='<img src="'+src+'" alt="Foto '+(i+1)+'"><button class="btn-eliminar-foto" onclick="eliminarFotoActual('+i+')">X Eliminar</button>';
+      cont.appendChild(div);
+    });
+  }
+
+  window.eliminarFotoActual=function(i){ fotosActuales.splice(i,1); actualizarPreviewFotos(); };
+
+  // AGREGAR OBSERVACIÓN
+  document.getElementById("btnAgregar").addEventListener("click", function() {
+    var obs=document.getElementById("observacion").value.trim();
+    var dis=document.getElementById("disciplina").value;
+    var lug=document.getElementById("lugar").value.trim();
+    var res=document.getElementById("responsable").value.trim();
+    var imp=document.getElementById("impacto").value;
+    if(fotosActuales.length===0||!obs||!dis||!lug||!res||!imp){ alert("Complete todos los campos y agregue al menos una foto"); return; }
+    registros.push({ usuario:usuarioActivo, proyecto:nombreProyecto, fecha:new Date().toLocaleString('es-CO'),
+      fotos:fotosActuales.slice(), observacion:obs, disciplina:dis, lugar:lug, responsable:res, impacto:imp });
+    actualizarContador(); alert("Observacion agregada"); limpiarFormulario();
+  });
+
+  function limpiarFormulario(){
+    ['observacion','disciplina','lugar','responsable','impacto'].forEach(function(id){ document.getElementById(id).value=""; });
+    document.getElementById("previewFotos").innerHTML="";
+    document.getElementById("labelCantFotos").innerText="0 / 4 fotos";
+    fotosActuales=[];
+  }
+  function actualizarContador(){ document.getElementById("contadorObs").innerText=registros.length; }
+
+  // VER OBSERVACIONES
+  document.getElementById("btnVerObservaciones").addEventListener("click",function(){
+    if(registros.length===0){ alert("No hay observaciones"); return; }
+    document.getElementById("nombreProyectoDisplay2").innerText=nombreProyecto;
+    document.getElementById("totalObs").innerText=registros.length;
+    obsIndex=0; fotoIndex=0;
+    ir('pantallaObservaciones'); renderCarrusel();
+  });
+  document.getElementById("btnVolverRegistro").addEventListener("click",function(){ ir('pantallaRegistro'); actualizarContador(); });
+
+  // CARRUSEL
+  document.getElementById("btnObsAnterior").addEventListener("click",function(){ if(obsIndex>0){obsIndex--;fotoIndex=0;renderCarrusel();} });
+  document.getElementById("btnObsSiguiente").addEventListener("click",function(){ if(obsIndex<registros.length-1){obsIndex++;fotoIndex=0;renderCarrusel();} });
+
+  function renderCarrusel(){
+    var r=registros[obsIndex]; var total=registros.length;
+    var fotos=r.fotos||(r.foto?[r.foto]:[]);
+    document.getElementById("obsIndicador").innerText=(obsIndex+1)+' / '+total;
+    document.getElementById("btnObsAnterior").disabled=(obsIndex===0);
+    document.getElementById("btnObsSiguiente").disabled=(obsIndex===total-1);
+    var ci={'Critico':'impacto-critico','Crítico':'impacto-critico','Alto':'impacto-alto','Medio':'impacto-medio','Bajo':'impacto-bajo'}[r.impacto]||'';
+    var fHTML='';
+    if(fotos.length>0){
+      fHTML='<div class="carrusel-fotos"><img src="'+fotos[fotoIndex]+'" alt="Foto '+(fotoIndex+1)+'">'
+        +'<div class="nav-fotos">'
+        +'<button '+(fotoIndex===0?'disabled':'')+' onclick="cambiarFoto(-1)">&#9664;</button>'
+        +'<span class="foto-indicator">Foto '+(fotoIndex+1)+' de '+fotos.length+'</span>'
+        +'<button '+(fotoIndex===fotos.length-1?'disabled':'')+' onclick="cambiarFoto(1)">&#9654;</button>'
+        +'</div><div class="fotos-barra">'
+        +fotos.map(function(_,i){ return '<span class="'+(i===fotoIndex?'activo':'')+'"></span>'; }).join('')
+        +'</div></div>';
+    }
+    var resp=r.responsable?'<p><strong>Responsable:</strong> '+r.responsable+'</p>':'';
+    actualizarLabelFotosObs(r);
+    document.getElementById("obsCard").innerHTML=
+      '<h3>Observacion #'+(obsIndex+1)+'</h3>'
+      +'<p><strong>Fecha:</strong> '+r.fecha+'</p>'
+      +'<p><strong>Disciplina:</strong> '+r.disciplina+'</p>'
+      +'<p><strong>Lugar:</strong> '+r.lugar+'</p>'
+      +resp
+      +'<p><strong>Impacto:</strong> <span class="'+ci+'">'+r.impacto+'</span></p>'
+      +fHTML
+      +'<p style="margin-top:10px;"><strong>Descripcion:</strong></p><p>'+r.observacion+'</p>'
+      +'<button onclick="toggleEditar('+obsIndex+')" class="btn-small btn-secundario" style="width:auto;margin-top:10px;">Editar observacion</button>'
+      +'<div id="editArea_'+obsIndex+'" class="obs-edit-area">'
+      +'<label>Observacion:</label><textarea id="editObs_'+obsIndex+'" rows="3">'+r.observacion+'</textarea>'
+      +'<label>Disciplina:</label><select id="editDisc_'+obsIndex+'">'
+      +['Arquitectura','Estructura','Electrica','Hidraulica','HVAC','RCI','Iluminacion','Seguridad Electronica','Comunicaciones'].map(function(d){ return '<option '+(d===r.disciplina?'selected':'')+'>'+d+'</option>'; }).join('')
+      +'</select>'
+      +'<label>Lugar:</label><input type="text" id="editLugar_'+obsIndex+'" value="'+r.lugar+'">'
+      +'<label>Responsable:</label><input type="text" id="editResp_'+obsIndex+'" value="'+(r.responsable||'')+'">'
+      +'<label>Impacto:</label><select id="editImpacto_'+obsIndex+'">'
+      +['Bajo','Medio','Alto','Crítico'].map(function(imp){ return '<option '+(imp===r.impacto?'selected':'')+'>'+imp+'</option>'; }).join('')
+      +'</select>'
+      +'<button onclick="guardarEdicion('+obsIndex+')" style="margin-top:6px;">Guardar cambios</button>'
+      +'</div>';
+  }
+
+  window.cambiarFoto=function(dir){ var r=registros[obsIndex]; var fotos=r.fotos||(r.foto?[r.foto]:[]); fotoIndex=Math.max(0,Math.min(fotos.length-1,fotoIndex+dir)); renderCarrusel(); };
+  window.toggleEditar=function(idx){ var a=document.getElementById('editArea_'+idx); if(a) a.classList.toggle('activo'); };
+  window.guardarEdicion=function(idx){
+    registros[idx].observacion=document.getElementById('editObs_'+idx).value.trim();
+    registros[idx].disciplina=document.getElementById('editDisc_'+idx).value;
+    registros[idx].lugar=document.getElementById('editLugar_'+idx).value.trim();
+    registros[idx].responsable=document.getElementById('editResp_'+idx).value.trim();
+    registros[idx].impacto=document.getElementById('editImpacto_'+idx).value;
+    alert("Cambios guardados"); renderCarrusel();
+  };
+
+  // EXPORTAR JSON
+  document.getElementById("btnExportarJSON").addEventListener("click",function(){
+    if(registros.length===0){ alert("No hay registros"); return; }
+    var datos={proyecto:nombreProyecto,usuario:usuarioActivo,fecha:new Date().toLocaleString('es-CO'),registros:registros};
+    var blob=new Blob([JSON.stringify(datos,null,2)],{type:'application/json'});
+    var a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+    a.download='SCJ-VIS-TEC-'+(siglasProyecto[nombreProyecto]||'PRY')+'.json';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  });
+
+  // ============================================================
+  // EXPORTAR PDF
+  // ============================================================
+  // AGREGAR FOTOS A OBSERVACIÓN EXISTENTE
+  function setupAddFotos() {
+    ['addFotoInput','addGaleriaInput'].forEach(function(id) {
+      document.getElementById(id).addEventListener("change", function(e) {
+        var file = e.target.files[0]; if(!file) return;
+        var r = registros[obsIndex];
+        var fotos = r.fotos || (r.foto ? [r.foto] : []);
+        if(fotos.length >= 4) { alert("Esta observacion ya tiene 4 fotos (maximo)"); e.target.value=""; return; }
+        if(navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            function(pos){ procesarFotoObs(file, pos, r); },
+            function(){    procesarFotoObs(file, null, r); }
+          );
+        } else { procesarFotoObs(file, null, r); }
+        e.target.value="";
+      });
+    });
+  }
+  setupAddFotos();
+
+  function procesarFotoObs(file, position, r) {
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      var img = new Image();
+      img.onload = function() {
+        var canvas = document.createElement('canvas');
+        var ctx = canvas.getContext('2d');
+        canvas.width=img.width; canvas.height=img.height;
+        ctx.drawImage(img,0,0);
+        ctx.save();
+        ctx.translate(canvas.width/2,canvas.height/2);
+        ctx.rotate(-45*Math.PI/180);
+        var mws=Math.min(canvas.width,canvas.height)/15;
+        ctx.font='bold '+mws+'px Arial'; ctx.fillStyle='rgba(220,220,220,0.45)';
+        ctx.textAlign='center'; ctx.textBaseline='middle';
+        ['SECRETARIA DISTRITAL DE','SEGURIDAD, CONVIVENCIA','Y JUSTICIA'].forEach(function(t,i){
+          ctx.fillText(t,0,(i-1)*mws*1.2);
+        });
+        ctx.restore();
+        var f=new Date(), pad=function(n){return String(n).padStart(2,'0');};
+        var meta=[pad(f.getDate())+'/'+pad(f.getMonth()+1)+'/'+f.getFullYear()+' '+pad(f.getHours())+':'+pad(f.getMinutes())];
+        if(position) meta.push(position.coords.latitude.toFixed(5)+','+position.coords.longitude.toFixed(5));
+        else meta.push('Sin GPS');
+        meta.push('Bogota, Colombia'); meta.push(nombreProyecto);
+        var fsz=Math.min(canvas.width,canvas.height)/40;
+        ctx.textAlign='right'; ctx.font='bold '+fsz+'px Arial';
+        var yp=fsz+40;
+        meta.forEach(function(linea){
+          ctx.fillStyle='rgba(0,0,0,0.75)'; ctx.fillText(linea,canvas.width-18,yp+2); ctx.fillText(linea,canvas.width-22,yp+2);
+          ctx.fillStyle='#FFF'; ctx.fillText(linea,canvas.width-20,yp); yp+=fsz*1.3;
+        });
+        var dataUrl=canvas.toDataURL('image/jpeg',0.92);
+        if(!r.fotos) r.fotos=[];
+        r.fotos.push(dataUrl);
+        try{ var a=document.createElement('a'); a.download='VisitaObra_'+Date.now()+'.jpg'; a.href=dataUrl; document.body.appendChild(a); a.click(); document.body.removeChild(a); }catch(ex){}
+        fotoIndex=r.fotos.length-1;
+        renderCarrusel();
+        actualizarLabelFotosObs(r);
+      };
+      img.src=e.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function actualizarLabelFotosObs(r) {
+    var fotos=r.fotos||(r.foto?[r.foto]:[]);
+    var lbl=document.getElementById('labelFotosObs');
+    if(lbl) lbl.innerText=fotos.length+' / 4 fotos en esta observación';
+  }
+
+  document.getElementById("btnPDF").addEventListener("click",function(){
+    if(registros.length===0){ alert("No hay registros"); return; }
+    var jsPDF=window.jspdf.jsPDF;
+    var doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+    var pw=210, ph=297, mB=18;
+
+    function enc(){
+      doc.setFillColor(198,40,40); doc.rect(0,0,pw,9,'F');
+      doc.setFontSize(9); doc.setFont(undefined,'bold'); doc.setTextColor(255,255,255);
+      doc.text("SECRETARIA DISTRITAL DE SEGURIDAD, CONVIVENCIA Y JUSTICIA",pw/2,6,{align:'center'});
+      doc.setTextColor(0,0,0);
+    }
+    function pie(pag,total){
+      doc.setDrawColor(180,180,180); doc.setLineWidth(0.3);
+      doc.line(20,ph-13,pw-20,ph-13);
+      doc.setFontSize(8); doc.setTextColor(120,120,120);
+      doc.text("Pagina "+pag+" de "+total,pw/2,ph-8,{align:'center'});
+      doc.setFontSize(7);
+      doc.text("Desarrollado por: Ing. Johan Manuel Cardenas Leal, MSc",pw/2,ph-4,{align:'center'});
+      doc.setTextColor(0,0,0);
+    }
+
+    var totalPags=1+registros.length+1+1; // portada + obs + stats + matriz
+    var y=0;
+
+    // ===== PORTADA - layout con coordenadas absolutas fijas =====
+    enc();
+
+    // La página A4 mide 297mm alto. Encabezado rojo ocupa y=0..9
+    // Distribuimos en 4 zonas verticales bien separadas:
+    // ZONA 1 (y=20..30):  Título
+    // ZONA 2 (y=35..110): Recuadro info proyecto
+    // ZONA 3 (y=118..150): Firmas
+    // ZONA 4 (y=158..200): Secretaria / Direccion / Año
+    // Pie de página en y=280..297
+
+    // ZONA 1 — Título
+    doc.setFontSize(18); doc.setFont(undefined,'bold'); doc.setTextColor(0,0,0);
+    doc.text("REPORTE DE VISITA TECNICA DE OBRA", pw/2, 24, {align:'center'});
+
+    // ZONA 2 — Recuadro (y=32, h=76)
+    doc.setFillColor(252,248,248); doc.setDrawColor(198,40,40); doc.setLineWidth(0.5);
+    doc.roundedRect(18, 30, 174, 80, 3, 3, 'FD');
+
+    doc.setFontSize(11); doc.setFont(undefined,'bold'); doc.setTextColor(198,40,40);
+    doc.text("INFORMACION DEL PROYECTO", 28, 40);
+
+    doc.setFontSize(10); doc.setTextColor(0,0,0);
+    var filas2=[
+      {k:"Proyecto:",      v:nombreProyecto},
+      {k:"Profesional:",   v:formatearUsuario(usuarioActivo)},
+      {k:"Rol:",           v:"Contratista Apoyo a la Supervision Tecnica"},
+      {k:"Fecha:",         v:new Date().toLocaleString('es-CO')},
+      {k:"Observaciones:", v:String(registros.length)}
     ];
-    let usuarioActivo = "";
-    let nombreProyecto = "";
-    let registros = [];
-    let fotoConMetadata = null;
-
-    // PANTALLA 1: LOGIN
-    document.getElementById("btnIngresar").addEventListener("click", function() {
-
-        const usuario = document
-            .getElementById("usuarioInput")
-            .value
-            .trim()
-            .toLowerCase();
-
-        if (usuariosPermitidos.includes(usuario)) {
-
-            usuarioActivo = usuario;
-
-            document.getElementById("pantallaLogin").style.display = "none";
-            document.getElementById("pantallaProyecto").style.display = "block";
-
-            document.getElementById("usuarioActivo").innerText =
-                "Usuario: " + usuarioActivo;
-
-        } else {
-            alert("Usuario no autorizado");
-        }
-
+    var ry2=50;
+    filas2.forEach(function(f){
+      doc.setFont(undefined,'bold');   doc.text(f.k, 28, ry2);
+      doc.setFont(undefined,'normal'); doc.text(f.v, 68, ry2);
+      ry2+=10;
     });
 
-    // PANTALLA 2: NOMBRE DEL PROYECTO
-    document.getElementById("btnGuardarProyecto").addEventListener("click", function() {
+    // ZONA 3 — Firmas (fijas en y=122)
+    doc.setDrawColor(220,220,220); doc.setLineWidth(0.3);
+    doc.line(30, 117, 180, 117);
 
-        const proyecto = document.getElementById("proyectoInput").value.trim();
+    doc.setFontSize(9); doc.setFont(undefined,'bold'); doc.setTextColor(0,0,0);
+    doc.text("ING. RICHARD OSVALDO GONZALEZ VERA", pw/2, 126, {align:'center'});
+    doc.setFont(undefined,'normal'); doc.setFontSize(8);
+    doc.text("DIRECTOR DE BIENES", pw/2, 132, {align:'center'});
 
-        if (!proyecto) {
-            alert("Debe ingresar el nombre del proyecto");
-            return;
-        }
+    doc.setFont(undefined,'bold'); doc.setFontSize(9);
+    doc.text("DRA. NATALIA ROMAN DUQUE", pw/2, 144, {align:'center'});
+    doc.setFont(undefined,'normal'); doc.setFontSize(7.5);
+    doc.text("SUBSECRETARIA DE INVERSIONES Y FORTALECIMIENTO DE CAPACIDADES OPERATIVAS", pw/2, 150, {align:'center'});
 
-        nombreProyecto = proyecto;
+    // ZONA 4 — Secretaria / Direccion / Año (fijas en y=162)
+    doc.setDrawColor(198,40,40); doc.setLineWidth(0.6);
+    doc.line(30, 158, 180, 158);
 
-        document.getElementById("pantallaProyecto").style.display = "none";
-        document.getElementById("pantallaRegistro").style.display = "block";
+    doc.setFontSize(12); doc.setFont(undefined,'bold'); doc.setTextColor(198,40,40);
+    doc.text("SECRETARIA DISTRITAL DE SEGURIDAD,", pw/2, 168, {align:'center'});
+    doc.text("CONVIVENCIA Y JUSTICIA",              pw/2, 176, {align:'center'});
 
-        document.getElementById("nombreProyectoDisplay").innerText = nombreProyecto;
-        document.getElementById("usuarioDisplay").innerText = usuarioActivo;
+    doc.setFontSize(11); doc.setFont(undefined,'normal'); doc.setTextColor(0,0,0);
+    doc.text("Direccion de Bienes", pw/2, 186, {align:'center'});
+    doc.setFont(undefined,'bold'); doc.setFontSize(14);
+    doc.text("2026", pw/2, 195, {align:'center'});
 
+    pie(1,totalPags);
+
+    // ===== OBSERVACIONES =====
+    registros.forEach(function(r,idx){
+      doc.addPage(); enc();
+      var pag=idx+2; y=18;
+      // Título
+      doc.setFillColor(198,40,40); doc.rect(10,y,190,11,'F');
+      doc.setFontSize(12); doc.setFont(undefined,'bold'); doc.setTextColor(255,255,255);
+      doc.text("OBSERVACION #"+(idx+1),15,y+7.5); doc.setTextColor(0,0,0); y+=17;
+
+      var fotos=r.fotos||(r.foto?[r.foto]:[]);
+      var nFotos=Math.min(fotos.length,4);
+      var lugarLines=doc.splitTextToSize(r.lugar||'-',150);
+      var infoH=52+(lugarLines.length-1)*5;
+
+      doc.setFillColor(250,250,250); doc.setDrawColor(220,220,220); doc.setLineWidth(0.3);
+      doc.roundedRect(10,y,190,infoH,2,2,'FD'); y+=7;
+
+      doc.setFontSize(9.5);
+      [["Fecha:",r.fecha],["Usuario:",r.usuario]].forEach(function(kv){
+        doc.setFont(undefined,'bold'); doc.text(kv[0],15,y);
+        doc.setFont(undefined,'normal'); doc.text(kv[1],35,y); y+=6;
+      });
+      doc.setFont(undefined,'bold'); doc.text("Disciplina:",15,y);
+      doc.setFont(undefined,'normal'); doc.text(r.disciplina,38,y);
+      doc.setFont(undefined,'bold'); doc.text("Impacto:",115,y);
+      var ci={'Critico':[198,40,40],'Crítico':[198,40,40],'Alto':[255,140,0],'Medio':[200,140,0],'Bajo':[46,125,50]}[r.impacto]||[0,0,0];
+      doc.setTextColor(ci[0],ci[1],ci[2]); doc.setFont(undefined,'bold');
+      doc.text(r.impacto,133,y); doc.setTextColor(0,0,0); y+=6;
+      doc.setFont(undefined,'bold'); doc.text("Responsable:",15,y);
+      doc.setFont(undefined,'normal'); doc.text(r.responsable||'-',43,y); y+=6;
+      doc.setFont(undefined,'bold'); doc.text("Lugar:",15,y);
+      doc.setFont(undefined,'normal'); doc.text(lugarLines,32,y);
+      y+=6+(lugarLines.length-1)*5+8;
+
+      // ===== FOTOS LAYOUT =====
+      var limitY=ph-mB-16;
+
+      if(nFotos===1){
+        var iw=178, ih=130, ix=(pw-iw)/2;
+        doc.setDrawColor(200,200,200); doc.setLineWidth(0.5);
+        doc.rect(ix,y,iw,ih,'S');
+        try{ doc.addImage(fotos[0],"JPEG",ix,y,iw,ih); }catch(e){}
+        y+=ih+8;
+      }
+      else if(nFotos===2){
+        // Izquierda | Derecha
+        var iw=89, ih=67;
+        [[11,y],[111,y]].forEach(function(pos,i){
+          doc.setDrawColor(200,200,200); doc.rect(pos[0],pos[1],iw,ih,'S');
+          try{ doc.addImage(fotos[i],"JPEG",pos[0],pos[1],iw,ih); }catch(e){}
+        });
+        y+=ih+8;
+      }
+      else if(nFotos===3){
+        // Fila 1: Izquierda | Derecha
+        var iw=89, ih=67;
+        [[11,y],[111,y]].forEach(function(pos,i){
+          doc.setDrawColor(200,200,200); doc.rect(pos[0],pos[1],iw,ih,'S');
+          try{ doc.addImage(fotos[i],"JPEG",pos[0],pos[1],iw,ih); }catch(e){}
+        });
+        y+=ih+5;
+        // Fila 2: centrada
+        var iw2=89, ih2=67, ix2=(pw-iw2)/2;
+        doc.setDrawColor(200,200,200); doc.rect(ix2,y,iw2,ih2,'S');
+        try{ doc.addImage(fotos[2],"JPEG",ix2,y,iw2,ih2); }catch(e){}
+        y+=ih2+8;
+      }
+      else if(nFotos===4){
+        // 2x2 grid
+        var iw=89, ih=63;
+        [[11,y],[111,y]].forEach(function(pos,i){
+          doc.setDrawColor(200,200,200); doc.rect(pos[0],pos[1],iw,ih,'S');
+          try{ doc.addImage(fotos[i],"JPEG",pos[0],pos[1],iw,ih); }catch(e){}
+        });
+        y+=ih+4;
+        [[11,y],[111,y]].forEach(function(pos,i){
+          doc.setDrawColor(200,200,200); doc.rect(pos[0],pos[1],iw,ih,'S');
+          try{ doc.addImage(fotos[i+2],"JPEG",pos[0],pos[1],iw,ih); }catch(e){}
+        });
+        y+=ih+8;
+      }
+
+      // Observación
+      var obsLines=doc.splitTextToSize(r.observacion||'-',175);
+      if(y+25>limitY){ doc.addPage(); enc(); y=18; }
+      var availH=limitY-y;
+      doc.setFillColor(250,250,250); doc.setDrawColor(220,220,220);
+      doc.roundedRect(10,y,190,availH,2,2,'FD'); y+=9;
+      doc.setFont(undefined,'bold'); doc.setFontSize(10.5);
+      doc.text("OBSERVACION:",15,y); y+=6;
+      doc.setFont(undefined,'normal'); doc.setFontSize(10);
+      doc.text(obsLines,15,y);
+      pie(pag,totalPags);
     });
 
-    // CAPTURA DE FOTO CON GEOLOCALIZACIÓN
-    document.getElementById("fotoInput").addEventListener("change", function(e) {
-        
-        const file = e.target.files[0];
-        if (!file) return;
+    // ===== ESTADÍSTICAS =====
+    doc.addPage(); enc();
+    var pagEst=registros.length+2; y=18;
+    doc.setFillColor(198,40,40); doc.rect(10,y,190,11,'F');
+    doc.setFontSize(12); doc.setFont(undefined,'bold'); doc.setTextColor(255,255,255);
+    doc.text("ESTADISTICAS DEL PROYECTO",pw/2,y+7.5,{align:'center'});
+    doc.setTextColor(0,0,0); y+=20;
 
-        // Obtener geolocalización
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-                function(position) {
-                    procesarFotoConGeo(file, position);
-                },
-                function(error) {
-                    console.error("Error al obtener ubicación:", error);
-                    procesarFotoConGeo(file, null);
-                }
-            );
-        } else {
-            procesarFotoConGeo(file, null);
-        }
+    var porDisc={}, porImp={}, porDI={};
+    registros.forEach(function(r){
+      porDisc[r.disciplina]=(porDisc[r.disciplina]||0)+1;
+      porImp[r.impacto]=(porImp[r.impacto]||0)+1;
+      var k=r.disciplina+'-'+r.impacto; porDI[k]=(porDI[k]||0)+1;
     });
 
-    function procesarFotoConGeo(file, position) {
-        
-        const reader = new FileReader();
-        
-        reader.onload = function(e) {
-            
-            const img = new Image();
-            img.onload = function() {
-                
-                // Crear canvas para agregar metadata
-                const canvas = document.createElement('canvas');
-                const ctx = canvas.getContext('2d');
-                
-                canvas.width = img.width;
-                canvas.height = img.height;
-                
-                // Dibujar imagen original
-                ctx.drawImage(img, 0, 0);
-                
-                // ========== MARCA DE AGUA DIAGONAL CENTRAL (MUY VISIBLE) ==========
-                ctx.save();
-                ctx.translate(canvas.width / 2, canvas.height / 2);
-                ctx.rotate(-45 * Math.PI / 180);
-                
-                // Tamaño basado en el ancho de la imagen
-                const marcaAguaSize = Math.min(canvas.width, canvas.height) / 15;
-                ctx.font = `bold ${marcaAguaSize}px Arial`;
-                ctx.fillStyle = 'rgba(220, 220, 220, 0.5)'; // Gris muy claro, más visible
-                ctx.strokeStyle = 'rgba(180, 180, 180, 0.3)'; // Contorno gris
-                ctx.lineWidth = 2;
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                
-                const marcaAgua1 = 'SECRETARIA DISTRITAL DE';
-                const marcaAgua2 = 'SEGURIDAD, CONVIVENCIA';
-                const marcaAgua3 = 'Y JUSTICIA';
-                
-                const lineSpacing = marcaAguaSize * 1.2;
-                
-                // Dibujar con contorno para mayor visibilidad
-                ctx.strokeText(marcaAgua1, 0, -lineSpacing);
-                ctx.fillText(marcaAgua1, 0, -lineSpacing);
-                
-                ctx.strokeText(marcaAgua2, 0, 0);
-                ctx.fillText(marcaAgua2, 0, 0);
-                
-                ctx.strokeText(marcaAgua3, 0, lineSpacing);
-                ctx.fillText(marcaAgua3, 0, lineSpacing);
-                
-                ctx.restore();
-                
-                // ========== PREPARAR METADATA PARA ESQUINA SUPERIOR DERECHA ==========
-                const fecha = new Date();
-                const dia = String(fecha.getDate()).padStart(2, '0');
-                const mes = String(fecha.getMonth() + 1).padStart(2, '0');
-                const año = fecha.getFullYear();
-                const horas = String(fecha.getHours()).padStart(2, '0');
-                const minutos = String(fecha.getMinutes()).padStart(2, '0');
-                const segundos = String(fecha.getSeconds()).padStart(2, '0');
-                
-                const fechaStr = `${dia}/${mes}/${año}, ${horas}:${minutos}:${segundos} a.m.`;
-                
-                let metadataTexto = [fechaStr];
-                
-                if (position) {
-                    const lat = position.coords.latitude.toFixed(7);
-                    const lon = position.coords.longitude.toFixed(7);
-                    metadataTexto.push(`+${lat},${lon}`);
-                    metadataTexto.push(`Carrera 8A 51-23`);
-                } else {
-                    metadataTexto.push(`Sin GPS`);
-                    metadataTexto.push(`Carrera 8A 51-23`);
-                }
-                
-                metadataTexto.push(`110621`);
-                metadataTexto.push(`Bogotá`);
-                metadataTexto.push(`Colombia`);
-                metadataTexto.push(`${nombreProyecto}`);
-                metadataTexto.push(`Usuario: ${usuarioActivo}`);
-                
-                // ========== DIBUJAR ESTAMPA SIN FONDO - SOLO TEXTO BLANCO CON SOMBRA ==========
-                const fontSize = Math.min(canvas.width, canvas.height) / 40; // Tamaño proporcional
-                const lineHeight = fontSize * 1.3;
-                const padding = 20;
-                
-                // Posición en esquina superior derecha (MÁS ABAJO para que no se corte)
-                const startX = canvas.width - 20;
-                let yPos = fontSize + 40; // Comenzar más abajo
-                
-                // Configurar texto blanco grande con sombra negra para visibilidad
-                ctx.textAlign = 'right';
-                ctx.font = `bold ${fontSize}px Arial`;
-                
-                // Dibujar cada línea con sombra
-                metadataTexto.forEach(linea => {
-                    // Sombra negra (para que se vea sobre cualquier fondo)
-                    ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
-                    ctx.fillText(linea, startX + 2, yPos + 2);
-                    ctx.fillText(linea, startX - 2, yPos + 2);
-                    ctx.fillText(linea, startX + 2, yPos - 2);
-                    ctx.fillText(linea, startX - 2, yPos - 2);
-                    
-                    // Texto blanco principal
-                    ctx.fillStyle = '#FFFFFF';
-                    ctx.fillText(linea, startX, yPos);
-                    
-                    yPos += lineHeight;
-                });
-                
-                // Guardar imagen con metadata
-                fotoConMetadata = canvas.toDataURL('image/jpeg', 0.95);
-                
-                // ========== GUARDAR FOTO EN EL CELULAR ==========
-                try {
-                    const link = document.createElement('a');
-                    const timestamp = new Date().getTime();
-                    link.download = `Visita_Obra_${timestamp}.jpg`;
-                    link.href = fotoConMetadata;
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                    console.log("Foto guardada en el dispositivo");
-                } catch (error) {
-                    console.error("Error al guardar foto:", error);
-                }
-                
-                // Mostrar preview
-                const preview = document.getElementById("previewFoto");
-                preview.innerHTML = `<img src="${fotoConMetadata}" alt="Vista previa">`;
-                preview.style.display = 'block';
-            };
-            
-            img.src = e.target.result;
-        };
-        
-        reader.readAsDataURL(file);
+    // --- Gráfica 1: Barras por Disciplina con color propio ---
+    doc.setFontSize(10); doc.setFont(undefined,'bold');
+    doc.text("Observaciones por Disciplina",pw/2,y,{align:'center'}); y+=8;
+
+    var discKeys=Object.keys(porDisc);
+    var maxC=Math.max(1,Math.max.apply(null,discKeys.map(function(k){ return porDisc[k]; })));
+    var bw=Math.min(18, Math.floor(170/Math.max(discKeys.length,1))-3);
+    var maxBH=38;
+    var totalBW=discKeys.length*(bw+3)-3;
+    var xb=(pw-totalBW)/2;
+
+    discKeys.forEach(function(d){
+      var c=porDisc[d];
+      var bh=(c/maxC)*maxBH;
+      var col=coloresDisc[d]||[100,100,100];
+      doc.setFillColor(col[0],col[1],col[2]);
+      doc.rect(xb,y+maxBH-bh,bw,bh,'F');
+      doc.setFontSize(7); doc.setFont(undefined,'bold'); doc.setTextColor(col[0],col[1],col[2]);
+      doc.text(String(c),xb+bw/2,y+maxBH-bh-2,{align:'center'});
+      doc.setTextColor(80,80,80); doc.setFont(undefined,'normal'); doc.setFontSize(5.5);
+      var lbl=doc.splitTextToSize(d,bw+4);
+      lbl.forEach(function(l,li){ doc.text(l,xb+bw/2,y+maxBH+4+li*3.5,{align:'center'}); });
+      xb+=bw+3;
+    });
+    doc.setTextColor(0,0,0); y+=maxBH+18;
+
+    // --- Gráfica 2: Barras agrupadas por Impacto/Disciplina ---
+    doc.setFontSize(10); doc.setFont(undefined,'bold');
+    doc.text("Observaciones por Impacto segun Disciplina",pw/2,y,{align:'center'}); y+=8;
+
+    var impactos=['Bajo','Medio','Alto','Crítico'];
+    var colImpacto={'Bajo':[46,125,50],'Medio':[200,140,0],'Alto':[255,140,0],'Crítico':[198,40,40]};
+    var bwImp=Math.min(14, Math.floor(170/(discKeys.length*impactos.length+impactos.length)));
+    var gap=4;
+    var groupW=discKeys.length*bwImp;
+    var totalImpW=impactos.length*(groupW+gap)-gap;
+    var xi=(pw-totalImpW)/2;
+    var maxBH2=35;
+    var maxCI=Math.max(1,Math.max.apply(null,Object.values(porDI)));
+
+    impactos.forEach(function(imp){
+      // Label impacto centrado sobre el grupo
+      var col=colImpacto[imp];
+      doc.setFontSize(6); doc.setFont(undefined,'bold'); doc.setTextColor(col[0],col[1],col[2]);
+      doc.text(imp,xi+groupW/2,y+maxBH2+5,{align:'center'});
+      doc.setTextColor(0,0,0);
+      discKeys.forEach(function(d,di){
+        var k=d+'-'+imp; var cnt=porDI[k]||0;
+        var bh=(cnt/maxCI)*maxBH2;
+        var dc=coloresDisc[d]||[100,100,100];
+        doc.setFillColor(dc[0],dc[1],dc[2]);
+        if(bh>0){
+          doc.rect(xi+di*bwImp,y+maxBH2-bh,bwImp-1,bh,'F');
+          doc.setFontSize(5.5); doc.setFont(undefined,'bold');
+          doc.setTextColor(dc[0],dc[1],dc[2]);
+          doc.text(String(cnt),xi+di*bwImp+(bwImp-1)/2,y+maxBH2-bh-1.5,{align:'center'});
+          doc.setTextColor(0,0,0);
+        }
+      });
+      xi+=groupW+gap;
+    });
+
+    y+=maxBH2+14;
+
+    // Leyenda disciplinas
+    doc.setFontSize(7); doc.setFont(undefined,'normal'); doc.setTextColor(60,60,60);
+    var lx=12; var ly=y;
+    discKeys.forEach(function(d,i){
+      var col=coloresDisc[d]||[100,100,100];
+      doc.setFillColor(col[0],col[1],col[2]);
+      doc.rect(lx,ly-3,5,4,'F');
+      doc.setTextColor(40,40,40);
+      doc.text(d,lx+6,ly);
+      lx+=doc.getTextWidth(d)+14;
+      if(lx>185){ lx=12; ly+=6; }
+    });
+    y=ly+8; doc.setTextColor(0,0,0);
+
+    // Tabla disc x impacto
+    doc.setFontSize(10); doc.setFont(undefined,'bold');
+    doc.text("Detalle: Disciplina vs Impacto",pw/2,y,{align:'center'}); y+=8;
+    var tCols=['Disciplina','Bajo','Medio','Alto','Critico'];
+    var tCws=[80,27,27,27,27]; var tsx=12; var tRowH=8;
+    // Encabezado tabla
+    doc.setFillColor(50,50,50); doc.rect(tsx,y-5,188,tRowH,'F');
+    var cx=tsx+1;
+    tCols.forEach(function(c,i){
+      doc.setFont(undefined,'bold'); doc.setFontSize(8.5); doc.setTextColor(255,255,255);
+      doc.text(c,cx+tCws[i]/2,y,{align:'center'}); cx+=tCws[i];
+    });
+    doc.setTextColor(0,0,0); y+=tRowH-2;
+    doc.setDrawColor(180,180,180); doc.setLineWidth(0.2); doc.line(tsx,y,200,y); y+=3;
+
+    discKeys.forEach(function(disc,ri){
+      if(ri%2===0){ doc.setFillColor(250,244,244); doc.rect(tsx,y-4,188,tRowH,'F'); }
+      cx=tsx+1;
+      var vals=[disc,porDI[disc+'-Bajo']||0,porDI[disc+'-Medio']||0,porDI[disc+'-Alto']||0,(porDI[disc+'-Critico']||0)+(porDI[disc+'-Crítico']||0)];
+      vals.forEach(function(v,i){
+        doc.setFont(undefined,i===0?'normal':'bold'); doc.setFontSize(8.5); doc.setTextColor(0,0,0);
+        if(i>0){
+          var num=Number(v);
+          if(num>0){
+            var tc=i===1?[46,125,50]:i===2?[200,140,0]:i===3?[255,140,0]:[198,40,40];
+            doc.setTextColor(tc[0],tc[1],tc[2]);
+          }
+        }
+        doc.text(String(v),cx+tCws[i]/2,y,{align:'center'}); cx+=tCws[i];
+      });
+      doc.setTextColor(0,0,0); y+=tRowH;
+      doc.setDrawColor(220,220,220); doc.line(tsx,y-2,200,y-2);
+    });
+    pie(pagEst,totalPags);
+
+    // ===== MATRIZ GENERAL =====
+    doc.addPage(); enc();
+    var pagMat=registros.length+3; y=16;
+
+    doc.setFillColor(40,40,40); doc.rect(10,y,190,11,'F');
+    doc.setFontSize(12); doc.setFont(undefined,'bold'); doc.setTextColor(255,255,255);
+    doc.text("MATRIZ GENERAL DE OBSERVACIONES",pw/2,y+7.5,{align:'center'});
+    doc.setTextColor(0,0,0); y+=15;
+
+    // Definición columnas (total ancho=190, desde x=10 hasta x=200)
+    // #  | Disc | Resp | Imp | Lugar | Observacion
+    var mDefs=[
+      {label:'#',        w:10},
+      {label:'Disciplina', w:30},
+      {label:'Responsable',w:35},
+      {label:'Impacto',  w:20},
+      {label:'Ubicacion',w:38},
+      {label:'Descripcion',w:57}
+    ]; // suma=190
+    var mStartX=10;
+    var limitMat=ph-mB-16;
+    var mRowH=7;
+
+    function drawTableHeader(yy){
+      var cx=mStartX;
+      // Fondo encabezado
+      doc.setFillColor(30,30,30); doc.rect(mStartX,yy-5,190,mRowH+1,'F');
+      // Texto encabezados
+      mDefs.forEach(function(col){
+        doc.setFont(undefined,'bold'); doc.setFontSize(7); doc.setTextColor(255,255,255);
+        doc.text(col.label, cx+col.w/2, yy, {align:'center'});
+        cx+=col.w;
+      });
+      doc.setTextColor(0,0,0);
+      // Línea debajo
+      doc.setDrawColor(80,80,80); doc.setLineWidth(0.5);
+      doc.line(mStartX,yy+2,mStartX+190,yy+2);
+      // Líneas verticales encabezado
+      var vx=mStartX;
+      doc.setDrawColor(80,80,80); doc.setLineWidth(0.3);
+      mDefs.forEach(function(col){ doc.line(vx,yy-5,vx,yy+3); vx+=col.w; });
+      doc.line(vx,yy-5,vx,yy+3);
+      return yy+5;
     }
 
-    // AGREGAR REGISTRO
-    document.getElementById("btnAgregar").addEventListener("click", function() {
+    function drawRow(r, idx, yy){
+      var fotos=r.fotos||(r.foto?[r.foto]:[]);
+      var descWrap =doc.splitTextToSize(r.observacion||'-', mDefs[5].w-3);
+      var lugarWrap=doc.splitTextToSize(r.lugar||'-',       mDefs[4].w-3);
+      var respWrap =doc.splitTextToSize(r.responsable||'-', mDefs[2].w-3);
+      var discWrap =doc.splitTextToSize(r.disciplina||'-',  mDefs[1].w-3);
+      var maxL=Math.max(descWrap.length,lugarWrap.length,respWrap.length,discWrap.length,1);
+      var rH=Math.max(mRowH, maxL*4.2+4);
 
-        const obs = document.getElementById("observacion").value.trim();
-        const disciplina = document.getElementById("disciplina").value;
-        const lugar = document.getElementById("lugar").value.trim();
-        const impacto = document.getElementById("impacto").value;
+      // Fondo alternado
+      if(idx%2===0){ doc.setFillColor(252,246,246); } else { doc.setFillColor(255,255,255); }
+      doc.rect(mStartX,yy,190,rH,'F');
 
-        if (!fotoConMetadata || !obs || !disciplina || !lugar || !impacto) {
-            alert("Debe completar todos los campos y tomar una foto");
-            return;
-        }
+      var cellY=yy+3.5;
+      var cx=mStartX;
+      var colImpFill={'Critico':[198,40,40],'Crítico':[198,40,40],'Alto':[255,140,0],'Medio':[200,140,0],'Bajo':[46,125,50]}[r.impacto]||[0,0,0];
 
-        const registro = {
-            usuario: usuarioActivo,
-            proyecto: nombreProyecto,
-            fecha: new Date().toLocaleString('es-CO'),
-            foto: fotoConMetadata,
-            observacion: obs,
-            disciplina: disciplina,
-            lugar: lugar,
-            impacto: impacto
-        };
+      // # numero
+      doc.setFont(undefined,'bold'); doc.setFontSize(7); doc.setTextColor(80,80,80);
+      doc.text(String(idx+1), cx+mDefs[0].w/2, cellY, {align:'center'}); cx+=mDefs[0].w;
 
-        registros.push(registro);
-        
-        // Actualizar contador
-        document.getElementById("contadorObs").innerText = registros.length;
-        
-        alert("Observación agregada exitosamente");
-        limpiarFormulario();
-    });
+      // Disciplina
+      var dc=coloresDisc[r.disciplina]||[0,0,0];
+      doc.setFont(undefined,'bold'); doc.setFontSize(6.5); doc.setTextColor(dc[0],dc[1],dc[2]);
+      doc.text(discWrap, cx+2, cellY); cx+=mDefs[1].w;
 
-    function limpiarFormulario() {
-        document.getElementById("fotoInput").value = "";
-        document.getElementById("observacion").value = "";
-        document.getElementById("disciplina").value = "";
-        document.getElementById("lugar").value = "";
-        document.getElementById("impacto").value = "";
-        document.getElementById("previewFoto").style.display = "none";
-        fotoConMetadata = null;
+      // Responsable
+      doc.setFont(undefined,'normal'); doc.setFontSize(6.5); doc.setTextColor(40,40,40);
+      doc.text(respWrap, cx+2, cellY); cx+=mDefs[2].w;
+
+      // Impacto (badge con fondo de color)
+      doc.setFillColor(colImpFill[0],colImpFill[1],colImpFill[2]);
+      doc.roundedRect(cx+1,yy+1.5,mDefs[3].w-2,5,1,1,'F');
+      doc.setFont(undefined,'bold'); doc.setFontSize(6.5); doc.setTextColor(255,255,255);
+      doc.text(r.impacto||'-', cx+mDefs[3].w/2, yy+5, {align:'center'}); cx+=mDefs[3].w;
+      doc.setTextColor(40,40,40);
+
+      // Ubicacion
+      doc.setFont(undefined,'normal'); doc.setFontSize(6.5);
+      doc.text(lugarWrap, cx+2, cellY); cx+=mDefs[4].w;
+
+      // Descripcion
+      doc.setFont(undefined,'normal'); doc.setFontSize(6.5);
+      doc.text(descWrap, cx+2, cellY);
+
+      // Líneas verticales de la fila
+      var vx=mStartX;
+      doc.setDrawColor(210,210,210); doc.setLineWidth(0.2);
+      mDefs.forEach(function(col){ doc.line(vx,yy,vx,yy+rH); vx+=col.w; });
+      doc.line(vx,yy,vx,yy+rH);
+
+      // Línea horizontal inferior
+      doc.setDrawColor(200,200,200); doc.line(mStartX,yy+rH,mStartX+190,yy+rH);
+
+      doc.setTextColor(0,0,0);
+      return yy+rH;
     }
 
-    // VER OBSERVACIONES
-    document.getElementById("btnVerObservaciones").addEventListener("click", function() {
-        
-        if (registros.length === 0) {
-            alert("No hay observaciones registradas aún");
-            return;
-        }
-        
-        document.getElementById("pantallaRegistro").style.display = "none";
-        document.getElementById("pantallaObservaciones").style.display = "block";
-        
-        document.getElementById("nombreProyectoDisplay2").innerText = nombreProyecto;
-        document.getElementById("totalObs").innerText = registros.length;
-        
-        mostrarRegistros();
+    y=drawTableHeader(y);
+
+    registros.forEach(function(r,idx){
+      // Estimar altura necesaria
+      var descWrap =doc.splitTextToSize(r.observacion||'-', mDefs[5].w-3);
+      var lugarWrap=doc.splitTextToSize(r.lugar||'-',       mDefs[4].w-3);
+      var respWrap =doc.splitTextToSize(r.responsable||'-', mDefs[2].w-3);
+      var discWrap =doc.splitTextToSize(r.disciplina||'-',  mDefs[1].w-3);
+      var maxL=Math.max(descWrap.length,lugarWrap.length,respWrap.length,discWrap.length,1);
+      var rH=Math.max(mRowH,maxL*4.2+4);
+
+      if(y+rH>limitMat){
+        pie(pagMat,totalPags); pagMat++;
+        doc.addPage(); enc(); y=16;
+        doc.setFillColor(40,40,40); doc.rect(10,y,190,11,'F');
+        doc.setFontSize(10); doc.setFont(undefined,'bold'); doc.setTextColor(255,255,255);
+        doc.text("MATRIZ GENERAL - continuacion",pw/2,y+7.5,{align:'center'});
+        doc.setTextColor(0,0,0); y+=15;
+        y=drawTableHeader(y);
+      }
+      y=drawRow(r,idx,y);
     });
 
-    // VOLVER A REGISTRO
-    document.getElementById("btnVolverRegistro").addEventListener("click", function() {
-        document.getElementById("pantallaObservaciones").style.display = "none";
-        document.getElementById("pantallaRegistro").style.display = "block";
-    });
+    pie(pagMat,totalPags);
 
-    function mostrarRegistros() {
-
-        const contenedor = document.getElementById("listaRegistros");
-        contenedor.innerHTML = "";
-
-        if (registros.length === 0) {
-            contenedor.innerHTML = "<p>No hay observaciones registradas</p>";
-            return;
-        }
-
-        registros.forEach((r, index) => {
-
-            contenedor.innerHTML += `
-                <div class="registro-card">
-                    <h3>Observación #${index + 1}</h3>
-                    <p><strong>Fecha:</strong> ${r.fecha}</p>
-                    <p><strong>Disciplina:</strong> ${r.disciplina}</p>
-                    <p><strong>Lugar:</strong> ${r.lugar}</p>
-                    <p><strong>Impacto:</strong> ${r.impacto}</p>
-                    <p><strong>Descripción:</strong></p>
-                    <p>${r.observacion}</p>
-                    <img src="${r.foto}" alt="Foto observación ${index + 1}">
-                </div>
-            `;
-        });
-    }
-
-    // EXPORTAR PDF MEJORADO CON DISEÑO PROFESIONAL
-    document.getElementById("btnPDF").addEventListener("click", function() {
-
-        if (registros.length === 0) {
-            alert("No hay registros para exportar");
-            return;
-        }
-
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-        const pageHeight = 280;
-        let y = 20;
-
-        // Función para agregar encabezado en cada página
-        function agregarEncabezado(doc, numeroPagina) {
-            // Línea superior roja
-            doc.setFillColor(198, 40, 40);
-            doc.rect(0, 0, 210, 8, 'F');
-            
-            // Título en la línea roja
-            doc.setFontSize(10);
-            doc.setTextColor(255, 255, 255);
-            doc.setFont(undefined, 'bold');
-            doc.text("SECRETARIA DISTRITAL DE SEGURIDAD, CONVIVENCIA Y JUSTICIA", 105, 5, { align: 'center' });
-            
-            // Restaurar color negro
-            doc.setTextColor(0, 0, 0);
-        }
-
-        // Función para agregar pie de página
-        function agregarPiePagina(doc, numeroPagina, totalPaginas) {
-            // Línea inferior gris
-            doc.setDrawColor(180, 180, 180);
-            doc.setLineWidth(0.5);
-            doc.line(20, 285, 190, 285);
-            
-            // Número de página
-            doc.setFontSize(9);
-            doc.setTextColor(100, 100, 100);
-            doc.text(`Página ${numeroPagina} de ${totalPaginas}`, 105, 290, { align: 'center' });
-            
-            // Créditos del desarrollador
-            doc.setFontSize(8);
-            doc.setTextColor(150, 150, 150);
-            doc.text("Desarrollado por: Ing. Johan Manuel Cardenas Leal, MSc", 105, 295, { align: 'center' });
-            
-            doc.setTextColor(0, 0, 0);
-        }
-
-        // Calcular total de páginas (portada + 1 por registro)
-        const totalPaginas = 1 + registros.length;
-
-        // ========== PORTADA ==========
-        agregarEncabezado(doc, 1);
-        
-        y = 30;
-        
-        // Título principal
-        doc.setFontSize(22);
-        doc.setFont(undefined, 'bold');
-        doc.setTextColor(0, 0, 0);
-        doc.text("REPORTE DE VISITA TÉCNICA DE OBRA", 105, y, { align: 'center' });
-        
-        y += 12;
-        
-        // Secretaría en rojo
-        doc.setFontSize(14);
-        doc.setTextColor(198, 40, 40);
-        doc.text("SECRETARIA DISTRITAL DE SEGURIDAD,", 105, y, { align: 'center' });
-        y += 6;
-        doc.text("CONVIVENCIA Y JUSTICIA", 105, y, { align: 'center' });
-        
-        y += 10;
-        
-        // Dirección de Bienes
-        doc.setFontSize(12);
-        doc.setTextColor(0, 0, 0);
-        doc.setFont(undefined, 'normal');
-        doc.text("Dirección de Bienes", 105, y, { align: 'center' });
-        
-        y += 8;
-        
-        // Año 2026
-        doc.setFontSize(14);
-        doc.setFont(undefined, 'bold');
-        doc.text("2026", 105, y, { align: 'center' });
-        
-        y += 20;
-
-        // Información del proyecto
-        doc.setFillColor(255, 255, 255);
-        doc.setDrawColor(200, 200, 200);
-        doc.setLineWidth(0.5);
-        doc.roundedRect(20, y, 170, 60, 3, 3, 'FD');
-        
-        y += 12;
-        doc.setFontSize(12);
-        doc.setFont(undefined, 'bold');
-        doc.setTextColor(198, 40, 40);
-        doc.text("INFORMACIÓN DEL PROYECTO", 30, y);
-        
-        y += 10;
-        doc.setFontSize(11);
-        doc.setFont(undefined, 'bold');
-        doc.setTextColor(0, 0, 0);
-        doc.text("Proyecto:", 30, y);
-        doc.setFont(undefined, 'normal');
-        doc.text(`${nombreProyecto}`, 55, y);
-        
-        y += 10;
-        doc.setFont(undefined, 'bold');
-        doc.text("Usuario:", 30, y);
-        doc.setFont(undefined, 'normal');
-        doc.text(`${usuarioActivo}`, 55, y);
-        
-        y += 10;
-        const fechaReporte = new Date().toLocaleString('es-CO');
-        doc.setFont(undefined, 'bold');
-        doc.text("Fecha:", 30, y);
-        doc.setFont(undefined, 'normal');
-        doc.text(`${fechaReporte}`, 55, y);
-        
-        y += 10;
-        doc.setFont(undefined, 'bold');
-        doc.text("Observaciones:", 30, y);
-        doc.setFont(undefined, 'normal');
-        doc.text(`${registros.length}`, 65, y);
-        
-        // Pie de página en portada
-        agregarPiePagina(doc, 1, totalPaginas);
-        
-        // ========== REGISTROS ==========
-        registros.forEach((r, index) => {
-
-            doc.addPage();
-            const paginaActual = index + 2;
-            agregarEncabezado(doc, paginaActual);
-            
-            y = 20;
-
-            // Encabezado del registro con fondo
-            doc.setFillColor(198, 40, 40);
-            doc.rect(10, y, 190, 12, 'F');
-            
-            doc.setFontSize(14);
-            doc.setFont(undefined, 'bold');
-            doc.setTextColor(255, 255, 255);
-            doc.text(`OBSERVACIÓN #${index + 1}`, 15, y + 8);
-            
-            doc.setTextColor(0, 0, 0);
-            y += 20;
-
-            // Caja de información (altura dinámica según lugar)
-            // Primero calcular cuántas líneas ocupa el lugar
-            const lugarLineas = doc.splitTextToSize(r.lugar, 155);
-            const alturaExtra = (lugarLineas.length - 1) * 5;
-            const alturaRecuadro = 42 + alturaExtra;
-            
-            doc.setFillColor(250, 250, 250);
-            doc.setDrawColor(220, 220, 220);
-            doc.roundedRect(10, y, 190, alturaRecuadro, 2, 2, 'FD');
-            
-            y += 8;
-            doc.setFontSize(10);
-            doc.setFont(undefined, 'bold');
-            doc.text("Fecha:", 15, y);
-            doc.setFont(undefined, 'normal');
-            doc.text(`${r.fecha}`, 35, y);
-
-            y += 7;
-            doc.setFont(undefined, 'bold');
-            doc.text("Usuario:", 15, y);
-            doc.setFont(undefined, 'normal');
-            doc.text(`${r.usuario}`, 35, y);
-
-            y += 7;
-            doc.setFont(undefined, 'bold');
-            doc.text("Disciplina:", 15, y);
-            doc.setFont(undefined, 'normal');
-            doc.text(`${r.disciplina}`, 38, y);
-            
-            doc.setFont(undefined, 'bold');
-            doc.text("Impacto:", 100, y);
-            doc.setFont(undefined, 'normal');
-            
-            // Color según nivel de impacto
-            if (r.impacto === 'Crítico') doc.setTextColor(198, 40, 40);
-            else if (r.impacto === 'Alto') doc.setTextColor(255, 140, 0);
-            else if (r.impacto === 'Medio') doc.setTextColor(255, 193, 7);
-            else doc.setTextColor(76, 175, 80);
-            
-            doc.setFont(undefined, 'bold');
-            doc.text(`${r.impacto}`, 120, y);
-            doc.setTextColor(0, 0, 0);
-
-            y += 7;
-            doc.setFont(undefined, 'bold');
-            doc.text("Lugar:", 15, y);
-            doc.setFont(undefined, 'normal');
-            
-            // Dividir el texto del lugar si es muy largo
-            const lugarTextoLineas = doc.splitTextToSize(r.lugar, 155);
-            doc.text(lugarTextoLineas, 32, y);
-            
-            // Ajustar y según las líneas que ocupa el lugar
-            y += 15 + ((lugarTextoLineas.length - 1) * 5);
-
-            // Foto centrada (con espacio suficiente)
-            try {
-                const imgWidth = 180;
-                const imgHeight = 135;
-                
-                // Verificar si cabe en la página con margen
-                if (y + imgHeight + 20 > pageHeight - 15) {
-                    doc.addPage();
-                    agregarEncabezado(doc, paginaActual);
-                    y = 20;
-                }
-                
-                // Centrar la imagen (página tiene 210mm de ancho)
-                const imgX = (210 - imgWidth) / 2;
-                
-                // Borde de la imagen
-                doc.setDrawColor(200, 200, 200);
-                doc.setLineWidth(1);
-                doc.rect(imgX, y, imgWidth, imgHeight, 'S');
-                
-                doc.addImage(r.foto, "JPEG", imgX, y, imgWidth, imgHeight);
-                y += imgHeight + 10; // Reducido de 20 a 10 para dejar menos espacio
-                
-            } catch (error) {
-                console.error("Error al agregar imagen:", error);
-            }
-
-            // Recuadro de OBSERVACIÓN (que ocupa el resto de la página)
-            // El pie de página está en y=285, dejamos margen hasta y=275
-            const limitePiePagina = 275;
-            const espacioDisponible = limitePiePagina - y;
-            
-            // Calcular altura del recuadro según el texto
-            const textoObservacion = doc.splitTextToSize(r.observacion, 170);
-            const alturaTextoCalculada = (textoObservacion.length * 5) + 20;
-            
-            let alturaRecuadroObs;
-            
-            // Si el texto necesita más espacio del disponible, usar nueva página
-            if (alturaTextoCalculada > espacioDisponible) {
-                doc.addPage();
-                agregarEncabezado(doc, paginaActual);
-                y = 20;
-                // En página nueva, usar todo el espacio disponible
-                alturaRecuadroObs = limitePiePagina - y;
-            } else {
-                // Usar todo el espacio disponible en la página actual
-                alturaRecuadroObs = espacioDisponible;
-            }
-            
-            doc.setFillColor(250, 250, 250);
-            doc.setDrawColor(220, 220, 220);
-            doc.roundedRect(10, y, 190, alturaRecuadroObs, 2, 2, 'FD');
-            
-            y += 10;
-            doc.setFont(undefined, 'bold');
-            doc.setFontSize(11);
-            doc.text("OBSERVACIÓN:", 15, y);
-            y += 7;
-            
-            doc.setFont(undefined, 'normal');
-            doc.setFontSize(10);
-            doc.text(textoObservacion, 15, y);
-            
-            // Pie de página
-            agregarPiePagina(doc, paginaActual, totalPaginas);
-        });
-
-        // ========== PÁGINA DE ESTADÍSTICAS ==========
-        doc.addPage();
-        const paginaEstadisticas = totalPaginas + 1;
-        agregarEncabezado(doc, paginaEstadisticas);
-        
-        y = 25;
-        
-        // Título de estadísticas
-        doc.setFillColor(198, 40, 40);
-        doc.rect(10, y, 190, 12, 'F');
-        doc.setFontSize(14);
-        doc.setFont(undefined, 'bold');
-        doc.setTextColor(255, 255, 255);
-        doc.text("ESTADÍSTICAS DEL PROYECTO", 105, y + 8, { align: 'center' });
-        doc.setTextColor(0, 0, 0);
-        
-        y += 25;
-        
-        // Contar observaciones por disciplina
-        const porDisciplina = {};
-        const porImpacto = {};
-        const porDisciplinaImpacto = {};
-        
-        registros.forEach(r => {
-            // Por disciplina
-            porDisciplina[r.disciplina] = (porDisciplina[r.disciplina] || 0) + 1;
-            
-            // Por impacto
-            porImpacto[r.impacto] = (porImpacto[r.impacto] || 0) + 1;
-            
-            // Por disciplina e impacto
-            const key = `${r.disciplina}-${r.impacto}`;
-            porDisciplinaImpacto[key] = (porDisciplinaImpacto[key] || 0) + 1;
-        });
-        
-        // GRÁFICA 1: Observaciones por Disciplina
-        doc.setFontSize(12);
-        doc.setFont(undefined, 'bold');
-        doc.text("Observaciones por Disciplina", 105, y, { align: 'center' });
-        y += 10;
-        
-        // Dibujar barras
-        const maxCount = Math.max(...Object.values(porDisciplina));
-        const barWidth1 = 30;
-        const maxBarHeight = 50;
-        let xBar = 20;
-        
-        Object.entries(porDisciplina).forEach(([disciplina, count]) => {
-            const barHeight = (count / maxCount) * maxBarHeight;
-            
-            // Barra
-            doc.setFillColor(198, 40, 40);
-            doc.rect(xBar, y + maxBarHeight - barHeight, barWidth1, barHeight, 'F');
-            
-            // Valor encima
-            doc.setFontSize(10);
-            doc.setFont(undefined, 'bold');
-            doc.text(count.toString(), xBar + barWidth1/2, y + maxBarHeight - barHeight - 3, { align: 'center' });
-            
-            // Etiqueta abajo
-            doc.setFontSize(8);
-            doc.setFont(undefined, 'normal');
-            const labelLines = doc.splitTextToSize(disciplina, barWidth1);
-            doc.text(labelLines, xBar + barWidth1/2, y + maxBarHeight + 5, { align: 'center' });
-            
-            xBar += barWidth1 + 8;
-        });
-        
-        y += maxBarHeight + 25;
-        
-        // GRÁFICA 2: Observaciones por Nivel de Impacto (DESGLOSADO POR DISCIPLINA)
-        doc.setFontSize(12);
-        doc.setFont(undefined, 'bold');
-        doc.text("Observaciones por Nivel de Impacto (por Disciplina)", 105, y, { align: 'center' });
-        y += 10;
-        
-        const impactos = ['Bajo', 'Medio', 'Alto', 'Crítico'];
-        const coloresImpacto = {
-            'Bajo': [76, 175, 80],
-            'Medio': [255, 193, 7],
-            'Alto': [255, 140, 0],
-            'Crítico': [198, 40, 40]
-        };
-        
-        const disciplinas = Object.keys(porDisciplina);
-        const coloresDisciplina = ['#c62828', '#757575', '#424242', '#9E9E9E', '#616161'];
-        
-        let xBarGroup = 20;
-        const barWidth2 = 12;
-        const groupSpacing = 35;
-        
-        impactos.forEach(impacto => {
-            let xBar = xBarGroup;
-            let maxHeightInGroup = 0;
-            
-            disciplinas.forEach((disciplina, idx) => {
-                const key = `${disciplina}-${impacto}`;
-                const count = porDisciplinaImpacto[key] || 0;
-                const barHeight = count > 0 ? (count / maxCount) * maxBarHeight : 0;
-                
-                if (barHeight > maxHeightInGroup) maxHeightInGroup = barHeight;
-                
-                // Convertir color hex a RGB
-                const colorHex = coloresDisciplina[idx % coloresDisciplina.length];
-                const r = parseInt(colorHex.slice(1,3), 16);
-                const g = parseInt(colorHex.slice(3,5), 16);
-                const b = parseInt(colorHex.slice(5,7), 16);
-                
-                doc.setFillColor(r, g, b);
-                doc.rect(xBar, y + maxBarHeight - barHeight, barWidth2, barHeight, 'F');
-                
-                xBar += barWidth2 + 1;
-            });
-            
-            // Etiqueta del impacto debajo del grupo
-            doc.setTextColor(0, 0, 0);
-            doc.setFontSize(9);
-            doc.setFont(undefined, 'bold');
-            const color = coloresImpacto[impacto];
-            doc.setTextColor(color[0], color[1], color[2]);
-            doc.text(impacto, xBarGroup + (disciplinas.length * (barWidth2 + 1))/2, y + maxBarHeight + 5, { align: 'center' });
-            doc.setTextColor(0, 0, 0);
-            
-            xBarGroup += groupSpacing;
-        });
-        
-        // Leyenda de disciplinas
-        y += maxBarHeight + 15;
-        doc.setFontSize(8);
-        doc.setFont(undefined, 'normal');
-        doc.text("Leyenda:", 15, y);
-        let xLegend = 35;
-        disciplinas.forEach((disc, idx) => {
-            const colorHex = coloresDisciplina[idx % coloresDisciplina.length];
-            const r = parseInt(colorHex.slice(1,3), 16);
-            const g = parseInt(colorHex.slice(3,5), 16);
-            const b = parseInt(colorHex.slice(5,7), 16);
-            
-            doc.setFillColor(r, g, b);
-            doc.rect(xLegend, y - 3, 4, 4, 'F');
-            doc.text(disc, xLegend + 6, y);
-            xLegend += 35;
-        });
-        
-        y += 15;
-        
-        // TABLA: Resumen por Disciplina e Impacto (SIMPLIFICADA)
-        doc.setFontSize(12);
-        doc.setFont(undefined, 'bold');
-        doc.text("Detalle: Disciplina vs Impacto", 105, y, { align: 'center' });
-        y += 10;
-        
-        const inicioTabla = y;
-        const colWidths = [80, 27.5, 27.5, 27.5, 27.5]; // Ancho de columnas
-        const tableWidth = 190;
-        
-        // Línea superior de la tabla
-        doc.setDrawColor(100, 100, 100);
-        doc.setLineWidth(0.5);
-        doc.line(10, y, 200, y);
-        
-        y += 7;
-        
-        // Encabezado de tabla (solo texto, sin fondo)
-        doc.setFontSize(10);
-        doc.setFont(undefined, 'bold');
-        doc.setTextColor(0, 0, 0);
-        doc.text("Disciplina", 15, y);
-        doc.text("Bajo", 90 + 13.75, y, { align: 'center' });
-        doc.text("Medio", 117.5 + 13.75, y, { align: 'center' });
-        doc.text("Alto", 145 + 13.75, y, { align: 'center' });
-        doc.text("Crítico", 172.5 + 13.75, y, { align: 'center' });
-        
-        y += 3;
-        
-        // Línea después del encabezado
-        doc.line(10, y, 200, y);
-        
-        y += 7;
-        
-        // Filas de la tabla (solo texto)
-        doc.setFont(undefined, 'normal');
-        doc.setFontSize(9);
-        Object.keys(porDisciplina).forEach(disciplina => {
-            const bajo = porDisciplinaImpacto[`${disciplina}-Bajo`] || 0;
-            const medio = porDisciplinaImpacto[`${disciplina}-Medio`] || 0;
-            const alto = porDisciplinaImpacto[`${disciplina}-Alto`] || 0;
-            const critico = porDisciplinaImpacto[`${disciplina}-Crítico`] || 0;
-            
-            doc.setTextColor(0, 0, 0);
-            doc.text(disciplina, 15, y);
-            doc.text(bajo.toString(), 90 + 13.75, y, { align: 'center' });
-            doc.text(medio.toString(), 117.5 + 13.75, y, { align: 'center' });
-            doc.text(alto.toString(), 145 + 13.75, y, { align: 'center' });
-            doc.text(critico.toString(), 172.5 + 13.75, y, { align: 'center' });
-            
-            y += 7;
-        });
-        
-        // Línea inferior de la tabla
-        doc.line(10, y - 2, 200, y - 2);
-        
-        // Líneas verticales de la tabla
-        doc.line(10, inicioTabla, 10, y - 2); // Izquierda
-        doc.line(90, inicioTabla, 90, y - 2); // Después de Disciplina
-        doc.line(117.5, inicioTabla, 117.5, y - 2); // Después de Bajo
-        doc.line(145, inicioTabla, 145, y - 2); // Después de Medio
-        doc.line(172.5, inicioTabla, 172.5, y - 2); // Después de Alto
-        doc.line(200, inicioTabla, 200, y - 2); // Derecha
-        
-        agregarPiePagina(doc, paginaEstadisticas, totalPaginas + 1);
-
-        // Guardar PDF con nomenclatura oficial
-        // Convertir nombre de proyecto a siglas
-        const siglasProyecto = {
-            'CER FASE II': 'CPA',
-            'URI NORTE': 'URN',
-            'URI TUNJUELITO': 'URT',
-            'CTP': 'CTP',
-            'CAMPO VERDE': 'CMV',
-            'BRIGADA XIII': 'BRI',
-            'PREDIOS': 'AVP'
-        };
-        
-        const sigla = siglasProyecto[nombreProyecto] || 'PRY';
-        const nombreArchivo = `SCJ-VIS-TEC-INF-${sigla}.pdf`;
-        doc.save(nombreArchivo);
-        
-        alert(`PDF generado exitosamente con ${registros.length} observaciones`);
-    });
+    doc.save('SCJ-VIS-TEC-INF-'+(siglasProyecto[nombreProyecto]||'PRY')+'.pdf');
+    alert("PDF generado con "+registros.length+" observaciones");
+  });
 
 });
 </script>
-
 </body>
 </html>
