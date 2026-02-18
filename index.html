@@ -669,6 +669,7 @@ document.addEventListener("DOMContentLoaded", function() {
     var res=document.getElementById("responsable").value.trim();
     var imp=document.getElementById("impacto").value;
     if(fotosActuales.length===0||!obs||!dis||!lug||!res||!imp){ alert("Complete todos los campos y agregue al menos una foto"); return; }
+    if(obs.length<140){ alert("La observacion es muy corta ("+obs.length+" caracteres).\nIncluya mas analisis tecnico: causas, riesgos, estado actual y recomendaciones.\nMinimo 140 caracteres."); return; }
     registros.push({ usuario:usuarioActivo, proyecto:nombreProyecto, fecha:new Date().toLocaleString('es-CO'),
       fotos:fotosActuales.slice(), observacion:obs, disciplina:dis, lugar:lug, responsable:res, impacto:imp });
     actualizarContador(); alert("Observacion agregada"); limpiarFormulario();
@@ -910,18 +911,18 @@ document.addEventListener("DOMContentLoaded", function() {
     doc.setFont(undefined,'normal'); doc.setFontSize(7.5);
     doc.text("SUBSECRETARIA DE INVERSIONES Y FORTALECIMIENTO DE CAPACIDADES OPERATIVAS", pw/2, 150, {align:'center'});
 
-    // ZONA 4 — Secretaria / Direccion / Año (fijas en y=162)
+    // ZONA 4 — Secretaria / Direccion / Año (cerca del final de hoja, y=225)
     doc.setDrawColor(198,40,40); doc.setLineWidth(0.6);
-    doc.line(30, 158, 180, 158);
+    doc.line(30, 225, 180, 225);
 
     doc.setFontSize(12); doc.setFont(undefined,'bold'); doc.setTextColor(198,40,40);
-    doc.text("SECRETARIA DISTRITAL DE SEGURIDAD,", pw/2, 168, {align:'center'});
-    doc.text("CONVIVENCIA Y JUSTICIA",              pw/2, 176, {align:'center'});
+    doc.text("SECRETARIA DISTRITAL DE SEGURIDAD,", pw/2, 235, {align:'center'});
+    doc.text("CONVIVENCIA Y JUSTICIA",              pw/2, 243, {align:'center'});
 
     doc.setFontSize(11); doc.setFont(undefined,'normal'); doc.setTextColor(0,0,0);
-    doc.text("Direccion de Bienes", pw/2, 186, {align:'center'});
+    doc.text("Direccion de Bienes", pw/2, 252, {align:'center'});
     doc.setFont(undefined,'bold'); doc.setFontSize(14);
-    doc.text("2026", pw/2, 195, {align:'center'});
+    doc.text("2026", pw/2, 261, {align:'center'});
 
     pie(1,totalPags);
 
