@@ -90,6 +90,33 @@ button:active { transform:translateY(0); }
 .obs-edit-area { display:none; margin-top:14px; padding-top:14px; border-top:1px solid #eee; }
 .obs-edit-area.activo { display:block; }
 
+/* === MICRÓFONO === */
+.obs-input-wrapper { position:relative; }
+.obs-input-wrapper textarea { padding-right:50px; }
+.btn-mic {
+  position:absolute; top:8px; right:8px;
+  width:36px; height:36px; border-radius:50%;
+  padding:0; margin:0; font-size:18px;
+  display:flex; align-items:center; justify-content:center;
+  background:linear-gradient(135deg,#1565c0,#0d47a1);
+  box-shadow:0 2px 8px rgba(21,101,192,0.3);
+  transition:background 0.2s, transform 0.15s;
+  border:none; cursor:pointer; color:#fff;
+}
+.btn-mic.grabando {
+  background:linear-gradient(135deg,var(--rojo),var(--rojo-oscuro));
+  animation:pulseMic 1s ease-in-out infinite;
+  box-shadow:0 2px 12px rgba(198,40,40,0.5);
+}
+@keyframes pulseMic {
+  0%,100%{ transform:scale(1); }
+  50%{ transform:scale(1.12); }
+}
+.mic-status {
+  font-size:11px; color:var(--rojo); font-weight:600;
+  display:none; margin:-10px 0 8px; text-align:right;
+}
+.mic-status.visible { display:block; }
 /* === COLORES IMPACTO === */
 .impacto-critico { color:#c62828; font-weight:700; }
 .impacto-alto    { color:#e65100; font-weight:700; }
@@ -297,7 +324,11 @@ button:active { transform:translateY(0); }
   <div id="previewFotos" class="fotos-container"></div>
 
   <label>Observación:</label>
-  <textarea id="observacion" rows="4" placeholder="Describa la observación..."></textarea>
+  <div class="obs-input-wrapper">
+    <textarea id="observacion" rows="4" placeholder="Describa la observación..."></textarea>
+    <button type="button" id="btnMic" class="btn-mic" title="Transcribir por voz">🎤</button>
+  </div>
+  <span class="mic-status" id="micStatus">🔴 Grabando... hable ahora</span>
 
   <label>Disciplina:</label>
   <select id="disciplina">
@@ -1280,6 +1311,79 @@ document.addEventListener("DOMContentLoaded", function() {
     doc.save('SCJ-VIS-TEC-INF-'+(siglasProyecto[nombreProyecto]||'PRY')+'.pdf');
     alert("PDF generado con "+registros.length+" observaciones");
   });
+
+  // ===== TRANSCRIPCIÓN POR VOZ =====
+  (function() {
+    var btnMic    = document.getElementById('btnMic');
+    var micStatus = document.getElementById('micStatus');
+    var textarea  = document.getElementById('observacion');
+
+    var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    if (!SpeechRecognition) {
+      btnMic.title = 'Transcripción de voz no disponible en este navegador';
+      btnMic.style.opacity = '0.4';
+      btnMic.style.cursor  = 'not-allowed';
+      btnMic.addEventListener('click', function() {
+        alert('⚠️ Tu navegador no soporta reconocimiento de voz.\nUsa Chrome o Edge para esta función.');
+      });
+      return;
+    }
+
+    var recognition = new SpeechRecognition();
+    recognition.lang = 'es-CO';
+    recognition.continuous = false;
+    recognition.interimResults = true;
+
+    var grabando       = false;
+    var textoAnterior  = '';
+
+    btnMic.addEventListener('click', function() {
+      if (grabando) {
+        recognition.stop();
+      } else {
+        textoAnterior = textarea.value;
+        recognition.start();
+      }
+    });
+
+    recognition.onstart = function() {
+      grabando = true;
+      btnMic.classList.add('grabando');
+      btnMic.textContent = '⏹';
+      micStatus.classList.add('visible');
+    };
+
+    recognition.onresult = function(e) {
+      var transcripcion = '';
+      for (var i = e.resultIndex; i < e.results.length; i++) {
+        transcripcion += e.results[i][0].transcript;
+      }
+      // Mostrar resultado interim en tiempo real
+      textarea.value = textoAnterior + (textoAnterior && transcripcion ? ' ' : '') + transcripcion;
+    };
+
+    recognition.onend = function() {
+      grabando = false;
+      btnMic.classList.remove('grabando');
+      btnMic.textContent = '🎤';
+      micStatus.classList.remove('visible');
+      // Actualizar textoAnterior con lo transcripto definitivo
+      textoAnterior = textarea.value;
+    };
+
+    recognition.onerror = function(e) {
+      grabando = false;
+      btnMic.classList.remove('grabando');
+      btnMic.textContent = '🎤';
+      micStatus.classList.remove('visible');
+      if (e.error === 'not-allowed') {
+        alert('⚠️ Permiso de micrófono denegado.\nPor favor habilita el micrófono en tu navegador.');
+      } else if (e.error !== 'no-speech') {
+        alert('Error de reconocimiento de voz: ' + e.error);
+      }
+    };
+  })();
 
 });
 </script>
