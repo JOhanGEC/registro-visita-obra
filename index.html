@@ -133,7 +133,7 @@ button:active { transform:translateY(0); }
 
 <!-- ===== PANTALLA 1: LOGIN ===== -->
 <div id="pantallaLogin" class="contenedor">
-  <span class="version-badge">v1.3</span>
+  <span class="version-badge">v1.4</span>
   <div class="banner-animacion">
     <!-- Nubes SVG animadas -->
     <svg class="cielo-nubes" viewBox="0 0 800 80" preserveAspectRatio="none" style="position:absolute;top:0;left:0;width:200%;height:55%;">
@@ -256,8 +256,8 @@ button:active { transform:translateY(0); }
   <h2 style="margin-top:6px;margin-bottom:2px;font-size:15px;">Dirección de Bienes</h2>
   <h2 style="margin-top:0;margin-bottom:16px;font-size:17px;font-weight:900;">2026</h2>
   <h2>Ingreso al Sistema</h2>
-  <input type="text" id="usuarioInput" placeholder="Escriba su usuario" style="width:70%;margin:auto;display:block;">
-  <button id="btnIngresar">Ingresar</button>
+  <input type="text" id="usuarioInput" placeholder="Escriba su usuario" style="width:70%;margin:auto;display:block;" autofocus>
+  <button id="btnIngresar" style="width:auto;padding:10px 36px;margin:6px auto 12px;display:block;">Ingresar</button>
   <p style="font-size:11px;color:#999;margin-top:16px;">Desarrollado por: Ing. Johan Manuel Cardenas Leal, MSc</p>
 </div>
 
@@ -337,13 +337,19 @@ button:active { transform:translateY(0); }
     <option>Arquitectura</option><option>Estructura</option><option>Electrica</option>
     <option>Hidraulica</option><option>HVAC</option><option>RCI</option>
     <option>Iluminacion</option><option>Seguridad Electronica</option><option>Comunicaciones</option><option>Obra</option>
+    <option>Coordinacion</option><option>Ordes y Aseso</option><option>SST</option>
   </select>
 
   <label>Lugar / Ubicación:</label>
   <input type="text" id="lugar" placeholder="Ej: Piso 1 - Baños administración">
 
   <label>Responsable:</label>
-  <input type="text" id="responsable" placeholder="Ej: Contratista / Interventoría / Empresa">
+  <select id="responsable">
+    <option value="">Seleccione</option>
+    <option value="Constructora">Constructora</option>
+    <option value="Interventoria">Interventoria</option>
+    <option value="Constructora/Interventoria">Constructora/Interventoria</option>
+  </select>
 
   <label>Nivel de Impacto:</label>
   <select id="impacto">
@@ -353,6 +359,7 @@ button:active { transform:translateY(0); }
 
   <button id="btnAgregar">Agregar Observación</button>
   <button id="btnVerObservaciones" class="btn-secundario">Ver Observaciones (<span id="contadorObs">0</span>)</button>
+  <button id="btnExportarJSON" title="Exportar JSON para continuar editando" style="width:auto;padding:7px 18px;font-size:12px;margin:4px auto;display:block;border-radius:8px;border:none;font-family:Montserrat,sans-serif;font-weight:700;cursor:pointer;background:linear-gradient(135deg,#1565c0,#0d47a1);color:#fff;box-shadow:0 2px 8px rgba(21,101,192,0.3);">💾 Guardar JSON</button>
 </div>
 
 <!-- ===== PANTALLA 4: VER OBSERVACIONES ===== -->
@@ -381,7 +388,7 @@ button:active { transform:translateY(0); }
   </div>
   <button id="btnVolverRegistro" class="btn-secundario">&#8592; Nueva Observación</button>
   <button id="btnExportar">📦 Exportar (.zip)</button>
-  <div id="autoExportStatus" style="font-size:11px;color:var(--gris);text-align:center;margin-top:-6px;margin-bottom:8px;"></div>
+</div>
 </div>
 
 <script>
@@ -535,7 +542,8 @@ document.addEventListener("DOMContentLoaded", function() {
   var coloresDisc = {
     'Arquitectura':[198,40,40],'Estructura':[21,101,192],'Electrica':[255,160,0],
     'Hidraulica':[0,150,136],'HVAC':[123,31,162],'RCI':[211,47,47],
-    'Iluminacion':[251,192,45],'Seguridad Electronica':[55,71,79],'Comunicaciones':[46,125,50],'Obra':[94,53,177]
+    'Iluminacion':[251,192,45],'Seguridad Electronica':[55,71,79],'Comunicaciones':[46,125,50],'Obra':[94,53,177],
+    'Coordinacion':[0,120,180],'Ordes y Aseso':[180,100,0],'SST':[0,130,50]
   };
 
   function ir(id) {
@@ -615,6 +623,7 @@ document.addEventListener("DOMContentLoaded", function() {
     ir('pantallaRegistro');
   });
 
+
   // FOTOS
   document.getElementById("fotoInput").addEventListener("change",function(e){ manejarFoto(e.target.files[0]); e.target.value=""; });
   document.getElementById("galeriaInput").addEventListener("change",function(e){ manejarFoto(e.target.files[0]); e.target.value=""; });
@@ -622,61 +631,142 @@ document.addEventListener("DOMContentLoaded", function() {
   function manejarFoto(file){
     if(!file) return;
     if(fotosActuales.length>=4){ alert("Maximo 4 fotos"); return; }
-    if(navigator.geolocation){
+    // Si estampa personalizada activa, NO pedir GPS — usar lo que tenga la config
+    if(_stampaConfig.activo){
+      procesarFoto(file, null);
+    } else if(navigator.geolocation){
       navigator.geolocation.getCurrentPosition(
-        function(pos){ procesarFoto(file,pos); },
-        function(){     procesarFoto(file,null); }
+        function(pos){ procesarFoto(file, pos); },
+        function(){    procesarFoto(file, null); },
+        {timeout: 8000}
       );
-    } else { procesarFoto(file,null); }
+    } else {
+      procesarFoto(file, null);
+    }
   }
 
-  function procesarFoto(file,position){
-    var reader=new FileReader();
-    reader.onload=function(e){
-      var img=new Image();
-      img.onload=function(){
-        var canvas=document.createElement('canvas');
-        var ctx=canvas.getContext('2d');
-        canvas.width=img.width; canvas.height=img.height;
-        ctx.drawImage(img,0,0);
-        // Marca agua
-        ctx.save();
-        ctx.translate(canvas.width/2,canvas.height/2);
-        ctx.rotate(-45*Math.PI/180);
-        var mws=Math.min(canvas.width,canvas.height)/15;
-        ctx.font='bold '+mws+'px Arial';
-        ctx.fillStyle='rgba(220,220,220,0.45)';
-        ctx.textAlign='center'; ctx.textBaseline='middle';
-        ['SECRETARIA DISTRITAL DE','SEGURIDAD, CONVIVENCIA','Y JUSTICIA'].forEach(function(t,i){
-          ctx.fillText(t,0,(i-1)*mws*1.2);
+  // Construye las líneas de metadatos según config vigente
+  function construirMetaLineas(posGPS){
+    var pad = function(n){ return String(n).padStart(2,'0'); };
+    var meta = [];
+
+    if(_stampaConfig.activo){
+      // Fecha/hora: solo si se ingresó; si está en blanco, no agregar línea
+      if(_stampaConfig.fecha){
+        var f = _stampaConfig.fecha;
+        meta.push(pad(f.getDate())+'/'+pad(f.getMonth()+1)+'/'+f.getFullYear()+' '+pad(f.getHours())+':'+pad(f.getMinutes()));
+      }
+      // Coords: solo si se ingresaron; si están vacías, no agregar línea
+      if(_stampaConfig.lat){
+        meta.push(_stampaConfig.lat+','+_stampaConfig.lng);
+      }
+    } else {
+      // Modo automático: fecha actual siempre
+      var f = new Date();
+      meta.push(pad(f.getDate())+'/'+pad(f.getMonth()+1)+'/'+f.getFullYear()+' '+pad(f.getHours())+':'+pad(f.getMinutes()));
+      // GPS real si llegó, sino "Sin GPS"
+      if(posGPS && posGPS.coords){
+        meta.push(posGPS.coords.latitude.toFixed(5)+','+posGPS.coords.longitude.toFixed(5));
+      } else {
+        meta.push('Sin GPS');
+      }
+    }
+
+    meta.push('Bogota, Colombia');
+    meta.push(nombreProyecto);
+    meta.push((_stampaConfig.activo && _stampaConfig.usuario) ? _stampaConfig.usuario : ('Usuario: '+usuarioActivo));
+    return meta;
+  }
+
+  // Aplica marca de agua + estampa. posGPS es el objeto GeolocationPosition original (o null).
+  function aplicarEstampa(originalDataUrl, posGPS, callback){
+    var img = new Image();
+    img.onload = function(){
+      var canvas = document.createElement('canvas');
+      var ctx = canvas.getContext('2d');
+      var MAX_DIM = 1600;
+      var w = img.width, h = img.height;
+      if(w > MAX_DIM || h > MAX_DIM){
+        if(w >= h){ h = Math.round(h*MAX_DIM/w); w = MAX_DIM; }
+        else       { w = Math.round(w*MAX_DIM/h); h = MAX_DIM; }
+      }
+      canvas.width = w; canvas.height = h;
+      ctx.drawImage(img, 0, 0, w, h);
+      // Marca de agua diagonal
+      ctx.save();
+      ctx.translate(canvas.width/2, canvas.height/2);
+      ctx.rotate(-45*Math.PI/180);
+      var mws = Math.min(canvas.width,canvas.height)/15;
+      ctx.font = 'bold '+mws+'px Arial';
+      ctx.fillStyle = 'rgba(220,220,220,0.45)';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ['SECRETARIA DISTRITAL DE','SEGURIDAD, CONVIVENCIA','Y JUSTICIA'].forEach(function(t,i){
+        ctx.fillText(t, 0, (i-1)*mws*1.2);
+      });
+      ctx.restore();
+      // Metadatos
+      var meta = construirMetaLineas(posGPS);
+      var fsz = Math.min(canvas.width,canvas.height)/40;
+      ctx.textAlign = 'right'; ctx.font = 'bold '+fsz+'px Arial';
+      var yp = fsz+40;
+      meta.forEach(function(linea){
+        ctx.fillStyle = 'rgba(0,0,0,0.75)';
+        ctx.fillText(linea, canvas.width-18, yp+2);
+        ctx.fillText(linea, canvas.width-22, yp+2);
+        ctx.fillStyle = '#FFF';
+        ctx.fillText(linea, canvas.width-20, yp);
+        yp += fsz*1.3;
+      });
+      var resultado = canvas.toDataURL('image/jpeg', 0.82);
+      canvas.width = 1; canvas.height = 1;
+      callback(resultado);
+    };
+    img.src = originalDataUrl;
+  }
+
+  // fotosActualesOriginales guarda {dataUrl (escalada), posGPS} por foto del formulario
+  var fotosActualesOriginales = [];
+
+  function procesarFoto(file, posGPS){
+    var reader = new FileReader();
+    reader.onload = function(e){
+      var imgEsc = new Image();
+      imgEsc.onload = function(){
+        // Escalar
+        var MAX_DIM = 1600;
+        var w = imgEsc.width, h = imgEsc.height;
+        if(w > MAX_DIM || h > MAX_DIM){
+          if(w >= h){ h = Math.round(h*MAX_DIM/w); w = MAX_DIM; }
+          else       { w = Math.round(w*MAX_DIM/h); h = MAX_DIM; }
+        }
+        var cv = document.createElement('canvas');
+        cv.width = w; cv.height = h;
+        cv.getContext('2d').drawImage(imgEsc, 0, 0, w, h);
+        var escUrl = cv.toDataURL('image/jpeg', 0.92);
+        cv.width = 1; cv.height = 1;
+        // Guardar original escalada + GPS capturado
+        fotosActualesOriginales.push({dataUrl: escUrl, posGPS: posGPS});
+        aplicarEstampa(escUrl, posGPS, function(estampada){
+          fotosActuales.push(estampada);
+          actualizarPreviewFotos();
         });
-        ctx.restore();
-        // Metadata
-        var f=new Date();
-        var pad=function(n){ return String(n).padStart(2,'0'); };
-        var fs=pad(f.getDate())+'/'+pad(f.getMonth()+1)+'/'+f.getFullYear()+' '+pad(f.getHours())+':'+pad(f.getMinutes());
-        var meta=[fs];
-        if(position) meta.push(position.coords.latitude.toFixed(5)+','+position.coords.longitude.toFixed(5));
-        else meta.push('Sin GPS');
-        meta.push('Bogota, Colombia'); meta.push(nombreProyecto); meta.push('Usuario: '+usuarioActivo);
-        var fsz=Math.min(canvas.width,canvas.height)/40;
-        ctx.textAlign='right'; ctx.font='bold '+fsz+'px Arial';
-        var yp=fsz+40;
-        meta.forEach(function(linea){
-          ctx.fillStyle='rgba(0,0,0,0.75)';
-          ctx.fillText(linea,canvas.width-18,yp+2);
-          ctx.fillText(linea,canvas.width-22,yp+2);
-          ctx.fillStyle='#FFF';
-          ctx.fillText(linea,canvas.width-20,yp);
-          yp+=fsz*1.3;
-        });
-        var dataUrl=canvas.toDataURL('image/jpeg',0.92);
-        fotosActuales.push(dataUrl);
-        actualizarPreviewFotos();
       };
-      img.src=e.target.result;
+      imgEsc.src = e.target.result;
     };
     reader.readAsDataURL(file);
+  }
+
+  // Re-estampa todas las fotos del formulario con la config vigente
+  function reestamparFotosActuales(callback){
+    if(fotosActualesOriginales.length === 0){ callback(); return; }
+    var nuevas = new Array(fotosActualesOriginales.length);
+    var pendientes = fotosActualesOriginales.length;
+    fotosActualesOriginales.forEach(function(orig, i){
+      aplicarEstampa(orig.dataUrl, orig.posGPS, function(est){
+        nuevas[i] = est;
+        if(--pendientes === 0){ fotosActuales = nuevas; callback(); }
+      });
+    });
   }
 
   function actualizarPreviewFotos(){
@@ -697,7 +787,7 @@ document.addEventListener("DOMContentLoaded", function() {
     var obs=document.getElementById("observacion").value.trim();
     var dis=document.getElementById("disciplina").value;
     var lug=document.getElementById("lugar").value.trim();
-    var res=document.getElementById("responsable").value.trim();
+    var res=document.getElementById("responsable").value;
     var imp=document.getElementById("impacto").value;
     if(fotosActuales.length===0||!obs||!dis||!lug||!res||!imp){ alert("Complete todos los campos y agregue al menos una foto"); return; }
     if(obs.length<140){ alert("La observacion es muy corta ("+obs.length+" caracteres).\nIncluya mas analisis tecnico: causas, riesgos, estado actual y recomendaciones.\nMinimo 140 caracteres."); return; }
@@ -710,7 +800,7 @@ document.addEventListener("DOMContentLoaded", function() {
     ['observacion','disciplina','lugar','responsable','impacto'].forEach(function(id){ document.getElementById(id).value=""; });
     document.getElementById("previewFotos").innerHTML="";
     document.getElementById("labelCantFotos").innerText="0 / 4 fotos";
-    fotosActuales=[];
+    fotosActuales=[]; fotosActualesOriginales=[];
   }
   function actualizarContador(){ document.getElementById("contadorObs").innerText=registros.length; }
 
@@ -761,10 +851,12 @@ document.addEventListener("DOMContentLoaded", function() {
       +'<div id="editArea_'+obsIndex+'" class="obs-edit-area">'
       +'<label>Observacion:</label><textarea id="editObs_'+obsIndex+'" rows="3">'+r.observacion+'</textarea>'
       +'<label>Disciplina:</label><select id="editDisc_'+obsIndex+'">'
-      +['Arquitectura','Estructura','Electrica','Hidraulica','HVAC','RCI','Iluminacion','Seguridad Electronica','Comunicaciones','Obra'].map(function(d){ return '<option '+(d===r.disciplina?'selected':'')+'>'+d+'</option>'; }).join('')
+      +['Arquitectura','Estructura','Electrica','Hidraulica','HVAC','RCI','Iluminacion','Seguridad Electronica','Comunicaciones','Obra','Coordinacion','Ordes y Aseso','SST'].map(function(d){ return '<option '+(d===r.disciplina?'selected':'')+'>'+d+'</option>'; }).join('')
       +'</select>'
       +'<label>Lugar:</label><input type="text" id="editLugar_'+obsIndex+'" value="'+r.lugar+'">'
-      +'<label>Responsable:</label><input type="text" id="editResp_'+obsIndex+'" value="'+(r.responsable||'')+'">'
+      +'<label>Responsable:</label><select id="editResp_'+obsIndex+'">'
+      +['Constructora','Interventoria','Constructora/Interventoria'].map(function(op){ return '<option '+(op===(r.responsable||'')?'selected':'')+' value="'+op+'">'+op+'</option>'; }).join('')
+      +'</select>'
       +'<label>Impacto:</label><select id="editImpacto_'+obsIndex+'">'
       +['Bajo','Medio','Alto','Crítico'].map(function(imp){ return '<option '+(imp===r.impacto?'selected':'')+'>'+imp+'</option>'; }).join('')
       +'</select>'
@@ -804,10 +896,13 @@ document.addEventListener("DOMContentLoaded", function() {
         var r = registros[obsIndex];
         var fotos = r.fotos || (r.foto ? [r.foto] : []);
         if(fotos.length >= 4) { alert("Esta observacion ya tiene 4 fotos (maximo)"); e.target.value=""; return; }
-        if(navigator.geolocation) {
+        if(_stampaConfig.activo){
+          procesarFotoObs(file, null, r);
+        } else if(navigator.geolocation) {
           navigator.geolocation.getCurrentPosition(
             function(pos){ procesarFotoObs(file, pos, r); },
-            function(){    procesarFotoObs(file, null, r); }
+            function(){    procesarFotoObs(file, null, r); },
+            {timeout: 8000}
           );
         } else { procesarFotoObs(file, null, r); }
         e.target.value="";
@@ -816,45 +911,33 @@ document.addEventListener("DOMContentLoaded", function() {
   }
   setupAddFotos();
 
-  function procesarFotoObs(file, position, r) {
+  function procesarFotoObs(file, posGPS, r) {
     var reader = new FileReader();
     reader.onload = function(e) {
-      var img = new Image();
-      img.onload = function() {
-        var canvas = document.createElement('canvas');
-        var ctx = canvas.getContext('2d');
-        canvas.width=img.width; canvas.height=img.height;
-        ctx.drawImage(img,0,0);
-        ctx.save();
-        ctx.translate(canvas.width/2,canvas.height/2);
-        ctx.rotate(-45*Math.PI/180);
-        var mws=Math.min(canvas.width,canvas.height)/15;
-        ctx.font='bold '+mws+'px Arial'; ctx.fillStyle='rgba(220,220,220,0.45)';
-        ctx.textAlign='center'; ctx.textBaseline='middle';
-        ['SECRETARIA DISTRITAL DE','SEGURIDAD, CONVIVENCIA','Y JUSTICIA'].forEach(function(t,i){
-          ctx.fillText(t,0,(i-1)*mws*1.2);
+      var imgEsc = new Image();
+      imgEsc.onload = function(){
+        var MAX_DIM = 1600;
+        var w = imgEsc.width, h = imgEsc.height;
+        if(w > MAX_DIM || h > MAX_DIM){
+          if(w >= h){ h = Math.round(h*MAX_DIM/w); w = MAX_DIM; }
+          else       { w = Math.round(w*MAX_DIM/h); h = MAX_DIM; }
+        }
+        var cv = document.createElement('canvas');
+        cv.width = w; cv.height = h;
+        cv.getContext('2d').drawImage(imgEsc, 0, 0, w, h);
+        var escUrl = cv.toDataURL('image/jpeg', 0.92);
+        cv.width = 1; cv.height = 1;
+        if(!r.fotosOriginales) r.fotosOriginales = [];
+        r.fotosOriginales.push({dataUrl: escUrl, posGPS: posGPS});
+        aplicarEstampa(escUrl, posGPS, function(estampada){
+          if(!r.fotos) r.fotos = [];
+          r.fotos.push(estampada);
+          fotoIndex = r.fotos.length - 1;
+          renderCarrusel();
+          actualizarLabelFotosObs(r);
         });
-        ctx.restore();
-        var f=new Date(), pad=function(n){return String(n).padStart(2,'0');};
-        var meta=[pad(f.getDate())+'/'+pad(f.getMonth()+1)+'/'+f.getFullYear()+' '+pad(f.getHours())+':'+pad(f.getMinutes())];
-        if(position) meta.push(position.coords.latitude.toFixed(5)+','+position.coords.longitude.toFixed(5));
-        else meta.push('Sin GPS');
-        meta.push('Bogota, Colombia'); meta.push(nombreProyecto);
-        var fsz=Math.min(canvas.width,canvas.height)/40;
-        ctx.textAlign='right'; ctx.font='bold '+fsz+'px Arial';
-        var yp=fsz+40;
-        meta.forEach(function(linea){
-          ctx.fillStyle='rgba(0,0,0,0.75)'; ctx.fillText(linea,canvas.width-18,yp+2); ctx.fillText(linea,canvas.width-22,yp+2);
-          ctx.fillStyle='#FFF'; ctx.fillText(linea,canvas.width-20,yp); yp+=fsz*1.3;
-        });
-        var dataUrl=canvas.toDataURL('image/jpeg',0.92);
-        if(!r.fotos) r.fotos=[];
-        r.fotos.push(dataUrl);
-        fotoIndex=r.fotos.length-1;
-        renderCarrusel();
-        actualizarLabelFotosObs(r);
       };
-      img.src=e.target.result;
+      imgEsc.src = e.target.result;
     };
     reader.readAsDataURL(file);
   }
@@ -1350,15 +1433,133 @@ document.addEventListener("DOMContentLoaded", function() {
     });
   }
 
-  // ===== BOTÓN EXPORTAR =====
+  // ===== BOTÓN EXPORTAR ZIP =====
   document.getElementById("btnExportar").addEventListener("click", function(){
     exportarZIP(false);
   });
 
-  // ===== AUTO-EXPORTACIÓN CADA 5 MINUTOS =====
-  setInterval(function(){
-    if(registros.length > 0) exportarZIP(true);
-  }, 5 * 60 * 1000);
+  // ===== BOTÓN EXPORTAR JSON =====
+  document.getElementById("btnExportarJSON").addEventListener("click", function(){
+    if(registros.length===0){ alert("No hay registros para exportar"); return; }
+    var datos = {proyecto:nombreProyecto, usuario:usuarioActivo, fecha:new Date().toLocaleString('es-CO'), registros:registros};
+    var jsonStr = JSON.stringify(datos, null, 2);
+    var blob = new Blob([jsonStr], {type:'application/json'});
+    var a = document.createElement('a');
+    var pad = function(n){ return String(n).padStart(2,'0'); };
+    var ahora = new Date();
+    var nombreJson = 'sesion_'+nombreProyecto.replace(/\s+/g,'_')+'_'+ahora.getFullYear()+pad(ahora.getMonth()+1)+pad(ahora.getDate())+'_'+pad(ahora.getHours())+pad(ahora.getMinutes())+'.json';
+    a.href = URL.createObjectURL(blob);
+    a.download = nombreJson;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    alert("✅ JSON guardado: "+registros.length+" observaciones\n📋 Cárguelo luego para continuar editando");
+  });
+
+  // ===== CÓDIGO OCULTO: editar estampa de fotos =====
+  // Móvil: toque 5 veces rápido en el título de la app | PC: Ctrl+M
+  var _stampaConfig = {
+    activo: false,
+    lat: null, lng: null,
+    fecha: null,
+    usuario: null
+  };
+
+  // Overlay para configurar estampa
+  function mostrarPanelEstampa() {
+    // Siempre eliminar overlay anterior para reconstruir con estado fresco
+    var overlayViejo = document.getElementById('stampaOverlay');
+    if(overlayViejo) overlayViejo.parentNode.removeChild(overlayViejo);
+
+    var overlay = document.createElement('div');
+    overlay.id = 'stampaOverlay';
+    overlay.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;';
+    overlay.innerHTML = '<div style="background:#fff;border-radius:14px;padding:24px 20px;max-width:320px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,0.3);">'
+      +'<h3 style="font-family:Montserrat,sans-serif;font-weight:900;color:#c62828;margin:0 0 4px;">⚙️ Estampa de Fotos</h3>'
+      +'<p style="font-size:11px;color:#888;margin:0 0 14px;">Modo avanzado — editar metadatos de estampa</p>'
+      +'<label style="font-size:12px;font-weight:600;display:block;margin-bottom:2px;">Coordenadas (lat,lng)</label>'
+      +'<input id="stampaLat" type="text" placeholder="Ej: 4.60971,-74.08175" style="width:100%;padding:8px;border:1.5px solid #ddd;border-radius:8px;margin-bottom:10px;font-size:13px;">'
+      +'<label style="font-size:12px;font-weight:600;display:block;margin-bottom:2px;">Fecha y hora personalizada</label>'
+      +'<input id="stampaFecha" type="datetime-local" style="width:100%;padding:8px;border:1.5px solid #ddd;border-radius:8px;margin-bottom:10px;font-size:13px;" title="Seleccione fecha Y hora">'
+      +'<label style="font-size:12px;font-weight:600;display:block;margin-bottom:2px;">Usuario en estampa</label>'
+      +'<input id="stampaUsuario" type="text" placeholder="Nombre en estampa" style="width:100%;padding:8px;border:1.5px solid #ddd;border-radius:8px;margin-bottom:14px;font-size:13px;">'
+      +'<div style="display:flex;gap:8px;">'
+      +'<button id="stampaActivar" style="flex:1;padding:9px;border-radius:8px;border:none;font-family:Montserrat,sans-serif;font-weight:700;font-size:13px;cursor:pointer;background:linear-gradient(135deg,#c62828,#a31515);color:#fff;">✅ Activar</button>'
+      +'<button id="stampaDesactivar" style="flex:1;padding:9px;border-radius:8px;border:none;font-family:Montserrat,sans-serif;font-weight:700;font-size:13px;cursor:pointer;background:linear-gradient(135deg,#757575,#555);color:#fff;">❌ Desactivar</button>'
+      +'</div>'
+      +'<button id="stampaCerrar" style="width:100%;margin-top:8px;padding:8px;border-radius:8px;border:1.5px solid #ddd;background:#fafafa;font-family:Montserrat,sans-serif;font-weight:600;font-size:13px;cursor:pointer;color:#555;">Cerrar</button>'
+      +'<p id="stampaEstado" style="font-size:11px;text-align:center;margin:8px 0 0;font-weight:700;"></p>'
+      +'</div>';
+    document.body.appendChild(overlay);
+
+    // Rellenar con estado actual (solo si está activo)
+    if(_stampaConfig.activo) {
+      if(_stampaConfig.lat) document.getElementById('stampaLat').value = _stampaConfig.lat+','+_stampaConfig.lng;
+      if(_stampaConfig.usuario) document.getElementById('stampaUsuario').value = _stampaConfig.usuario;
+      if(_stampaConfig.fecha) {
+        var fd = _stampaConfig.fecha;
+        var pad2 = function(n){ return String(n).padStart(2,'0'); };
+        document.getElementById('stampaFecha').value = fd.getFullYear()+'-'+pad2(fd.getMonth()+1)+'-'+pad2(fd.getDate())+'T'+pad2(fd.getHours())+':'+pad2(fd.getMinutes());
+      }
+      document.getElementById('stampaEstado').innerText = '🟢 Estampa personalizada ACTIVA';
+      document.getElementById('stampaEstado').style.color = '#2e7d32';
+    } else {
+      document.getElementById('stampaEstado').innerText = '⚪ Usando estampa automática (GPS + fecha actual)';
+      document.getElementById('stampaEstado').style.color = '#757575';
+    }
+
+    document.getElementById('stampaActivar').addEventListener('click', function(){
+      var coordStr = document.getElementById('stampaLat').value.trim();
+      var parts = coordStr.split(',');
+      if(coordStr && parts.length===2 && !isNaN(parseFloat(parts[0])) && !isNaN(parseFloat(parts[1]))){
+        _stampaConfig.lat = parseFloat(parts[0]).toFixed(5);
+        _stampaConfig.lng = parseFloat(parts[1]).toFixed(5);
+      } else { _stampaConfig.lat=null; _stampaConfig.lng=null; }
+      var fechaVal = document.getElementById('stampaFecha').value;
+      _stampaConfig.fecha = fechaVal ? new Date(fechaVal) : null;
+      var usuVal = document.getElementById('stampaUsuario').value.trim();
+      _stampaConfig.usuario = usuVal || null;
+      _stampaConfig.activo = true;
+      document.getElementById('stampaEstado').innerText = '🟢 Estampa personalizada ACTIVA';
+      document.getElementById('stampaEstado').style.color = '#2e7d32';
+      // Re-estampar fotos del formulario actual
+      reestamparFotosActuales(function(){ actualizarPreviewFotos(); });
+      alert('✅ Estampa personalizada activada\nLas fotos del formulario actual han sido actualizadas.');
+    });
+
+    document.getElementById('stampaDesactivar').addEventListener('click', function(){
+      _stampaConfig.activo = false;
+      _stampaConfig.lat = null; _stampaConfig.lng = null;
+      _stampaConfig.fecha = null; _stampaConfig.usuario = null;
+      document.getElementById('stampaLat').value = '';
+      document.getElementById('stampaFecha').value = '';
+      document.getElementById('stampaUsuario').value = '';
+      document.getElementById('stampaEstado').innerText = '⚪ Usando estampa automática (GPS + fecha actual)';
+      document.getElementById('stampaEstado').style.color = '#757575';
+      // Re-estampar fotos del formulario actual con config automática
+      reestamparFotosActuales(function(){ actualizarPreviewFotos(); });
+      alert('⚪ Estampa restablecida al modo automático\nLas fotos del formulario actual han sido actualizadas.');
+    });
+
+    document.getElementById('stampaCerrar').addEventListener('click', function(){
+      overlay.parentNode.removeChild(overlay);
+    });
+  }
+
+  // PC: Ctrl+M
+  document.addEventListener('keydown', function(e){
+    if(e.ctrlKey && e.key==='m'){ e.preventDefault(); mostrarPanelEstampa(); }
+  });
+
+  // Móvil: 5 toques rápidos en el h1 del login
+  var _toquesEstampa=0, _timerEstampa=null;
+  var h1Login = document.querySelector('#pantallaLogin h1');
+  if(h1Login){
+    h1Login.addEventListener('click', function(){
+      _toquesEstampa++;
+      clearTimeout(_timerEstampa);
+      _timerEstampa = setTimeout(function(){ _toquesEstampa=0; }, 2000);
+      if(_toquesEstampa>=5){ _toquesEstampa=0; mostrarPanelEstampa(); }
+    });
+  }
 
   // ===== TRANSCRIPCIÓN POR VOZ =====
   (function() {
