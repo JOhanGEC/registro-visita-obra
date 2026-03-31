@@ -793,6 +793,10 @@ document.addEventListener("DOMContentLoaded", function() {
     if(obs.length<140){ alert("La observacion es muy corta ("+obs.length+" caracteres).\nIncluya mas analisis tecnico: causas, riesgos, estado actual y recomendaciones.\nMinimo 140 caracteres."); return; }
     registros.push({ usuario:usuarioActivo, proyecto:nombreProyecto, fecha:new Date().toLocaleString('es-CO'),
       fotos:fotosActuales.slice(), observacion:obs, disciplina:dis, lugar:lug, responsable:res, impacto:imp });
+    // Si hay fecha personalizada activa, aumentar 10 minutos para la siguiente observacion
+    if(_stampaConfig.activo && _stampaConfig.fecha) {
+      _stampaConfig.fecha = new Date(_stampaConfig.fecha.getTime() + 10 * 60 * 1000);
+    }
     actualizarContador(); alert("Observacion agregada"); limpiarFormulario();
   });
 
@@ -1479,8 +1483,7 @@ document.addEventListener("DOMContentLoaded", function() {
       +'<input id="stampaLat" type="text" placeholder="Ej: 4.60971,-74.08175" style="width:100%;padding:8px;border:1.5px solid #ddd;border-radius:8px;margin-bottom:10px;font-size:13px;">'
       +'<label style="font-size:12px;font-weight:600;display:block;margin-bottom:2px;">Fecha y hora personalizada</label>'
       +'<input id="stampaFecha" type="datetime-local" style="width:100%;padding:8px;border:1.5px solid #ddd;border-radius:8px;margin-bottom:10px;font-size:13px;" title="Seleccione fecha Y hora">'
-      +'<label style="font-size:12px;font-weight:600;display:block;margin-bottom:2px;">Usuario en estampa</label>'
-      +'<input id="stampaUsuario" type="text" placeholder="Nombre en estampa" style="width:100%;padding:8px;border:1.5px solid #ddd;border-radius:8px;margin-bottom:14px;font-size:13px;">'
+
       +'<div style="display:flex;gap:8px;">'
       +'<button id="stampaActivar" style="flex:1;padding:9px;border-radius:8px;border:none;font-family:Montserrat,sans-serif;font-weight:700;font-size:13px;cursor:pointer;background:linear-gradient(135deg,#c62828,#a31515);color:#fff;">✅ Activar</button>'
       +'<button id="stampaDesactivar" style="flex:1;padding:9px;border-radius:8px;border:none;font-family:Montserrat,sans-serif;font-weight:700;font-size:13px;cursor:pointer;background:linear-gradient(135deg,#757575,#555);color:#fff;">❌ Desactivar</button>'
@@ -1493,7 +1496,7 @@ document.addEventListener("DOMContentLoaded", function() {
     // Rellenar con estado actual (solo si está activo)
     if(_stampaConfig.activo) {
       if(_stampaConfig.lat) document.getElementById('stampaLat').value = _stampaConfig.lat+','+_stampaConfig.lng;
-      if(_stampaConfig.usuario) document.getElementById('stampaUsuario').value = _stampaConfig.usuario;
+
       if(_stampaConfig.fecha) {
         var fd = _stampaConfig.fecha;
         var pad2 = function(n){ return String(n).padStart(2,'0'); };
@@ -1515,8 +1518,7 @@ document.addEventListener("DOMContentLoaded", function() {
       } else { _stampaConfig.lat=null; _stampaConfig.lng=null; }
       var fechaVal = document.getElementById('stampaFecha').value;
       _stampaConfig.fecha = fechaVal ? new Date(fechaVal) : null;
-      var usuVal = document.getElementById('stampaUsuario').value.trim();
-      _stampaConfig.usuario = usuVal || null;
+
       _stampaConfig.activo = true;
       document.getElementById('stampaEstado').innerText = '🟢 Estampa personalizada ACTIVA';
       document.getElementById('stampaEstado').style.color = '#2e7d32';
@@ -1531,7 +1533,7 @@ document.addEventListener("DOMContentLoaded", function() {
       _stampaConfig.fecha = null; _stampaConfig.usuario = null;
       document.getElementById('stampaLat').value = '';
       document.getElementById('stampaFecha').value = '';
-      document.getElementById('stampaUsuario').value = '';
+
       document.getElementById('stampaEstado').innerText = '⚪ Usando estampa automática (GPS + fecha actual)';
       document.getElementById('stampaEstado').style.color = '#757575';
       // Re-estampar fotos del formulario actual con config automática
