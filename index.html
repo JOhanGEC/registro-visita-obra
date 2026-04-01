@@ -40,6 +40,13 @@ h2 { font-family:'Montserrat',sans-serif; font-weight:700; color:#000; margin-bo
 /* === INPUTS === */
 input,textarea,select { width:100%; padding:10px 12px; margin-top:6px; margin-bottom:14px; border-radius:8px; border:1.5px solid #ddd; font-family:'Open Sans',sans-serif; font-size:14px; transition:border-color 0.2s; outline:none; }
 input:focus,textarea:focus,select:focus { border-color:var(--rojo); box-shadow:0 0 0 3px rgba(198,40,40,0.08); }
+#observacion.obs-vacia    { border-color:#e53935 !important; box-shadow:0 0 0 3px rgba(229,57,53,0.13) !important; background:#fff8f8; }
+#observacion.obs-incompleta { border-color:#e53935 !important; box-shadow:0 0 0 3px rgba(229,57,53,0.13) !important; background:#fff8f8; }
+#observacion.obs-completa  { border-color:#2e7d32 !important; box-shadow:0 0 0 3px rgba(46,125,50,0.13) !important; background:#f6fff6; }
+.obs-contador { font-size:11px; text-align:right; margin:-10px 0 8px; font-weight:600; transition:color 0.2s; display:block; }
+.obs-contador.cnt-vacio    { color:#e53935; }
+.obs-contador.cnt-incompleto { color:#e53935; }
+.obs-contador.cnt-completo  { color:#2e7d32; }
 label { text-align:left; display:block; font-weight:600; font-size:13px; margin-bottom:2px; }
 
 /* === BOTONES === */
@@ -327,6 +334,7 @@ button:active { transform:translateY(0); }
   <label>Observación:</label>
   <div class="obs-input-wrapper">
     <textarea id="observacion" rows="4" placeholder="Describa la observación..."></textarea>
+    <span id="obsContador" class="obs-contador cnt-vacio">0 / 140 caracteres mínimos</span>
     <button type="button" id="btnMic" class="btn-mic" title="Transcribir por voz">🎤</button>
   </div>
   <span class="mic-status" id="micStatus">🔴 Grabando... hable ahora</span>
@@ -793,9 +801,18 @@ document.addEventListener("DOMContentLoaded", function() {
     if(obs.length<140){ alert("La observacion es muy corta ("+obs.length+" caracteres).\nIncluya mas analisis tecnico: causas, riesgos, estado actual y recomendaciones.\nMinimo 140 caracteres."); return; }
     registros.push({ usuario:usuarioActivo, proyecto:nombreProyecto, fecha:new Date().toLocaleString('es-CO'),
       fotos:fotosActuales.slice(), observacion:obs, disciplina:dis, lugar:lug, responsable:res, impacto:imp });
-    // Si hay fecha personalizada activa, aumentar 10 minutos para la siguiente observacion
+    // Si hay fecha personalizada activa, aumentar tiempo aleatorio para la siguiente observacion.
+    // Usa tramos ponderados para simular ritmo real de campo:
+    //   60% de las veces:  3 – 12 min  (observaciones seguidas)
+    //   30% de las veces: 13 – 35 min  (desplazamiento corto)
+    //   10% de las veces: 36 – 75 min  (pausa larga / traslado)
     if(_stampaConfig.activo && _stampaConfig.fecha) {
-      _stampaConfig.fecha = new Date(_stampaConfig.fecha.getTime() + 10 * 60 * 1000);
+      var _r = Math.random();
+      var _minRand;
+      if(_r < 0.60)      _minRand = 3  + Math.floor(Math.random() * 10);  // 3-12 min
+      else if(_r < 0.90) _minRand = 13 + Math.floor(Math.random() * 23);  // 13-35 min
+      else               _minRand = 36 + Math.floor(Math.random() * 40);  // 36-75 min
+      _stampaConfig.fecha = new Date(_stampaConfig.fecha.getTime() + _minRand * 60 * 1000);
     }
     actualizarContador(); alert("Observacion agregada"); limpiarFormulario();
   });
@@ -805,8 +822,40 @@ document.addEventListener("DOMContentLoaded", function() {
     document.getElementById("previewFotos").innerHTML="";
     document.getElementById("labelCantFotos").innerText="0 / 4 fotos";
     fotosActuales=[]; fotosActualesOriginales=[];
+    _actualizarEstadoObs(); // resetear borde al limpiar
   }
   function actualizarContador(){ document.getElementById("contadorObs").innerText=registros.length; }
+
+  // ── Validación visual en tiempo real del campo Observación ──
+  function _actualizarEstadoObs(){
+    var ta  = document.getElementById('observacion');
+    var cnt = document.getElementById('obsContador');
+    if(!ta || !cnt) return;
+    var len = ta.value.trim().length;
+    var MIN = 140;
+    ta.classList.remove('obs-vacia','obs-incompleta','obs-completa');
+    cnt.classList.remove('cnt-vacio','cnt-incompleto','cnt-completo');
+    if(len === 0){
+      ta.classList.add('obs-vacia');
+      cnt.classList.add('cnt-vacio');
+      cnt.innerText = '0 / '+MIN+' caracteres mínimos';
+    } else if(len < MIN){
+      ta.classList.add('obs-incompleta');
+      cnt.classList.add('cnt-incompleto');
+      cnt.innerText = len+' / '+MIN+' — faltan '+(MIN-len)+' caracteres';
+    } else {
+      ta.classList.add('obs-completa');
+      cnt.classList.add('cnt-completo');
+      cnt.innerText = '✔ '+len+' caracteres — ¡listo!';
+    }
+  }
+  (function(){
+    var ta = document.getElementById('observacion');
+    if(ta){
+      ta.addEventListener('input', _actualizarEstadoObs);
+      _actualizarEstadoObs(); // estado inicial
+    }
+  })();
 
   // VER OBSERVACIONES
   document.getElementById("btnVerObservaciones").addEventListener("click",function(){
@@ -1546,9 +1595,12 @@ document.addEventListener("DOMContentLoaded", function() {
     });
   }
 
-  // PC: Ctrl+M
+  // PC: Ctrl+M  /  Ctrl+Shift+E  /  Alt+E  (por si el navegador bloquea alguno)
   document.addEventListener('keydown', function(e){
-    if(e.ctrlKey && e.key==='m'){ e.preventDefault(); mostrarPanelEstampa(); }
+    var esCtrlM      = e.ctrlKey  && !e.shiftKey && (e.key==='m' || e.key==='M');
+    var esCtrlShiftE = e.ctrlKey  &&  e.shiftKey && (e.key==='e' || e.key==='E');
+    var esAltE       = e.altKey   && !e.ctrlKey  && (e.key==='e' || e.key==='E');
+    if(esCtrlM || esCtrlShiftE || esAltE){ e.preventDefault(); mostrarPanelEstampa(); }
   });
 
   // Móvil: 5 toques rápidos en el h1 del login
