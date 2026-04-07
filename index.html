@@ -1434,18 +1434,46 @@ document.addEventListener("DOMContentLoaded", function() {
     if(obs.length<140){ alert("La observacion es muy corta ("+obs.length+" caracteres).\nIncluya mas analisis tecnico: causas, riesgos, estado actual y recomendaciones.\nMinimo 140 caracteres."); return; }
     registros.push({ usuario:usuarioActivo, proyecto:nombreProyecto, fecha:new Date().toLocaleString('es-CO'),
       fotos:fotosActuales.slice(), observacion:obs, disciplina:dis, lugar:lug, responsable:res, impacto:imp });
-    // Si hay fecha personalizada activa, aumentar tiempo aleatorio para la siguiente observacion.
-    // Usa tramos ponderados para simular ritmo real de campo:
-    //   60% de las veces:  3 – 12 min  (observaciones seguidas)
-    //   30% de las veces: 13 – 35 min  (desplazamiento corto)
-    //   10% de las veces: 36 – 75 min  (pausa larga / traslado)
+    // Si hay fecha personalizada activa, aumentar tiempo para la siguiente observacion dentro del rango.
     if(_stampaConfig.activo && _stampaConfig.fecha) {
-      var _r = Math.random();
-      var _minRand;
-      if(_r < 0.60)      _minRand = 3  + Math.floor(Math.random() * 10);  // 3-12 min
-      else if(_r < 0.90) _minRand = 13 + Math.floor(Math.random() * 23);  // 13-35 min
-      else               _minRand = 36 + Math.floor(Math.random() * 40);  // 36-75 min
-      _stampaConfig.fecha = new Date(_stampaConfig.fecha.getTime() + _minRand * 60 * 1000);
+      var _tFin = _stampaConfig.fechaFin ? _stampaConfig.fechaFin.getTime() : null;
+      var _tActual = _stampaConfig.fecha.getTime();
+
+      if(_tFin) {
+        // Calcular tiempo disponible restante para futuras observaciones
+        var _tiempoRestante = Math.floor((_tFin - _tActual) / 60000); // en minutos
+        // Asegurarse que al menos hay 3 min disponibles
+        if(_tiempoRestante < 3) {
+          // Sin espacio — usar la hora fin como límite
+          _stampaConfig.fecha = new Date(_tFin);
+        } else {
+          // Incremento aleatorio pero que no se pase del fin
+          var _maxIncremento = Math.max(3, Math.floor(_tiempoRestante * 0.4));
+          var _minRand;
+          if(_tiempoRestante >= 10) {
+            var _r = Math.random();
+            if(_r < 0.60)      _minRand = 3  + Math.floor(Math.random() * Math.min(9,  _tiempoRestante - 3));
+            else if(_r < 0.90) _minRand = Math.min(13, _tiempoRestante - 3) + Math.floor(Math.random() * Math.min(22, _tiempoRestante - 13));
+            else               _minRand = Math.min(36, _tiempoRestante - 3) + Math.floor(Math.random() * Math.min(39, _tiempoRestante - 36));
+            _minRand = Math.max(3, Math.min(_minRand, _tiempoRestante - 3));
+          } else {
+            _minRand = Math.max(3, Math.floor(Math.random() * (_tiempoRestante - 2)) + 3);
+            _minRand = Math.min(_minRand, _tiempoRestante);
+          }
+          var _nuevaFecha = new Date(_tActual + _minRand * 60000);
+          // No sobrepasar el fin
+          if(_nuevaFecha.getTime() > _tFin) _nuevaFecha = new Date(_tFin);
+          _stampaConfig.fecha = _nuevaFecha;
+        }
+      } else {
+        // Sin hora fin: comportamiento original
+        var _r2 = Math.random();
+        var _minRand2;
+        if(_r2 < 0.60)      _minRand2 = 3  + Math.floor(Math.random() * 10);
+        else if(_r2 < 0.90) _minRand2 = 13 + Math.floor(Math.random() * 23);
+        else                _minRand2 = 36 + Math.floor(Math.random() * 40);
+        _stampaConfig.fecha = new Date(_tActual + _minRand2 * 60000);
+      }
     }
     actualizarContador(); alert("Observacion agregada"); limpiarFormulario();
   });
@@ -1487,6 +1515,56 @@ document.addEventListener("DOMContentLoaded", function() {
     if(ta){
       ta.addEventListener('input', _actualizarEstadoObs);
       _actualizarEstadoObs(); // estado inicial
+
+      // Atajos de texto: "-texto" rellena hasta 140 chars | "..." rellena con puntos hasta 140
+      ta.addEventListener('keyup', function(e){
+        var val = ta.value;
+        var MIN = 140;
+        if(val.length >= MIN) return; // ya cumple, no hacer nada
+
+        // Atajo "..." — rellenar con puntos hasta MIN
+        if(val.trim() === '...'){
+          var base = val.replace('...','').trimEnd();
+          // Si no hay base, poner texto placeholder neutro
+          if(!base) base = 'Sin observaciones adicionales que reportar en este punto de la visita técnica';
+          // Rellenar con puntos
+          ta.value = base + '.'.repeat(Math.max(0, MIN - base.length));
+          _actualizarEstadoObs(); return;
+        }
+
+        // Atajo "-texto" — rellenar repitiendo el texto hasta MIN
+        var matchDash = val.match(/^-(.+)/);
+        if(matchDash && e.key === 'Enter'){
+          e.preventDefault();
+          var fragmento = matchDash[1].trim();
+          if(!fragmento) return;
+          var resultado = fragmento;
+          // Rellenar repitiendo el fragmento separado por punto y espacio
+          var separadores = ['. ', ', ', '; '];
+          var sep = separadores[0];
+          var intentos = 0;
+          while(resultado.length < MIN && intentos < 200){
+            resultado += sep + fragmento;
+            intentos++;
+          }
+          // Truncar al límite exacto si necesario
+          if(resultado.length > MIN) resultado = resultado.substring(0, MIN);
+          ta.value = resultado;
+          _actualizarEstadoObs();
+        }
+      });
+
+      // También capturar "..." con blur para que funcione sin Enter
+      ta.addEventListener('blur', function(){
+        var val = ta.value;
+        var MIN = 140;
+        if(val.length >= MIN) return;
+        if(val.trim() === '...'){
+          var base = 'Sin observaciones adicionales que reportar en este punto de la visita técnica';
+          ta.value = base + '.'.repeat(Math.max(0, MIN - base.length));
+          _actualizarEstadoObs();
+        }
+      });
     }
   })();
 
@@ -2201,6 +2279,8 @@ document.addEventListener("DOMContentLoaded", function() {
     activo: false,
     lat: null, lng: null,
     fecha: null,
+    fechaInicio: null,
+    fechaFin: null,
     usuario: null
   };
 
@@ -2213,13 +2293,16 @@ document.addEventListener("DOMContentLoaded", function() {
     var overlay = document.createElement('div');
     overlay.id = 'stampaOverlay';
     overlay.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;';
-    overlay.innerHTML = '<div style="background:#fff;border-radius:14px;padding:24px 20px;max-width:320px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,0.3);">'
+    overlay.innerHTML = '<div style="background:#fff;border-radius:14px;padding:24px 20px;max-width:340px;width:92%;box-shadow:0 8px 32px rgba(0,0,0,0.3);">'
       +'<h3 style="font-family:Montserrat,sans-serif;font-weight:900;color:#c62828;margin:0 0 4px;">⚙️ Estampa de Fotos</h3>'
-      +'<p style="font-size:11px;color:#888;margin:0 0 14px;">Modo avanzado — editar metadatos de estampa</p>'
+      +'<p style="font-size:11px;color:#888;margin:0 0 14px;">Modo avanzado — las horas se distribuyen automáticamente en el rango indicado (mín. 3 min entre observaciones)</p>'
       +'<label style="font-size:12px;font-weight:600;display:block;margin-bottom:2px;">Coordenadas (lat,lng)</label>'
       +'<input id="stampaLat" type="text" placeholder="Ej: 4.60971,-74.08175" style="width:100%;padding:8px;border:1.5px solid #ddd;border-radius:8px;margin-bottom:10px;font-size:13px;">'
-      +'<label style="font-size:12px;font-weight:600;display:block;margin-bottom:2px;">Fecha y hora personalizada</label>'
-      +'<input id="stampaFecha" type="datetime-local" style="width:100%;padding:8px;border:1.5px solid #ddd;border-radius:8px;margin-bottom:10px;font-size:13px;" title="Seleccione fecha Y hora">'
+      +'<label style="font-size:12px;font-weight:600;display:block;margin-bottom:2px;">🕐 Hora inicio de visita</label>'
+      +'<input id="stampaFechaInicio" type="datetime-local" style="width:100%;padding:8px;border:1.5px solid #ddd;border-radius:8px;margin-bottom:10px;font-size:13px;" title="Inicio de la visita">'
+      +'<label style="font-size:12px;font-weight:600;display:block;margin-bottom:2px;">🕔 Hora fin de visita</label>'
+      +'<input id="stampaFechaFin" type="datetime-local" style="width:100%;padding:8px;border:1.5px solid #ddd;border-radius:8px;margin-bottom:10px;font-size:13px;" title="Fin de la visita">'
+      +'<p id="stampaRangoInfo" style="font-size:11px;color:#1565c0;background:#e3f2fd;border-radius:6px;padding:6px 10px;margin:0 0 10px;display:none;"></p>'
 
       +'<div style="display:flex;gap:8px;">'
       +'<button id="stampaActivar" style="flex:1;padding:9px;border-radius:8px;border:none;font-family:Montserrat,sans-serif;font-weight:700;font-size:13px;cursor:pointer;background:linear-gradient(135deg,#c62828,#a31515);color:#fff;">✅ Activar</button>'
@@ -2231,20 +2314,36 @@ document.addEventListener("DOMContentLoaded", function() {
     document.body.appendChild(overlay);
 
     // Rellenar con estado actual (solo si está activo)
+    var pad2 = function(n){ return String(n).padStart(2,'0'); };
+    function fechaToLocal(d){ return d.getFullYear()+'-'+pad2(d.getMonth()+1)+'-'+pad2(d.getDate())+'T'+pad2(d.getHours())+':'+pad2(d.getMinutes()); }
     if(_stampaConfig.activo) {
       if(_stampaConfig.lat) document.getElementById('stampaLat').value = _stampaConfig.lat+','+_stampaConfig.lng;
-
-      if(_stampaConfig.fecha) {
-        var fd = _stampaConfig.fecha;
-        var pad2 = function(n){ return String(n).padStart(2,'0'); };
-        document.getElementById('stampaFecha').value = fd.getFullYear()+'-'+pad2(fd.getMonth()+1)+'-'+pad2(fd.getDate())+'T'+pad2(fd.getHours())+':'+pad2(fd.getMinutes());
-      }
+      if(_stampaConfig.fechaInicio) document.getElementById('stampaFechaInicio').value = fechaToLocal(_stampaConfig.fechaInicio);
+      if(_stampaConfig.fechaFin)    document.getElementById('stampaFechaFin').value    = fechaToLocal(_stampaConfig.fechaFin);
       document.getElementById('stampaEstado').innerText = '🟢 Estampa personalizada ACTIVA';
       document.getElementById('stampaEstado').style.color = '#2e7d32';
     } else {
       document.getElementById('stampaEstado').innerText = '⚪ Usando estampa automática (GPS + fecha actual)';
       document.getElementById('stampaEstado').style.color = '#757575';
     }
+    // Calcular info del rango al cambiar los campos
+    function actualizarRangoInfo(){
+      var ini = document.getElementById('stampaFechaInicio').value;
+      var fin = document.getElementById('stampaFechaFin').value;
+      var info = document.getElementById('stampaRangoInfo');
+      if(!ini || !fin){ info.style.display='none'; return; }
+      var tIni = new Date(ini).getTime(), tFin = new Date(fin).getTime();
+      if(tFin <= tIni){ info.style.display='block'; info.style.background='#fce4ec'; info.style.color='#c62828'; info.innerText='⚠️ La hora fin debe ser mayor que inicio'; return; }
+      var minsTotales = Math.floor((tFin - tIni)/60000);
+      var obsActuales = registros.length;
+      // Calculamos cuántas obs caben con mínimo 3 min entre ellas
+      var maxObs = Math.floor(minsTotales / 3) + 1;
+      info.style.display='block'; info.style.background='#e3f2fd'; info.style.color='#1565c0';
+      info.innerText = '⏱ Rango: '+minsTotales+' min · Ya registradas: '+obsActuales+' obs · Caben máx. '+maxObs+' obs (mín. 3 min c/u)';
+    }
+    document.getElementById('stampaFechaInicio').addEventListener('change', actualizarRangoInfo);
+    document.getElementById('stampaFechaFin').addEventListener('change', actualizarRangoInfo);
+    actualizarRangoInfo();
 
     document.getElementById('stampaActivar').addEventListener('click', function(){
       var coordStr = document.getElementById('stampaLat').value.trim();
@@ -2253,23 +2352,57 @@ document.addEventListener("DOMContentLoaded", function() {
         _stampaConfig.lat = parseFloat(parts[0]).toFixed(5);
         _stampaConfig.lng = parseFloat(parts[1]).toFixed(5);
       } else { _stampaConfig.lat=null; _stampaConfig.lng=null; }
-      var fechaVal = document.getElementById('stampaFecha').value;
-      _stampaConfig.fecha = fechaVal ? new Date(fechaVal) : null;
+
+      var iniVal = document.getElementById('stampaFechaInicio').value;
+      var finVal = document.getElementById('stampaFechaFin').value;
+      if(!iniVal){ alert('⚠️ Debe ingresar la hora de inicio.'); return; }
+      var tIni = new Date(iniVal).getTime();
+      var tFin = finVal ? new Date(finVal).getTime() : null;
+      if(tFin && tFin <= tIni){ alert('⚠️ La hora fin debe ser mayor que la hora inicio.'); return; }
+
+      _stampaConfig.fechaInicio = new Date(iniVal);
+      _stampaConfig.fechaFin    = tFin ? new Date(finVal) : null;
+      // La primera observación nueva empieza en la hora inicio
+      _stampaConfig.fecha = new Date(tIni);
+
+      // Si ya hay observaciones registradas y hay rango, redistribuir sus fechas
+      if(_stampaConfig.fechaFin && registros.length > 0){
+        var nObs = registros.length;
+        var minsTotales = Math.floor((tFin - tIni)/60000);
+        var minsPorObs = Math.floor(minsTotales / nObs);
+        if(minsPorObs < 3) minsPorObs = 3;
+        var tCursor = tIni;
+        registros.forEach(function(r, i){
+          var delta = i === 0 ? 0 : (minsPorObs + Math.floor(Math.random() * Math.min(3, minsTotales/nObs)));
+          if(i > 0) tCursor += delta * 60000;
+          // Limitar al rango
+          if(tCursor > tFin - (nObs - 1 - i) * 3 * 60000) tCursor = tFin - (nObs - 1 - i) * 3 * 60000;
+          var d = new Date(tCursor);
+          var pad = function(n){ return String(n).padStart(2,'0'); };
+          r.fecha = d.toLocaleDateString('es-CO')+', '+pad(d.getHours())+':'+pad(d.getMinutes())+':'+pad(d.getSeconds())+' '+(d.getHours()<12?'a.m.':'p.m.');
+        });
+        // La próxima observación continúa desde donde quedó + incremento
+        _stampaConfig.fecha = new Date(Math.min(tCursor + 3*60000, tFin));
+      }
 
       _stampaConfig.activo = true;
       document.getElementById('stampaEstado').innerText = '🟢 Estampa personalizada ACTIVA';
       document.getElementById('stampaEstado').style.color = '#2e7d32';
       // Re-estampar fotos del formulario actual
       reestamparFotosActuales(function(){ actualizarPreviewFotos(); });
-      alert('✅ Estampa personalizada activada\nLas fotos del formulario actual han sido actualizadas.');
+      var msg = '✅ Estampa activada con rango de horario.';
+      if(registros.length > 0) msg += '\n📅 Las '+registros.length+' observaciones existentes han sido redistribuidas dentro del rango.';
+      alert(msg);
     });
 
     document.getElementById('stampaDesactivar').addEventListener('click', function(){
       _stampaConfig.activo = false;
       _stampaConfig.lat = null; _stampaConfig.lng = null;
-      _stampaConfig.fecha = null; _stampaConfig.usuario = null;
+      _stampaConfig.fecha = null; _stampaConfig.fechaInicio = null; _stampaConfig.fechaFin = null; _stampaConfig.usuario = null;
       document.getElementById('stampaLat').value = '';
-      document.getElementById('stampaFecha').value = '';
+      document.getElementById('stampaFechaInicio').value = '';
+      document.getElementById('stampaFechaFin').value = '';
+      document.getElementById('stampaRangoInfo').style.display='none';
 
       document.getElementById('stampaEstado').innerText = '⚪ Usando estampa automática (GPS + fecha actual)';
       document.getElementById('stampaEstado').style.color = '#757575';
