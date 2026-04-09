@@ -746,7 +746,7 @@ button:active { transform:translateY(0); }
   </div>
 
   <!-- Badge versión -->
-  <div id="loginVersionBadge">v2.0</div>
+  <div id="loginVersionBadge">v2.1</div>
 
   <!-- Panel lateral de login -->
   <div id="loginPanel">
@@ -889,6 +889,7 @@ button:active { transform:translateY(0); }
     <option>Hidraulica</option><option>HVAC</option><option>RCI</option>
     <option>Iluminacion</option><option>Seguridad Electronica</option><option>Comunicaciones</option><option>Obra</option>
     <option>Coordinacion</option><option>Ordes y Aseso</option><option>SST</option>
+    <option>Avances de Obra</option>
   </select>
 
   <label>Lugar / Ubicación:</label>
@@ -905,10 +906,13 @@ button:active { transform:translateY(0); }
   <label>Nivel de Impacto:</label>
   <select id="impacto">
     <option value="">Seleccione</option>
-    <option>Bajo</option><option>Medio</option><option>Alto</option><option>Crítico</option>
+    <option>Bajo</option><option>Medio</option><option>Alto</option><option>Crítico</option><option>Ninguno</option>
   </select>
 
-  <button id="btnAgregar">Agregar Observación</button>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:4px;">
+    <button id="btnAgregar" style="flex:1;">Agregar Observación</button>
+    <button id="btnAvanceObra" style="flex:1;background:linear-gradient(135deg,#1565c0,#0d47a1);color:#fff;border:none;border-radius:8px;padding:10px 12px;font-family:Montserrat,sans-serif;font-weight:700;font-size:13px;cursor:pointer;box-shadow:0 2px 8px rgba(21,101,192,0.3);">📸 Avance de Obra</button>
+  </div>
   <button id="btnVerObservaciones" class="btn-secundario">Ver Observaciones (<span id="contadorObs">0</span>)</button>
   <button id="btnExportarJSON" title="Exportar JSON para continuar editando" style="width:auto;padding:7px 18px;font-size:12px;margin:4px auto;display:block;border-radius:8px;border:none;font-family:Montserrat,sans-serif;font-weight:700;cursor:pointer;background:linear-gradient(135deg,#1565c0,#0d47a1);color:#fff;box-shadow:0 2px 8px rgba(21,101,192,0.3);">💾 Guardar JSON</button>
 </div>
@@ -932,6 +936,8 @@ button:active { transform:translateY(0); }
     <input type="file" id="addGaleriaInput" accept="image/*" style="display:none;margin:0;">
     <span id="labelFotosObs" style="font-size:11px;color:#999;display:block;text-align:right;margin-top:4px;"></span>
   </div>
+  <!-- Botón ver anexos de avance de obra -->
+  <button id="btnVerAnexos" style="width:100%;padding:10px;border-radius:8px;border:none;background:linear-gradient(135deg,#1565c0,#0d47a1);color:#fff;font-family:Montserrat,sans-serif;font-weight:700;font-size:13px;cursor:pointer;box-shadow:0 2px 8px rgba(21,101,192,0.3);margin:4px 0;">📸 Ver Anexo Avance de Obra (<span id="contadorAnexos">0</span> fotos)</button>
   <div class="nav-obs">
     <button id="btnObsAnterior">&#9664;</button>
     <span class="obs-indicator" id="obsIndicador">1 / 1</span>
@@ -1077,9 +1083,10 @@ button:active { transform:translateY(0); }
 // ============================================================
 document.addEventListener("DOMContentLoaded", function() {
 
-  // v2.0: acceso libre — cualquier usuario puede ingresar
+  // v2.1: acceso libre — cualquier usuario puede ingresar
   var usuarioActivo="", nombreProyecto="", registros=[], fotosActuales=[];
   var obsIndex=0, fotoIndex=0;
+  var fotosAvanceObra = []; // Fotos del anexo Avance de Obra (máx 10)
 
   var siglasProyecto = {
     'CER FASE II':'CPA','URI NORTE':'URN','URI TUNJUELITO':'URT',
@@ -1091,7 +1098,7 @@ document.addEventListener("DOMContentLoaded", function() {
     'Arquitectura':[198,40,40],'Estructura':[21,101,192],'Electrica':[255,160,0],
     'Hidraulica':[0,150,136],'HVAC':[123,31,162],'RCI':[211,47,47],
     'Iluminacion':[251,192,45],'Seguridad Electronica':[55,71,79],'Comunicaciones':[46,125,50],'Obra':[94,53,177],
-    'Coordinacion':[0,120,180],'Ordes y Aseso':[180,100,0],'SST':[0,130,50]
+    'Coordinacion':[0,120,180],'Ordes y Aseso':[180,100,0],'SST':[0,130,50],'Avances de Obra':[0,100,60]
   };
 
   function ir(id) {
@@ -1188,6 +1195,7 @@ document.addEventListener("DOMContentLoaded", function() {
           registros=datos.registros;
           if(datos.proyecto) nombreProyecto=datos.proyecto;
           if(datos.usuario)  usuarioActivo=datos.usuario;
+          if(datos.fotosAvanceObra && Array.isArray(datos.fotosAvanceObra)) fotosAvanceObra=datos.fotosAvanceObra;
           document.getElementById("nombreProyectoDisplay").innerText=nombreProyecto;
           document.getElementById("usuarioDisplay").innerText=formatearUsuario(usuarioActivo);
           actualizarContador();
@@ -1487,7 +1495,173 @@ document.addEventListener("DOMContentLoaded", function() {
   }
   function actualizarContador(){ document.getElementById("contadorObs").innerText=registros.length; }
 
-  // ── Validación visual en tiempo real del campo Observación ──
+  // ===== AVANCE DE OBRA =====
+  document.getElementById("btnAvanceObra").addEventListener("click", function(){
+    // Modal para gestionar fotos de avance de obra
+    var overlay = document.createElement('div');
+    overlay.id = 'avanceObraOverlay';
+    overlay.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.75);display:flex;align-items:center;justify-content:center;';
+
+    function buildModal(){
+      var html = '<div style="background:#fff;border-radius:16px;padding:22px 20px;max-width:380px;width:94%;box-shadow:0 10px 40px rgba(0,0,0,0.35);max-height:90vh;overflow-y:auto;">'
+        +'<h3 style="font-family:Montserrat,sans-serif;font-weight:900;color:#1565c0;margin:0 0 4px;font-size:1.1rem;">📸 Registro de Avance de Obra</h3>'
+        +'<p style="font-size:11px;color:#888;margin:0 0 14px;">Máximo 10 fotos · Sin observación · Se incluyen como Anexo al final del informe PDF (2 fotos por página)<br><span style="color:#1565c0;font-weight:600;">💡 Desde Galería puedes seleccionar varias fotos a la vez</span></p>'
+        +'<p style="font-size:12px;color:#555;margin:0 0 10px;font-weight:600;">'+fotosAvanceObra.length+' / 10 fotos cargadas</p>'
+        +'<div style="display:flex;gap:8px;margin-bottom:12px;">'
+        +'<button id="btnAvanceCamara" style="flex:1;padding:9px;border-radius:8px;border:none;background:linear-gradient(135deg,#1565c0,#0d47a1);color:#fff;font-family:Montserrat,sans-serif;font-weight:700;font-size:12px;cursor:pointer;">📷 Cámara</button>'
+        +'<button id="btnAvanceGaleria" style="flex:1;padding:9px;border-radius:8px;border:1.5px solid #1565c0;background:#e3f2fd;color:#1565c0;font-family:Montserrat,sans-serif;font-weight:700;font-size:12px;cursor:pointer;">🖼️ Galería</button>'
+        +'</div>'
+        +'<input type="file" id="avanceCamaraInput" accept="image/*" capture="environment" style="display:none;margin:0;">'
+        +'<input type="file" id="avanceGaleriaInput" accept="image/*" multiple style="display:none;margin:0;">'
+        +'<div id="avancePreview" style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:14px;">';
+
+      fotosAvanceObra.forEach(function(src, i){
+        html += '<div style="position:relative;border-radius:8px;overflow:hidden;border:1.5px solid #e0e0e0;">'
+          +'<img src="'+src+'" style="width:100%;height:90px;object-fit:cover;display:block;">'
+          +'<button onclick="window._eliminarAvance('+i+')" style="position:absolute;top:3px;right:3px;background:rgba(198,40,40,0.85);color:#fff;border:none;border-radius:5px;padding:2px 6px;font-size:10px;cursor:pointer;font-weight:700;">✕</button>'
+          +'<span style="position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,0.5);color:#fff;font-size:9px;text-align:center;padding:2px;">Foto '+(i+1)+'</span>'
+          +'</div>';
+      });
+
+      html += '</div>'
+        +'<div style="display:flex;gap:8px;">'
+        +'<button id="btnAvanceListo" style="flex:1;padding:10px;border-radius:8px;border:none;background:linear-gradient(135deg,#2e7d32,#1b5e20);color:#fff;font-family:Montserrat,sans-serif;font-weight:700;font-size:13px;cursor:pointer;">✅ Guardar</button>'
+        +'<button id="btnAvanceCerrar" style="flex:1;padding:10px;border-radius:8px;border:1.5px solid #ddd;background:#fafafa;font-family:Montserrat,sans-serif;font-weight:600;font-size:13px;cursor:pointer;color:#555;">Cerrar</button>'
+        +'</div>'
+        +'</div>';
+      return html;
+    }
+
+    overlay.innerHTML = buildModal();
+    document.body.appendChild(overlay);
+
+    function refreshModal(){
+      overlay.innerHTML = buildModal();
+      bindModal();
+    }
+
+    window._eliminarAvance = function(i){
+      fotosAvanceObra.splice(i,1);
+      refreshModal();
+    };
+
+    function bindModal(){
+      document.getElementById('btnAvanceCamara').addEventListener('click',function(){ document.getElementById('avanceCamaraInput').click(); });
+      document.getElementById('btnAvanceGaleria').addEventListener('click',function(){ document.getElementById('avanceGaleriaInput').click(); });
+      ['avanceCamaraInput','avanceGaleriaInput'].forEach(function(id){
+        document.getElementById(id).addEventListener('change',function(e){
+          var files = Array.from(e.target.files); e.target.value='';
+          if(!files.length) return;
+          var disponibles = 10 - fotosAvanceObra.length;
+          if(disponibles <= 0){ alert('Ya tienes 10 fotos cargadas (máximo).'); return; }
+          if(files.length > disponibles){
+            alert('Solo se cargarán las primeras '+disponibles+' foto(s) para no superar el máximo de 10.');
+            files = files.slice(0, disponibles);
+          }
+          var pendientes = files.length;
+          var resultados = new Array(files.length);
+          files.forEach(function(file, idx){
+            var reader=new FileReader();
+            reader.onload=function(ev){
+              var img2=new Image();
+              img2.onload=function(){
+                var MAX_DIM=1600, w=img2.width, h=img2.height;
+                if(w>MAX_DIM||h>MAX_DIM){ if(w>=h){h=Math.round(h*MAX_DIM/w);w=MAX_DIM;}else{w=Math.round(w*MAX_DIM/h);h=MAX_DIM;} }
+                var cv=document.createElement('canvas'); cv.width=w; cv.height=h;
+                cv.getContext('2d').drawImage(img2,0,0,w,h);
+                var escUrl=cv.toDataURL('image/jpeg',0.88); cv.width=1;cv.height=1;
+                aplicarEstampa(escUrl, null, function(estampada){
+                  resultados[idx] = estampada;
+                  if(--pendientes === 0){
+                    resultados.forEach(function(r){ if(r) fotosAvanceObra.push(r); });
+                    refreshModal();
+                  }
+                });
+              };
+              img2.src=ev.target.result;
+            };
+            reader.readAsDataURL(file);
+          });
+        });
+      });
+      document.getElementById('btnAvanceListo').addEventListener('click',function(){
+        document.body.removeChild(overlay);
+        alert('✅ '+fotosAvanceObra.length+' foto(s) de avance de obra guardadas.\nSe incluirán como Anexo en el PDF exportado.');
+      });
+      document.getElementById('btnAvanceCerrar').addEventListener('click',function(){
+        document.body.removeChild(overlay);
+      });
+    }
+    bindModal();
+  });
+
+  // ===== VER ANEXOS DE AVANCE DE OBRA =====
+  document.getElementById("btnVerAnexos").addEventListener("click", function(){
+    if(fotosAvanceObra.length === 0){
+      alert('No hay fotos de avance de obra cargadas.\nUsa el botón "📸 Avance de Obra" para agregar fotos.');
+      return;
+    }
+    var anexoIdx = 0;
+
+    var overlay = document.createElement('div');
+    overlay.id = 'verAnexosOverlay';
+    overlay.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.88);display:flex;align-items:center;justify-content:center;';
+
+    function buildAnexoModal(){
+      var total = fotosAvanceObra.length;
+      var src = fotosAvanceObra[anexoIdx];
+      return '<div style="background:#111;border-radius:16px;padding:18px 16px;max-width:420px;width:96%;box-shadow:0 12px 48px rgba(0,0,0,0.6);">'
+        +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">'
+        +'<h3 style="font-family:Montserrat,sans-serif;font-weight:900;color:#fff;margin:0;font-size:1rem;">📸 Avance de Obra</h3>'
+        +'<span style="font-family:Montserrat,sans-serif;font-size:11px;color:rgba(255,255,255,0.5);background:rgba(255,255,255,0.08);padding:3px 10px;border-radius:20px;">'+(anexoIdx+1)+' / '+total+'</span>'
+        +'</div>'
+        // Foto principal
+        +'<div style="border-radius:10px;overflow:hidden;border:1.5px solid rgba(255,255,255,0.12);background:#000;margin-bottom:10px;max-height:62vh;display:flex;align-items:center;justify-content:center;">'
+        +'<img src="'+src+'" style="width:100%;max-height:62vh;object-fit:contain;display:block;">'
+        +'</div>'
+        // Caption
+        +'<p style="font-family:Montserrat,sans-serif;font-size:11px;color:rgba(255,255,255,0.6);text-align:center;margin:0 0 12px;">Foto '+(anexoIdx+1)+' de '+total+'</p>'
+        // Miniaturas
+        +'<div style="display:flex;gap:5px;overflow-x:auto;padding-bottom:6px;margin-bottom:12px;">'
+        + fotosAvanceObra.map(function(s,i){
+            return '<img src="'+s+'" onclick="window._anexoIr('+i+')" style="width:52px;height:40px;object-fit:cover;border-radius:5px;cursor:pointer;flex-shrink:0;border:2px solid '+(i===anexoIdx?'#1565c0':'rgba(255,255,255,0.15)')+';">';
+          }).join('')
+        +'</div>'
+        // Navegación + botón eliminar + cerrar
+        +'<div style="display:flex;gap:8px;align-items:center;">'
+        +'<button id="btnAnexoPrev" style="flex:1;padding:9px;border-radius:8px;border:none;background:rgba(255,255,255,0.1);color:#fff;font-size:18px;cursor:pointer;'+(anexoIdx===0?'opacity:0.3;pointer-events:none;':'')+'">&#9664;</button>'
+        +'<button id="btnAnexoElim" style="flex:1;padding:9px;border-radius:8px;border:none;background:rgba(198,40,40,0.8);color:#fff;font-family:Montserrat,sans-serif;font-weight:700;font-size:11px;cursor:pointer;">✕ Eliminar</button>'
+        +'<button id="btnAnexoNext" style="flex:1;padding:9px;border-radius:8px;border:none;background:rgba(255,255,255,0.1);color:#fff;font-size:18px;cursor:pointer;'+(anexoIdx===total-1?'opacity:0.3;pointer-events:none;':'')+'">&#9654;</button>'
+        +'</div>'
+        +'<button id="btnAnexoCerrar" style="width:100%;margin-top:8px;padding:9px;border-radius:8px;border:1px solid rgba(255,255,255,0.15);background:transparent;color:rgba(255,255,255,0.6);font-family:Montserrat,sans-serif;font-weight:600;font-size:12px;cursor:pointer;">Cerrar</button>'
+        +'</div>';
+    }
+
+    function refreshAnexo(){
+      overlay.innerHTML = buildAnexoModal();
+      bindAnexo();
+    }
+
+    window._anexoIr = function(i){ anexoIdx = i; refreshAnexo(); };
+
+    function bindAnexo(){
+      document.getElementById('btnAnexoPrev').addEventListener('click', function(){ if(anexoIdx>0){ anexoIdx--; refreshAnexo(); } });
+      document.getElementById('btnAnexoNext').addEventListener('click', function(){ if(anexoIdx<fotosAvanceObra.length-1){ anexoIdx++; refreshAnexo(); } });
+      document.getElementById('btnAnexoElim').addEventListener('click', function(){
+        if(!confirm('¿Eliminar la Foto '+(anexoIdx+1)+'?')) return;
+        fotosAvanceObra.splice(anexoIdx, 1);
+        document.getElementById('contadorAnexos').innerText = fotosAvanceObra.length;
+        if(fotosAvanceObra.length === 0){ document.body.removeChild(overlay); return; }
+        if(anexoIdx >= fotosAvanceObra.length) anexoIdx = fotosAvanceObra.length - 1;
+        refreshAnexo();
+      });
+      document.getElementById('btnAnexoCerrar').addEventListener('click', function(){ document.body.removeChild(overlay); });
+    }
+
+    overlay.innerHTML = buildAnexoModal();
+    document.body.appendChild(overlay);
+    bindAnexo();
+  });
   function _actualizarEstadoObs(){
     var ta  = document.getElementById('observacion');
     var cnt = document.getElementById('obsContador');
@@ -1573,6 +1747,7 @@ document.addEventListener("DOMContentLoaded", function() {
     if(registros.length===0){ alert("No hay observaciones"); return; }
     document.getElementById("nombreProyectoDisplay2").innerText=nombreProyecto;
     document.getElementById("totalObs").innerText=registros.length;
+    document.getElementById("contadorAnexos").innerText=fotosAvanceObra.length;
     obsIndex=0; fotoIndex=0;
     ir('pantallaObservaciones'); renderCarrusel();
   });
@@ -1738,7 +1913,8 @@ document.addEventListener("DOMContentLoaded", function() {
       doc.setTextColor(0,0,0);
     }
 
-    var totalPags=1+registros.length+1+1; // portada + obs + stats + matriz
+    var paginasAnexo = fotosAvanceObra.length > 0 ? Math.ceil(fotosAvanceObra.length / 4) : 0;
+    var totalPags=1+registros.length+1+1+paginasAnexo; // portada + obs + stats + matriz + anexo
     var y=0;
 
     // ===== PORTADA - layout con coordenadas absolutas fijas =====
@@ -1783,9 +1959,9 @@ document.addEventListener("DOMContentLoaded", function() {
     doc.line(30, 117, 180, 117);
 
     doc.setFontSize(9); doc.setFont(undefined,'bold'); doc.setTextColor(0,0,0);
-    doc.text("DRA. ANDREA ELIZABETH ZAMBRANO CABRERA", pw/2, 126, {align:'center'});
+    doc.text("ARQ. JULIO CESAR CASTELLANOS REYES", pw/2, 126, {align:'center'});
     doc.setFont(undefined,'normal'); doc.setFontSize(8);
-    doc.text("DIRECTORA DE BIENES ENCARGADA", pw/2, 132, {align:'center'});
+    doc.text("DIRECTOR DE BIENES ENCARGADO", pw/2, 132, {align:'center'});
 
     doc.setFont(undefined,'bold'); doc.setFontSize(9);
     doc.text("DRA. NATALIA ROMAN DUQUE", pw/2, 144, {align:'center'});
@@ -2158,10 +2334,59 @@ document.addEventListener("DOMContentLoaded", function() {
 
     pie(pagMat,totalPags);
 
+    // ===== ANEXO: REGISTRO FOTOGRÁFICO DE AVANCE DE OBRA =====
+    if(fotosAvanceObra.length > 0){
+      var pagAnexoBase = pagMat + 1;
+      var aPerPag = 4;                       // 4 fotos por página (grid 2×2)
+      var aGapX = 8, aGapY = 10;            // separación horizontal y vertical
+      var aCapH = 6;                         // altura reservada para caption
+      var aHeaderH = 40;                     // encabezado + subtítulo
+      var aIW = (190 - aGapX) / 2;          // ancho foto ≈ 91 mm
+      var aIH = (ph - mB - aHeaderH - aGapY - aCapH*2 - 22) / 2; // alto foto ≈ 97 mm
+
+      for(var ai = 0; ai < fotosAvanceObra.length; ai += aPerPag){
+        doc.addPage(); enc();
+        var pagAnexo = pagAnexoBase + Math.floor(ai / aPerPag);
+        var ay = 18;
+
+        // Encabezado azul
+        doc.setFillColor(21,101,192); doc.rect(10,ay,190,11,'F');
+        doc.setFontSize(11); doc.setFont(undefined,'bold'); doc.setTextColor(255,255,255);
+        doc.text('ANEXO — REGISTRO FOTOGRÁFICO DE AVANCE DE OBRA', pw/2, ay+7.5, {align:'center'});
+        doc.setTextColor(0,0,0); ay += 14;
+
+        // Subtítulo
+        doc.setFontSize(8); doc.setFont(undefined,'normal'); doc.setTextColor(80,80,80);
+        var aDesde = ai+1, aHasta = Math.min(ai+aPerPag, fotosAvanceObra.length);
+        doc.text('Proyecto: '+nombreProyecto+'   |   Fotos '+aDesde+' – '+aHasta+' de '+fotosAvanceObra.length, pw/2, ay, {align:'center'});
+        doc.setTextColor(0,0,0); ay += 10;
+
+        // Grid 2×2
+        for(var fi = 0; fi < aPerPag; fi++){
+          var gIdx = ai + fi;
+          if(gIdx >= fotosAvanceObra.length) break;
+          var col = fi % 2;
+          var row = Math.floor(fi / 2);
+          var fx = 10 + col * (aIW + aGapX);
+          var fy = ay + row * (aIH + aCapH + aGapY);
+
+          doc.setDrawColor(180,180,180); doc.setLineWidth(0.4);
+          doc.roundedRect(fx, fy, aIW, aIH, 2, 2, 'S');
+          try{ doc.addImage(fotosAvanceObra[gIdx], 'JPEG', fx, fy, aIW, aIH); }catch(e){}
+
+          // Caption centrado debajo de la foto
+          doc.setFontSize(7); doc.setFont(undefined,'bold'); doc.setTextColor(80,80,80);
+          doc.text('Foto '+(gIdx+1), fx + aIW/2, fy + aIH + 4.5, {align:'center'});
+        }
+
+        pie(pagAnexo, totalPags);
+      }
+    }
+
     // Generar ZIP con PDF + JSON + Fotos
     var pdfBlob = doc.output('blob');
     var nombreBase = generarNombreBase();
-    var datos = {proyecto:nombreProyecto, usuario:usuarioActivo, fecha:new Date().toLocaleString('es-CO'), registros:registros};
+    var datos = {proyecto:nombreProyecto, usuario:usuarioActivo, fecha:new Date().toLocaleString('es-CO'), registros:registros, fotosAvanceObra:fotosAvanceObra};
     var jsonStr = JSON.stringify(datos, null, 2);
 
     var zip = new JSZip();
@@ -2181,6 +2406,16 @@ document.addEventListener("DOMContentLoaded", function() {
         totalFotos++;
       });
     });
+
+    // Fotos de avance de obra
+    if(fotosAvanceObra.length > 0){
+      var carpetaAvance = zip.folder('avance_obra');
+      fotosAvanceObra.forEach(function(dataUrl, fi){
+        var base64 = dataUrl.split(',')[1];
+        carpetaAvance.file('avance_foto'+String(fi+1).padStart(2,'0')+'.jpg', base64, {base64:true});
+        totalFotos++;
+      });
+    }
 
     // ===== DOCX SIGA =====
     var SIGA_B64 = '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';
@@ -2260,10 +2495,9 @@ document.addEventListener("DOMContentLoaded", function() {
   // ===== BOTÓN EXPORTAR JSON =====
   document.getElementById("btnExportarJSON").addEventListener("click", function(){
     if(registros.length===0){ alert("No hay registros para exportar"); return; }
-    var datos = {proyecto:nombreProyecto, usuario:usuarioActivo, fecha:new Date().toLocaleString('es-CO'), registros:registros};
+    var datos = {proyecto:nombreProyecto, usuario:usuarioActivo, fecha:new Date().toLocaleString('es-CO'), registros:registros, fotosAvanceObra:fotosAvanceObra};
     var jsonStr = JSON.stringify(datos, null, 2);
     var blob = new Blob([jsonStr], {type:'application/json'});
-    var a = document.createElement('a');
     var pad = function(n){ return String(n).padStart(2,'0'); };
     var ahora = new Date();
     var nombreJson = 'sesion_'+nombreProyecto.replace(/\s+/g,'_')+'_'+ahora.getFullYear()+pad(ahora.getMonth()+1)+pad(ahora.getDate())+'_'+pad(ahora.getHours())+pad(ahora.getMinutes())+'.json';
