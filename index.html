@@ -498,6 +498,16 @@ button:active { transform:translateY(0); }
   width:auto; padding:11px 40px; font-size:13px;
   border-radius:30px; margin:0; letter-spacing:0.4px;
 }
+/* ===== BLOQUEO PC ===== */
+#pcLockScreen {
+  position:fixed; inset:0; z-index:99999;
+  background:#000;
+  display:none;
+  flex-direction:column;
+  align-items:center; justify-content:center;
+  cursor:default; user-select:none;
+}
+#pcLockScreen.visible { display:flex; }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
@@ -506,6 +516,9 @@ button:active { transform:translateY(0); }
 
 <!-- FONDO GEOMÉTRICO CANVAS (siempre activo) -->
 <div class="geo-bg"><canvas id="geoCanvas"></canvas></div>
+
+<!-- ===== PANTALLA BLOQUEO PC ===== -->
+<div id="pcLockScreen"></div>
 
 <!-- ===== PANTALLA 1: LOGIN ESPECTACULAR ===== -->
 <div id="pantallaLogin" class="contenedor">
@@ -915,6 +928,12 @@ button:active { transform:translateY(0); }
   </div>
   <button id="btnVerObservaciones" class="btn-secundario">Ver Observaciones (<span id="contadorObs">0</span>)</button>
   <button id="btnVerRequerimientos" style="width:100%;padding:10px;border-radius:8px;border:none;background:linear-gradient(135deg,#555,#333);color:#fff;font-family:Montserrat,sans-serif;font-weight:700;font-size:13px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.2);margin:4px 0;">📋 Requerimientos (<span id="contadorReq">0</span>)</button>
+  <!-- COMENTARIO FINAL / CONCLUSIÓN -->
+  <div style="margin:10px 0 4px;padding:14px 14px 12px;background:#f9f6ff;border:1.5px solid rgba(100,60,180,0.22);border-radius:10px;">
+    <label style="font-weight:700;color:#5c35b0;font-size:13px;display:block;margin-bottom:6px;">💬 Comentario Final (Conclusión del Informe)</label>
+    <textarea id="comentarioFinalInput" rows="4" placeholder="Escriba aquí sus conclusiones generales de la visita técnica. Este texto aparecerá al final del informe PDF..." style="width:100%;padding:10px 12px;border-radius:8px;border:1.5px solid rgba(100,60,180,0.25);font-family:Open Sans,sans-serif;font-size:13px;resize:vertical;background:#fff;color:#222;margin:0;"></textarea>
+    <span style="font-size:10.5px;color:#888;display:block;text-align:right;margin-top:3px;" id="comentarioContador">0 caracteres</span>
+  </div>
   <button id="btnExportarJSON" title="Exportar JSON para continuar editando" style="width:auto;padding:7px 18px;font-size:12px;margin:4px auto;display:block;border-radius:8px;border:none;font-family:Montserrat,sans-serif;font-weight:700;cursor:pointer;background:linear-gradient(135deg,#1565c0,#0d47a1);color:#fff;box-shadow:0 2px 8px rgba(21,101,192,0.3);">💾 Guardar JSON</button>
 </div>
 
@@ -950,6 +969,46 @@ button:active { transform:translateY(0); }
 </div>
 
 <script>
+// ===== BLOQUEO PC =====
+// Detectar si es PC (no touch / no mobile): si es PC, mostrar pantalla negra hasta Ctrl+M
+(function(){
+  var lockEl = document.getElementById('pcLockScreen');
+  if(!lockEl) return;
+
+  // Detectar dispositivo móvil / tablet con touch nativo
+  var esMobile = (
+    /Mobi|Android|iPhone|iPad|iPod|BlackBerry|Windows Phone/i.test(navigator.userAgent) ||
+    (typeof window.ontouchstart !== 'undefined' && navigator.maxTouchPoints > 0)
+  );
+
+  if(esMobile){
+    // En móvil: no bloquear, quitar el elemento
+    lockEl.style.display = 'none';
+    return;
+  }
+
+  // En PC: activar pantalla negra
+  lockEl.classList.add('visible');
+  document.body.style.overflow = 'hidden';
+
+  function desbloquear(){
+    lockEl.classList.remove('visible');
+    lockEl.style.display = 'none';
+    document.body.style.overflow = '';
+  }
+
+  // Desbloquear con Ctrl+M
+  document.addEventListener('keydown', function(e){
+    if(e.ctrlKey && !e.shiftKey && !e.altKey && (e.key === 'm' || e.key === 'M')){
+      if(lockEl.classList.contains('visible')){
+        e.preventDefault();
+        desbloquear();
+        return;
+      }
+    }
+  }, true); // captura = true para interceptar antes de otros listeners
+})();
+
 // === FONDO GEOMÉTRICO CANVAS (tetraedros / polígonos en rojo sutil) ===
 (function() {
   var canvas = document.getElementById('geoCanvas');
@@ -1087,7 +1146,8 @@ document.addEventListener("DOMContentLoaded", function() {
   // v2.1: acceso libre — cualquier usuario puede ingresar
   var usuarioActivo="", nombreProyecto="", registros=[], fotosActuales=[];
   var obsIndex=0, fotoIndex=0;
-  var fotosAvanceObra = []; // Fotos del anexo Avance de Obra (máx 10)
+  var fotosAvanceObra = []; // Fotos del anexo Avance de Obra (máx 12) — cada elemento: {src, nombre}
+  var comentarioFinal = ''; // Comentario/conclusión final del informe
   var requerimientos = []; // Lista de requerimientos numerados
 
   var siglasProyecto = {
@@ -1199,6 +1259,11 @@ document.addEventListener("DOMContentLoaded", function() {
           if(datos.usuario)  usuarioActivo=datos.usuario;
           if(datos.fotosAvanceObra && Array.isArray(datos.fotosAvanceObra)) fotosAvanceObra=datos.fotosAvanceObra;
           if(datos.requerimientos && Array.isArray(datos.requerimientos)) requerimientos=datos.requerimientos;
+          if(datos.comentarioFinal) {
+            comentarioFinal = datos.comentarioFinal;
+            var inp = document.getElementById('comentarioFinalInput');
+            if(inp) inp.value = comentarioFinal;
+          }
           // Recalcular índice global de fotos a partir de las fotos ya cargadas
           _fotoGlobalIdx = 0;
           registros.forEach(function(r){ var f=r.fotos||(r.foto?[r.foto]:[]); _fotoGlobalIdx+=f.length; });
@@ -1520,8 +1585,8 @@ document.addEventListener("DOMContentLoaded", function() {
     function buildModal(){
       var html = '<div style="background:#fff;border-radius:16px;padding:22px 20px;max-width:380px;width:94%;box-shadow:0 10px 40px rgba(0,0,0,0.35);max-height:90vh;overflow-y:auto;">'
         +'<h3 style="font-family:Montserrat,sans-serif;font-weight:900;color:#1565c0;margin:0 0 4px;font-size:1.1rem;">📸 Registro de Avance de Obra</h3>'
-        +'<p style="font-size:11px;color:#888;margin:0 0 14px;">Máximo 10 fotos · Sin observación · Se incluyen como Anexo al final del informe PDF (2 fotos por página)<br><span style="color:#1565c0;font-weight:600;">💡 Desde Galería puedes seleccionar varias fotos a la vez</span></p>'
-        +'<p style="font-size:12px;color:#555;margin:0 0 10px;font-weight:600;">'+fotosAvanceObra.length+' / 10 fotos cargadas</p>'
+        +'<p style="font-size:11px;color:#888;margin:0 0 14px;">Máximo 12 fotos · Sin observación · Se incluyen como Anexo al final del informe PDF (2 fotos por página)<br><span style="color:#1565c0;font-weight:600;">💡 Desde Galería puedes seleccionar varias fotos a la vez</span></p>'
+        +'<p style="font-size:12px;color:#555;margin:0 0 10px;font-weight:600;">'+fotosAvanceObra.length+' / 12 fotos cargadas</p>'
         +'<div style="display:flex;gap:8px;margin-bottom:12px;">'
         +'<button id="btnAvanceCamara" style="flex:1;padding:9px;border-radius:8px;border:none;background:linear-gradient(135deg,#1565c0,#0d47a1);color:#fff;font-family:Montserrat,sans-serif;font-weight:700;font-size:12px;cursor:pointer;">📷 Cámara</button>'
         +'<button id="btnAvanceGaleria" style="flex:1;padding:9px;border-radius:8px;border:1.5px solid #1565c0;background:#e3f2fd;color:#1565c0;font-family:Montserrat,sans-serif;font-weight:700;font-size:12px;cursor:pointer;">🖼️ Galería</button>'
@@ -1530,11 +1595,14 @@ document.addEventListener("DOMContentLoaded", function() {
         +'<input type="file" id="avanceGaleriaInput" accept="image/*" multiple style="display:none;margin:0;">'
         +'<div id="avancePreview" style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:14px;">';
 
-      fotosAvanceObra.forEach(function(src, i){
-        html += '<div style="position:relative;border-radius:8px;overflow:hidden;border:1.5px solid #e0e0e0;">'
+      fotosAvanceObra.forEach(function(fotoObj, i){
+        var src = typeof fotoObj === 'string' ? fotoObj : fotoObj.src;
+        var nombre = typeof fotoObj === 'object' && fotoObj.nombre ? fotoObj.nombre : '';
+        html += '<div style="position:relative;border-radius:8px;overflow:hidden;border:1.5px solid #e0e0e0;padding-bottom:36px;background:#fafafa;">'
           +'<img src="'+src+'" style="width:100%;height:90px;object-fit:cover;display:block;">'
           +'<button onclick="window._eliminarAvance('+i+')" style="position:absolute;top:3px;right:3px;background:rgba(198,40,40,0.85);color:#fff;border:none;border-radius:5px;padding:2px 6px;font-size:10px;cursor:pointer;font-weight:700;">✕</button>'
-          +'<span style="position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,0.5);color:#fff;font-size:9px;text-align:center;padding:2px;">Foto '+(i+1)+'</span>'
+          +'<span style="position:absolute;top:3px;left:3px;background:rgba(0,0,0,0.55);color:#fff;font-size:9px;padding:2px 6px;border-radius:4px;">'+(i+1)+'</span>'
+          +'<input type="text" placeholder="Nombre/ubicación foto" value="'+nombre.replace(/"/g,'&quot;')+'" oninput="window._nombreAvance('+i+',this.value)" style="position:absolute;bottom:4px;left:4px;right:4px;width:calc(100% - 8px);font-size:9.5px;padding:3px 6px;border:1px solid #ccc;border-radius:4px;font-family:Open Sans,sans-serif;background:#fff;color:#222;box-sizing:border-box;margin:0;">'
           +'</div>';
       });
 
@@ -1560,6 +1628,16 @@ document.addEventListener("DOMContentLoaded", function() {
       refreshModal();
     };
 
+    window._nombreAvance = function(i, val){
+      if(i < fotosAvanceObra.length){
+        if(typeof fotosAvanceObra[i] === 'string'){
+          fotosAvanceObra[i] = {src: fotosAvanceObra[i], nombre: val};
+        } else {
+          fotosAvanceObra[i].nombre = val;
+        }
+      }
+    };
+
     function bindModal(){
       document.getElementById('btnAvanceCamara').addEventListener('click',function(){ document.getElementById('avanceCamaraInput').click(); });
       document.getElementById('btnAvanceGaleria').addEventListener('click',function(){ document.getElementById('avanceGaleriaInput').click(); });
@@ -1567,10 +1645,10 @@ document.addEventListener("DOMContentLoaded", function() {
         document.getElementById(id).addEventListener('change',function(e){
           var files = Array.from(e.target.files); e.target.value='';
           if(!files.length) return;
-          var disponibles = 10 - fotosAvanceObra.length;
-          if(disponibles <= 0){ alert('Ya tienes 10 fotos cargadas (máximo).'); return; }
+          var disponibles = 12 - fotosAvanceObra.length;
+          if(disponibles <= 0){ alert('Ya tienes 12 fotos cargadas (máximo).'); return; }
           if(files.length > disponibles){
-            alert('Solo se cargarán las primeras '+disponibles+' foto(s) para no superar el máximo de 10.');
+            alert('Solo se cargarán las primeras '+disponibles+' foto(s) para no superar el máximo de 12.');
             files = files.slice(0, disponibles);
           }
           var pendientes = files.length;
@@ -1596,7 +1674,7 @@ document.addEventListener("DOMContentLoaded", function() {
                   _stampaConfig.fecha = savedFechaA;
                   resultados[idx] = estampada;
                   if(--pendientes === 0){
-                    resultados.forEach(function(r){ if(r) fotosAvanceObra.push(r); });
+                    resultados.forEach(function(r){ if(r) fotosAvanceObra.push({src: r, nombre: ''}); });
                     refreshModal();
                   }
                 });
@@ -1632,22 +1710,27 @@ document.addEventListener("DOMContentLoaded", function() {
 
     function buildAnexoModal(){
       var total = fotosAvanceObra.length;
-      var src = fotosAvanceObra[anexoIdx];
+      var fotoObj = fotosAvanceObra[anexoIdx];
+      var src = typeof fotoObj === 'string' ? fotoObj : fotoObj.src;
+      var nombre = typeof fotoObj === 'object' && fotoObj.nombre ? fotoObj.nombre : '';
       return '<div style="background:#111;border-radius:16px;padding:18px 16px;max-width:420px;width:96%;box-shadow:0 12px 48px rgba(0,0,0,0.6);">'
         +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">'
         +'<h3 style="font-family:Montserrat,sans-serif;font-weight:900;color:#fff;margin:0;font-size:1rem;">📸 Avance de Obra</h3>'
         +'<span style="font-family:Montserrat,sans-serif;font-size:11px;color:rgba(255,255,255,0.5);background:rgba(255,255,255,0.08);padding:3px 10px;border-radius:20px;">'+(anexoIdx+1)+' / '+total+'</span>'
         +'</div>'
         // Foto principal
-        +'<div style="border-radius:10px;overflow:hidden;border:1.5px solid rgba(255,255,255,0.12);background:#000;margin-bottom:10px;max-height:62vh;display:flex;align-items:center;justify-content:center;">'
-        +'<img src="'+src+'" style="width:100%;max-height:62vh;object-fit:contain;display:block;">'
+        +'<div style="border-radius:10px;overflow:hidden;border:1.5px solid rgba(255,255,255,0.12);background:#000;margin-bottom:6px;max-height:58vh;display:flex;align-items:center;justify-content:center;">'
+        +'<img src="'+src+'" style="width:100%;max-height:58vh;object-fit:contain;display:block;">'
         +'</div>'
+        // Nombre/ubicación editable
+        +(nombre ? '<p style="font-family:Montserrat,sans-serif;font-size:11px;color:#90caf9;text-align:center;margin:0 0 8px;font-weight:600;">📍 '+nombre+'</p>' : '<p style="font-size:10px;color:rgba(255,255,255,0.3);text-align:center;margin:0 0 8px;">Sin nombre asignado</p>')
         // Caption
-        +'<p style="font-family:Montserrat,sans-serif;font-size:11px;color:rgba(255,255,255,0.6);text-align:center;margin:0 0 12px;">Foto '+(anexoIdx+1)+' de '+total+'</p>'
+        +'<p style="font-family:Montserrat,sans-serif;font-size:10px;color:rgba(255,255,255,0.45);text-align:center;margin:0 0 10px;">Foto '+(anexoIdx+1)+' de '+total+'</p>'
         // Miniaturas
         +'<div style="display:flex;gap:5px;overflow-x:auto;padding-bottom:6px;margin-bottom:12px;">'
-        + fotosAvanceObra.map(function(s,i){
-            return '<img src="'+s+'" onclick="window._anexoIr('+i+')" style="width:52px;height:40px;object-fit:cover;border-radius:5px;cursor:pointer;flex-shrink:0;border:2px solid '+(i===anexoIdx?'#1565c0':'rgba(255,255,255,0.15)')+';">';
+        + fotosAvanceObra.map(function(fo,i){
+            var s2 = typeof fo === 'string' ? fo : fo.src;
+            return '<img src="'+s2+'" onclick="window._anexoIr('+i+')" style="width:52px;height:40px;object-fit:cover;border-radius:5px;cursor:pointer;flex-shrink:0;border:2px solid '+(i===anexoIdx?'#1565c0':'rgba(255,255,255,0.15)')+';">';
           }).join('')
         +'</div>'
         // Navegación + botón eliminar + cerrar
@@ -1785,24 +1868,35 @@ document.addEventListener("DOMContentLoaded", function() {
     function buildReqModal(){
       var html = '<div style="background:#fff;border-radius:16px;padding:22px 20px;max-width:420px;width:96%;box-shadow:0 10px 40px rgba(0,0,0,0.4);max-height:88vh;overflow-y:auto;">'
         +'<h3 style="font-family:Montserrat,sans-serif;font-weight:900;color:#333;margin:0 0 4px;font-size:1.1rem;">📋 Requerimientos</h3>'
-        +'<p style="font-size:11px;color:#888;margin:0 0 14px;">Agregue los requerimientos que se deben atender. Se numerarán automáticamente y aparecerán en el PDF después de la Matriz General, solo si hay al menos uno.</p>'
-        // Lista de requerimientos existentes
+        +'<p style="font-size:11px;color:#888;margin:0 0 14px;">Agregue o edite los requerimientos. Se numerarán automáticamente y aparecerán en el PDF después de la Matriz General.</p>'
         +'<div id="reqLista" style="margin-bottom:14px;">';
 
       if(requerimientos.length === 0){
         html += '<p style="font-size:12px;color:#bbb;text-align:center;padding:12px 0;">Aún no hay requerimientos registrados.</p>';
       } else {
         requerimientos.forEach(function(req, i){
-          html += '<div style="display:flex;align-items:flex-start;gap:8px;background:#fff;border-radius:8px;padding:9px 10px;margin-bottom:6px;border:1px solid #ddd;">'
-            +'<span style="font-family:Montserrat,sans-serif;font-weight:900;color:#444;font-size:13px;min-width:22px;padding-top:1px;">'+(i+1)+'.</span>'
-            +'<span style="flex:1;font-size:12.5px;color:#222;line-height:1.5;">'+req.replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</span>'
-            +'<button onclick="window._eliminarReq('+i+')" style="background:rgba(198,40,40,0.12);color:#c62828;border:none;border-radius:6px;padding:3px 8px;font-size:11px;cursor:pointer;font-weight:700;flex-shrink:0;">✕</button>'
+          html += '<div style="background:#fafafa;border-radius:8px;padding:9px 10px;margin-bottom:6px;border:1px solid #e0e0e0;">'
+            // Cabecera: número + botones editar/eliminar
+            +'<div style="display:flex;align-items:center;gap:6px;margin-bottom:5px;">'
+            +'<span style="font-family:Montserrat,sans-serif;font-weight:900;color:#444;font-size:12px;min-width:20px;">'+(i+1)+'.</span>'
+            +'<div style="flex:1;"></div>'
+            +'<button onclick="window._editarReq('+i+')" style="background:rgba(21,101,192,0.1);color:#1565c0;border:none;border-radius:6px;padding:3px 9px;font-size:11px;cursor:pointer;font-weight:700;">✏️ Editar</button>'
+            +'<button onclick="window._eliminarReq('+i+')" style="background:rgba(198,40,40,0.1);color:#c62828;border:none;border-radius:6px;padding:3px 9px;font-size:11px;cursor:pointer;font-weight:700;">✕</button>'
+            +'</div>'
+            // Texto del requerimiento (o área de edición si está activo)
+            +'<div id="reqTextoVer_'+i+'" style="font-size:12.5px;color:#222;line-height:1.55;">'+req.replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</div>'
+            +'<div id="reqTextoEdit_'+i+'" style="display:none;">'
+            +'<textarea id="reqEditArea_'+i+'" rows="3" style="width:100%;padding:8px 10px;border-radius:7px;border:1.5px solid rgba(21,101,192,0.4);font-family:Open Sans,sans-serif;font-size:12.5px;resize:vertical;outline:none;box-sizing:border-box;margin-bottom:6px;">'+req.replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</textarea>'
+            +'<div style="display:flex;gap:6px;">'
+            +'<button onclick="window._guardarReq('+i+')" style="flex:1;padding:7px;border-radius:7px;border:none;background:linear-gradient(135deg,#2e7d32,#1b5e20);color:#fff;font-family:Montserrat,sans-serif;font-weight:700;font-size:12px;cursor:pointer;">✔ Guardar</button>'
+            +'<button onclick="window._cancelarReq('+i+')" style="flex:1;padding:7px;border-radius:7px;border:1.5px solid #ddd;background:#fff;font-family:Montserrat,sans-serif;font-weight:600;font-size:12px;cursor:pointer;color:#555;">Cancelar</button>'
+            +'</div>'
+            +'</div>'
             +'</div>';
         });
       }
 
       html += '</div>'
-        // Área de entrada
         +'<div style="margin-bottom:12px;">'
         +'<textarea id="reqNuevoTexto" rows="3" placeholder="Escriba el requerimiento..." style="width:100%;padding:10px 12px;border-radius:8px;border:1.5px solid rgba(106,27,154,0.3);font-family:Open Sans,sans-serif;font-size:13px;resize:vertical;outline:none;box-sizing:border-box;"></textarea>'
         +'</div>'
@@ -1825,6 +1919,32 @@ document.addEventListener("DOMContentLoaded", function() {
       refreshReqModal();
     };
 
+    window._editarReq = function(i){
+      var ver  = document.getElementById('reqTextoVer_'+i);
+      var edit = document.getElementById('reqTextoEdit_'+i);
+      if(ver)  ver.style.display  = 'none';
+      if(edit) edit.style.display = 'block';
+      var area = document.getElementById('reqEditArea_'+i);
+      if(area){ area.focus(); area.setSelectionRange(area.value.length, area.value.length); }
+    };
+
+    window._cancelarReq = function(i){
+      var ver  = document.getElementById('reqTextoVer_'+i);
+      var edit = document.getElementById('reqTextoEdit_'+i);
+      if(ver)  ver.style.display  = 'block';
+      if(edit) edit.style.display = 'none';
+    };
+
+    window._guardarReq = function(i){
+      var area = document.getElementById('reqEditArea_'+i);
+      if(!area) return;
+      var nuevo = area.value.trim();
+      if(!nuevo){ alert('⚠️ El requerimiento no puede estar vacío.'); return; }
+      requerimientos[i] = nuevo;
+      document.getElementById("contadorReq").innerText = requerimientos.length;
+      refreshReqModal();
+    };
+
     function bindReqModal(){
       document.getElementById('btnReqAgregar').addEventListener('click', function(){
         var txt = document.getElementById('reqNuevoTexto').value.trim();
@@ -1832,10 +1952,8 @@ document.addEventListener("DOMContentLoaded", function() {
         requerimientos.push(txt);
         document.getElementById("contadorReq").innerText = requerimientos.length;
         refreshReqModal();
-        // Focus al textarea para seguir agregando
         setTimeout(function(){ var ta=document.getElementById('reqNuevoTexto'); if(ta) ta.focus(); }, 50);
       });
-      // Ctrl+Enter o Shift+Enter para agregar rápido
       var ta = document.getElementById('reqNuevoTexto');
       if(ta) ta.addEventListener('keydown', function(e){
         if((e.ctrlKey || e.shiftKey) && e.key==='Enter'){
@@ -1851,7 +1969,6 @@ document.addEventListener("DOMContentLoaded", function() {
     overlay.innerHTML = buildReqModal();
     document.body.appendChild(overlay);
     bindReqModal();
-    // Focus directo al textarea
     setTimeout(function(){ var ta=document.getElementById('reqNuevoTexto'); if(ta) ta.focus(); }, 80);
   });
 
@@ -2023,7 +2140,9 @@ document.addEventListener("DOMContentLoaded", function() {
 
     var paginasAnexo = fotosAvanceObra.length > 0 ? Math.ceil(fotosAvanceObra.length / 4) : 0;
     var paginasReq = requerimientos.length > 0 ? 1 : 0;
-    var totalPags=1+registros.length+1+1+paginasReq+paginasAnexo; // portada + obs + stats + matriz + req + anexo
+    var comentarioFinalPDF = document.getElementById('comentarioFinalInput') ? document.getElementById('comentarioFinalInput').value.trim() : comentarioFinal;
+    var paginasComentario = comentarioFinalPDF.length > 0 ? 1 : 0;
+    var totalPags=1+registros.length+1+1+paginasReq+paginasAnexo+paginasComentario; // portada + obs + stats + matriz + req + anexo + comentario
     var y=0;
 
     // ===== PORTADA - layout con coordenadas absolutas fijas =====
@@ -2545,10 +2664,10 @@ document.addEventListener("DOMContentLoaded", function() {
       var pagAnexoBase = pagMat + 1 + paginasReq;
       var aPerPag = 4;                       // 4 fotos por página (grid 2×2)
       var aGapX = 8, aGapY = 10;            // separación horizontal y vertical
-      var aCapH = 6;                         // altura reservada para caption
+      var aCapH = 8;                         // altura reservada para caption (nombre)
       var aHeaderH = 40;                     // encabezado + subtítulo
       var aIW = (190 - aGapX) / 2;          // ancho foto ≈ 91 mm
-      var aIH = (ph - mB - aHeaderH - aGapY - aCapH*2 - 22) / 2; // alto foto ≈ 97 mm
+      var aIH = (ph - mB - aHeaderH - aGapY - aCapH*2 - 22) / 2; // alto foto ≈ 95 mm
 
       for(var ai = 0; ai < fotosAvanceObra.length; ai += aPerPag){
         doc.addPage(); enc();
@@ -2571,6 +2690,9 @@ document.addEventListener("DOMContentLoaded", function() {
         for(var fi = 0; fi < aPerPag; fi++){
           var gIdx = ai + fi;
           if(gIdx >= fotosAvanceObra.length) break;
+          var fotoObjA = fotosAvanceObra[gIdx];
+          var fotoSrcA = typeof fotoObjA === 'string' ? fotoObjA : fotoObjA.src;
+          var fotoNomA = typeof fotoObjA === 'object' && fotoObjA.nombre ? fotoObjA.nombre : ('Foto '+(gIdx+1));
           var col = fi % 2;
           var row = Math.floor(fi / 2);
           var fx = 10 + col * (aIW + aGapX);
@@ -2578,21 +2700,74 @@ document.addEventListener("DOMContentLoaded", function() {
 
           doc.setDrawColor(180,180,180); doc.setLineWidth(0.4);
           doc.roundedRect(fx, fy, aIW, aIH, 2, 2, 'S');
-          try{ doc.addImage(fotosAvanceObra[gIdx], 'JPEG', fx, fy, aIW, aIH); }catch(e){}
+          try{ doc.addImage(fotoSrcA, 'JPEG', fx, fy, aIW, aIH); }catch(e){}
 
-          // Caption centrado debajo de la foto
-          doc.setFontSize(7); doc.setFont(undefined,'bold'); doc.setTextColor(80,80,80);
-          doc.text('Foto '+(gIdx+1), fx + aIW/2, fy + aIH + 4.5, {align:'center'});
+          // Caption con nombre debajo de la foto
+          doc.setFontSize(7); doc.setFont(undefined,'bold'); doc.setTextColor(40,40,40);
+          var capLines = doc.splitTextToSize(fotoNomA, aIW);
+          doc.text(capLines[0], fx + aIW/2, fy + aIH + 5, {align:'center'});
         }
 
         pie(pagAnexo, totalPags);
       }
     }
 
+    // ===== COMENTARIO FINAL / CONCLUSIÓN =====
+    if(comentarioFinalPDF.length > 0){
+      doc.addPage(); enc();
+      var pagCom = totalPags;
+      var yCom = 16;
+
+      // Encabezado gris oscuro
+      doc.setFillColor(60,60,60); doc.rect(10,yCom,190,11,'F');
+      doc.setFontSize(12); doc.setFont(undefined,'bold'); doc.setTextColor(255,255,255);
+      doc.text('COMENTARIO FINAL', pw/2, yCom+7.5, {align:'center'});
+      doc.setTextColor(0,0,0); yCom += 18;
+
+      // Texto justificado — sin recuadro
+      var comLines = doc.splitTextToSize(comentarioFinalPDF, 175);
+      var comLineH = 5.8;
+      doc.setFont(undefined,'normal'); doc.setFontSize(10.5); doc.setTextColor(30,30,30);
+      var limitYCom = ph - mB - 16;
+      comLines.forEach(function(linea, li){
+        if(yCom > limitYCom) return;
+        var esUltima = (li === comLines.length-1);
+        if(esUltima || linea.trim() === ''){
+          doc.text(linea, 15, yCom);
+        } else {
+          var palabras = linea.split(' '); var nPal = palabras.length;
+          if(nPal <= 1){ doc.text(linea, 15, yCom); }
+          else {
+            var aw = doc.getTextWidth(linea);
+            var ex = (175 - aw) / (nPal-1);
+            var cxCom = 15;
+            palabras.forEach(function(p,pi){
+              doc.text(p, cxCom, yCom);
+              cxCom += doc.getTextWidth(p) + (pi < nPal-1 ? doc.getTextWidth(' ') + ex : 0);
+            });
+          }
+        }
+        yCom += comLineH;
+      });
+
+      // Firma del profesional al pie de la sección
+      yCom += 10;
+      if(yCom + 20 < limitYCom){
+        doc.setDrawColor(180,180,180); doc.setLineWidth(0.3);
+        doc.line(15, yCom, 130, yCom); yCom += 5;
+        doc.setFontSize(8.5); doc.setFont(undefined,'bold'); doc.setTextColor(50,50,50);
+        doc.text(formatearUsuario(usuarioActivo), 15, yCom); yCom += 5;
+        doc.setFont(undefined,'normal'); doc.setFontSize(7.5); doc.setTextColor(100,100,100);
+        doc.text('Contratista Apoyo a la Supervisión Técnica — SDSCJ / Dirección de Bienes', 15, yCom);
+      }
+
+      pie(pagCom, totalPags);
+    }
+
     // Generar ZIP con PDF + JSON + Fotos
     var pdfBlob = doc.output('blob');
     var nombreBase = generarNombreBase();
-    var datos = {proyecto:nombreProyecto, usuario:usuarioActivo, fecha:new Date().toLocaleString('es-CO'), registros:registros, fotosAvanceObra:fotosAvanceObra, requerimientos:requerimientos};
+    var datos = {proyecto:nombreProyecto, usuario:usuarioActivo, fecha:new Date().toLocaleString('es-CO'), registros:registros, fotosAvanceObra:fotosAvanceObra, requerimientos:requerimientos, comentarioFinal:comentarioFinalPDF};
     var jsonStr = JSON.stringify(datos, null, 2);
 
     var zip = new JSZip();
@@ -2616,7 +2791,8 @@ document.addEventListener("DOMContentLoaded", function() {
     // Fotos de avance de obra
     if(fotosAvanceObra.length > 0){
       var carpetaAvance = zip.folder('avance_obra');
-      fotosAvanceObra.forEach(function(dataUrl, fi){
+      fotosAvanceObra.forEach(function(fotoObj, fi){
+        var dataUrl = typeof fotoObj === 'string' ? fotoObj : fotoObj.src;
         var base64 = dataUrl.split(',')[1];
         carpetaAvance.file('avance_foto'+String(fi+1).padStart(2,'0')+'.jpg', base64, {base64:true});
         totalFotos++;
@@ -2701,7 +2877,8 @@ document.addEventListener("DOMContentLoaded", function() {
   // ===== BOTÓN EXPORTAR JSON =====
   document.getElementById("btnExportarJSON").addEventListener("click", function(){
     if(registros.length===0){ alert("No hay registros para exportar"); return; }
-    var datos = {proyecto:nombreProyecto, usuario:usuarioActivo, fecha:new Date().toLocaleString('es-CO'), registros:registros, fotosAvanceObra:fotosAvanceObra, requerimientos:requerimientos};
+    var comentarioGuardar = document.getElementById('comentarioFinalInput') ? document.getElementById('comentarioFinalInput').value.trim() : comentarioFinal;
+    var datos = {proyecto:nombreProyecto, usuario:usuarioActivo, fecha:new Date().toLocaleString('es-CO'), registros:registros, fotosAvanceObra:fotosAvanceObra, requerimientos:requerimientos, comentarioFinal:comentarioGuardar};
     var jsonStr = JSON.stringify(datos, null, 2);
     var blob = new Blob([jsonStr], {type:'application/json'});
     var pad = function(n){ return String(n).padStart(2,'0'); };
@@ -2893,6 +3070,18 @@ document.addEventListener("DOMContentLoaded", function() {
       overlay.parentNode.removeChild(overlay);
     });
   }
+
+  // ===== COMENTARIO FINAL — contador y sincronía con variable =====
+  (function(){
+    var inp = document.getElementById('comentarioFinalInput');
+    var cnt = document.getElementById('comentarioContador');
+    if(!inp) return;
+    inp.addEventListener('input', function(){
+      comentarioFinal = inp.value;
+      var n = inp.value.length;
+      if(cnt) cnt.innerText = n + ' caracter' + (n===1?'':'es');
+    });
+  })();
 
   // PC: Ctrl+M  /  Ctrl+Shift+E  /  Alt+E  (por si el navegador bloquea alguno)
   document.addEventListener('keydown', function(e){
