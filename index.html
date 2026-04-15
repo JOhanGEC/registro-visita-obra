@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Visita Técnica de Obra</title>
+<title>Visita Técnica de Obra v3.0</title>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;900&family=Open+Sans:wght@400;600&family=Bebas+Neue&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{ --rojo:#c62828; --rojo-oscuro:#a31515; --rojo-sutil:rgba(198,40,40,0.07); --gris:#757575; --fondo:#f5f5f5; }
@@ -68,7 +68,7 @@ body { font-family:'Open Sans',Arial,sans-serif; background:var(--fondo); margin
 #loginFloatingTitle {
   position:absolute; top:0; left:0; right:0;
   z-index:6; pointer-events:none;
-  padding: clamp(28px,6vh,52px) clamp(20px,5vw,36px) 0;
+  padding: clamp(16px,3.5vh,28px) clamp(20px,5vw,36px) 0;
   animation: lftIn 1s cubic-bezier(0.16,1,0.3,1) 0.1s both;
 }
 @keyframes lftIn {
@@ -84,10 +84,11 @@ body { font-family:'Open Sans',Arial,sans-serif; background:var(--fondo); margin
 }
 .lft-main span { color:#c62828; }
 .lft-sub {
-  font-family:'Space Grotesk', sans-serif; font-weight:500;
+  font-family:'Space Grotesk', sans-serif; font-weight:600;
   font-size: clamp(0.55rem, 2.5vw, 0.72rem);
-  letter-spacing:2.5px; color:rgba(30,10,5,0.5);
-  text-transform:uppercase; margin-top:6px;
+  letter-spacing:2px; color:rgba(20,5,0,0.72);
+  text-transform:uppercase; margin-top:0;
+  text-shadow: 0 1px 2px rgba(255,255,255,0.7);
 }
 .lft-bar {
   width:36px; height:3px; margin:10px 0 0;
@@ -498,27 +499,54 @@ button:active { transform:translateY(0); }
   width:auto; padding:11px 40px; font-size:13px;
   border-radius:30px; margin:0; letter-spacing:0.4px;
 }
-/* ===== BLOQUEO PC ===== */
+/* ===== BLOQUEO PC v3 ===== */
 #pcLockScreen {
   position:fixed; inset:0; z-index:99999;
-  background:#000;
-  display:none;
-  flex-direction:column;
+  background:#0a0a0a;
+  display:none; flex-direction:column;
   align-items:center; justify-content:center;
   cursor:default; user-select:none;
 }
 #pcLockScreen.visible { display:flex; }
+#pcLockScreen .lock-msg {
+  font-family:'Orbitron',sans-serif; color:#c62828;
+  font-size:clamp(0.7rem,2vw,1rem); letter-spacing:4px;
+  text-transform:uppercase; margin-top:18px; opacity:0.85;
+}
+#pcLockScreen .lock-sub {
+  font-family:'Space Grotesk',sans-serif; color:rgba(255,255,255,0.35);
+  font-size:0.62rem; letter-spacing:2px; margin-top:8px; text-transform:uppercase;
+}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script>
+// pdf-lib cargada de forma diferida con fallback seguro
+(function(){
+  var s=document.createElement('script');
+  s.src='https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js';
+  s.onerror=function(){ window._pdfLibFailed=true; };
+  document.head.appendChild(s);
+})();
+</script>
 </head>
 <body>
+
+<!-- ===== PANTALLA BLOQUEO PC ===== -->
+<div id="pcLockScreen">
+  <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+    <rect x="10" y="20" width="28" height="22" rx="3" stroke="#c62828" stroke-width="2.5" fill="none"/>
+    <path d="M16 20V14a8 8 0 0116 0v6" stroke="#c62828" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+    <circle cx="24" cy="31" r="3" fill="#c62828"/>
+    <line x1="24" y1="34" x2="24" y2="38" stroke="#c62828" stroke-width="2" stroke-linecap="round"/>
+  </svg>
+  <div class="lock-msg">Acceso restringido</div>
+</div>
 
 <!-- FONDO GEOMÉTRICO CANVAS (siempre activo) -->
 <div class="geo-bg"><canvas id="geoCanvas"></canvas></div>
 
-<!-- ===== PANTALLA BLOQUEO PC ===== -->
-<div id="pcLockScreen"></div>
+
 
 <!-- ===== PANTALLA 1: LOGIN ESPECTACULAR ===== -->
 <div id="pantallaLogin" class="contenedor">
@@ -752,14 +780,14 @@ button:active { transform:translateY(0); }
 
   <!-- Título flotante sobre la escena -->
   <div id="loginFloatingTitle">
+    <div class="lft-sub" style="letter-spacing:1.8px;color:rgba(20,5,0,0.85);margin-bottom:8px;font-size:clamp(0.52rem,2.2vw,0.66rem);background:rgba(255,255,255,0.65);display:inline-block;padding:3px 8px;border-radius:4px;backdrop-filter:blur(4px);">Secretaría Distrital de Seguridad, Convivencia y Justicia</div>
     <div class="lft-main">REGISTRO</div>
     <div class="lft-main"><span>VISITA</span> TÉCNICA</div>
     <div class="lft-bar"></div>
-    <div class="lft-sub">Secretaría Distrital de Seguridad, Convivencia y Justicia</div>
   </div>
 
   <!-- Badge versión -->
-  <div id="loginVersionBadge">v2.2</div>
+  <div id="loginVersionBadge">v3.0</div>
 
   <!-- Panel lateral de login -->
   <div id="loginPanel">
@@ -779,7 +807,7 @@ button:active { transform:translateY(0); }
       </div>
       <div class="logo-text">
         <div class="logo-text-main">Dirección de Bienes</div>
-        <div class="logo-text-sub">Sistema de Visita Técnica · 2026</div>
+        <div class="logo-text-sub">Sistema de Visita Técnica · v3.0 · 2026</div>
       </div>
     </div>
 
@@ -864,7 +892,33 @@ button:active { transform:translateY(0); }
     <option value="URI NORTE">URI NORTE</option>
     <option value="URI TUNJUELITO">URI TUNJUELITO</option>
   </select>
-  <button id="btnGuardarProyecto">Continuar</button>
+  <div style="display:flex;gap:8px;align-items:flex-start;flex-wrap:wrap;margin-top:4px;">
+    <div style="flex:2;min-width:140px;">
+      <label style="display:block;margin-bottom:2px;font-size:13px;">No. de Contrato:</label>
+      <input type="text" id="noContratoInput" placeholder="Ej: 1905" style="margin:0;width:100%;padding:9px 12px;">
+    </div>
+    <div style="flex:1;min-width:90px;">
+      <label style="display:block;margin-bottom:2px;font-size:13px;">Año:</label>
+      <select id="anioContratoInput" style="margin:0;width:100%;padding:9px 12px;">
+        <option value="2023">2023</option>
+        <option value="2024">2024</option>
+        <option value="2025">2025</option>
+        <option value="2026" selected>2026</option>
+      </select>
+    </div>
+  </div>
+  <div style="margin-top:10px;">
+    <label style="display:block;margin-bottom:4px;font-size:13px;">Profesional 2 <span style="font-size:11px;color:#888;font-weight:400;">(opcional — nombre y apellido)</span></label>
+    <input type="text" id="colaboradorInput" placeholder="Ej: Simón García" style="margin:0;width:100%;padding:9px 12px;">
+  </div>
+  <div style="margin-top:10px;">
+    <label style="display:block;margin-bottom:4px;font-size:13px;">Profesional 3 <span style="font-size:11px;color:#888;font-weight:400;">(opcional — nombre y apellido)</span></label>
+    <input type="text" id="colaborador3Input" placeholder="Ej: Ana Martínez" style="margin:0;width:100%;padding:9px 12px;">
+    <p id="colaborador3Error" style="display:none;color:#c62828;font-size:11px;margin:4px 0 0;">⚠️ Ingresa nombre y apellido (mínimo dos palabras).</p>
+  </div>
+  <input type="text" id="fechaInformeDisplay" style="display:none;">
+  <input type="text" id="fechaVisitaDisplay" style="display:none;">
+  <button id="btnGuardarProyecto" style="margin-top:14px;">Continuar</button>
 </div>
 
 <!-- ===== PANTALLA 3: NUEVA OBSERVACIÓN ===== -->
@@ -875,6 +929,7 @@ button:active { transform:translateY(0); }
   </div>
   <div class="info-proyecto">
     <strong>Proyecto:</strong> <span id="nombreProyectoDisplay"></span><br>
+    <strong>Contrato:</strong> <span id="contratoDisplay">—</span><br>
     <strong>Usuario:</strong> <span id="usuarioDisplay"></span>
   </div>
   <label>Fotos (máx. 4):</label>
@@ -922,19 +977,32 @@ button:active { transform:translateY(0); }
     <option>Bajo</option><option>Medio</option><option>Alto</option><option>Crítico</option><option>Ninguno</option>
   </select>
 
+  <label>Solicitud:</label>
+  <select id="solicitudTipo">
+    <option value="">Seleccione</option>
+    <option value="Nueva">Nueva</option>
+    <option value="Reiterada">Reiterada</option>
+  </select>
+
   <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:4px;">
     <button id="btnAgregar" style="flex:1;">Agregar Observación</button>
     <button id="btnAvanceObra" style="flex:1;background:linear-gradient(135deg,#1565c0,#0d47a1);color:#fff;border:none;border-radius:8px;padding:10px 12px;font-family:Montserrat,sans-serif;font-weight:700;font-size:13px;cursor:pointer;box-shadow:0 2px 8px rgba(21,101,192,0.3);">📸 Avance de Obra</button>
   </div>
   <button id="btnVerObservaciones" class="btn-secundario">Ver Observaciones (<span id="contadorObs">0</span>)</button>
   <button id="btnVerRequerimientos" style="width:100%;padding:10px;border-radius:8px;border:none;background:linear-gradient(135deg,#555,#333);color:#fff;font-family:Montserrat,sans-serif;font-weight:700;font-size:13px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.2);margin:4px 0;">📋 Requerimientos (<span id="contadorReq">0</span>)</button>
+  <button id="btnVerAnexosDocs" style="width:100%;padding:10px;border-radius:8px;border:none;background:linear-gradient(135deg,#c62828,#a31515);color:#fff;font-family:Montserrat,sans-serif;font-weight:700;font-size:13px;cursor:pointer;box-shadow:0 2px 8px rgba(198,40,40,0.3);margin:4px 0;">📎 Anexos (<span id="contadorAnexosDocs">0</span>)</button>
   <!-- COMENTARIO FINAL / CONCLUSIÓN -->
   <div style="margin:10px 0 4px;padding:14px 14px 12px;background:#f9f6ff;border:1.5px solid rgba(100,60,180,0.22);border-radius:10px;">
-    <label style="font-weight:700;color:#5c35b0;font-size:13px;display:block;margin-bottom:6px;">💬 Comentario Final (Conclusión del Informe)</label>
-    <textarea id="comentarioFinalInput" rows="4" placeholder="Escriba aquí sus conclusiones generales de la visita técnica. Este texto aparecerá al final del informe PDF..." style="width:100%;padding:10px 12px;border-radius:8px;border:1.5px solid rgba(100,60,180,0.25);font-family:Open Sans,sans-serif;font-size:13px;resize:vertical;background:#fff;color:#222;margin:0;"></textarea>
-    <span style="font-size:10.5px;color:#888;display:block;text-align:right;margin-top:3px;" id="comentarioContador">0 caracteres</span>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+      <label style="font-weight:700;color:#c62828;font-size:13px;margin:0;">💬 Comentario Final (Conclusión del Informe)</label>
+      <button type="button" id="btnMicComentario" style="background:linear-gradient(135deg,#555,#333);color:#fff;border:none;border-radius:8px;padding:5px 10px;font-size:13px;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,0.2);" title="Transcribir por voz">🎤</button>
+    </div>
+    <span class="mic-status" id="micStatusComentario" style="display:none;color:#c62828;font-size:11px;font-weight:700;">🔴 Grabando comentario...</span>
+    <textarea id="comentarioFinalInput" rows="4" placeholder="Escriba sus conclusiones generales de la visita técnica (mínimo 50 caracteres). Este texto aparecerá al final del informe PDF..." style="width:100%;padding:10px 12px;border-radius:8px;border:1.5px solid rgba(100,60,180,0.25);font-family:Open Sans,sans-serif;font-size:13px;resize:vertical;background:#fff;color:#222;margin:0;"></textarea>
+    <span style="font-size:10.5px;display:block;text-align:right;margin-top:3px;" id="comentarioContador">0 / mín. 50 caracteres</span>
   </div>
   <button id="btnExportarJSON" title="Exportar JSON para continuar editando" style="width:auto;padding:7px 18px;font-size:12px;margin:4px auto;display:block;border-radius:8px;border:none;font-family:Montserrat,sans-serif;font-weight:700;cursor:pointer;background:linear-gradient(135deg,#1565c0,#0d47a1);color:#fff;box-shadow:0 2px 8px rgba(21,101,192,0.3);">💾 Guardar JSON</button>
+  <button id="btnExportarZIPReg" title="Exportar informe completo ZIP (PDF + JSON + fotos + anexos)" style="width:auto;padding:7px 18px;font-size:12px;margin:4px auto;display:block;border-radius:8px;border:none;font-family:Montserrat,sans-serif;font-weight:700;cursor:pointer;background:linear-gradient(135deg,#2e7d32,#1b5e20);color:#fff;box-shadow:0 2px 8px rgba(46,125,50,0.3);">📦 Exportar ZIP</button>
 </div>
 
 <!-- ===== PANTALLA 4: VER OBSERVACIONES ===== -->
@@ -943,6 +1011,8 @@ button:active { transform:translateY(0); }
   <div class="info-proyecto">
     <strong>Proyecto:</strong> <span id="nombreProyectoDisplay2"></span><br>
     <strong>Total:</strong> <span id="totalObs">0</span> observaciones
+    &nbsp;·&nbsp; <span style="color:#2e7d32;font-weight:700;" id="contNuevas">0 nuevas</span>
+    &nbsp;·&nbsp; <span style="color:#c62828;font-weight:700;" id="contReiteradas">0 reiteradas</span>
   </div>
   <div id="obsCard" class="obs-card"></div>
   <!-- Agregar fotos a observación actual -->
@@ -969,45 +1039,29 @@ button:active { transform:translateY(0); }
 </div>
 
 <script>
-// ===== BLOQUEO PC =====
-// Detectar si es PC (no touch / no mobile): si es PC, mostrar pantalla negra hasta Ctrl+M
+// ===== BLOQUEO PC v3 =====
 (function(){
   var lockEl = document.getElementById('pcLockScreen');
   if(!lockEl) return;
-
-  // Detectar dispositivo móvil / tablet con touch nativo
   var esMobile = (
     /Mobi|Android|iPhone|iPad|iPod|BlackBerry|Windows Phone/i.test(navigator.userAgent) ||
     (typeof window.ontouchstart !== 'undefined' && navigator.maxTouchPoints > 0)
   );
-
-  if(esMobile){
-    // En móvil: no bloquear, quitar el elemento
-    lockEl.style.display = 'none';
-    return;
-  }
-
-  // En PC: activar pantalla negra
+  if(esMobile){ lockEl.style.display='none'; return; }
   lockEl.classList.add('visible');
-  document.body.style.overflow = 'hidden';
-
+  document.body.style.overflow='hidden';
   function desbloquear(){
     lockEl.classList.remove('visible');
-    lockEl.style.display = 'none';
-    document.body.style.overflow = '';
+    lockEl.style.display='none';
+    document.body.style.overflow='';
   }
-
-  // Desbloquear con Ctrl+M
   document.addEventListener('keydown', function(e){
-    if(e.ctrlKey && !e.shiftKey && !e.altKey && (e.key === 'm' || e.key === 'M')){
-      if(lockEl.classList.contains('visible')){
-        e.preventDefault();
-        desbloquear();
-        return;
-      }
+    if(e.ctrlKey && !e.shiftKey && !e.altKey && (e.key==='m'||e.key==='M')){
+      e.preventDefault(); desbloquear();
     }
-  }, true); // captura = true para interceptar antes de otros listeners
+  }, true);
 })();
+// v3.0 — PC lock activo: Ctrl+M para desbloquear en PC
 
 // === FONDO GEOMÉTRICO CANVAS (tetraedros / polígonos en rojo sutil) ===
 (function() {
@@ -1149,6 +1203,37 @@ document.addEventListener("DOMContentLoaded", function() {
   var fotosAvanceObra = []; // Fotos del anexo Avance de Obra (máx 12) — cada elemento: {src, nombre}
   var comentarioFinal = ''; // Comentario/conclusión final del informe
   var requerimientos = []; // Lista de requerimientos numerados
+  var noContrato='', anioContrato=String(new Date().getFullYear()), colaborador='', colaborador3='';
+
+  // Fechas controladas: fechaInforme puede ser modificada por Ctrl+M
+  // fechaVisita = la que muestra la estampa (o PC si no se modificó)
+  var _fechaInformeCustom = null;   // Date | null — null => usar new Date()
+  var _fechaVisitaCustom  = null;   // Date | null — null => usar _stampaConfig o new Date()
+  // Declaración temprana de _stampaConfig para que _actualizarDisplayFechas() pueda usarla
+  var _stampaConfig = {
+    activo: false, lat: null, lng: null, fecha: null,
+    fechaInicio: null, fechaFin: null, usuario: null
+  };
+
+  // Formatea una fecha para mostrar en los campos de texto
+  function _formatFechaDisplay(d) {
+    var pad = function(n){ return String(n).padStart(2,'0'); };
+    var meses = ['enero','febrero','marzo','abril','mayo','junio',
+                 'julio','agosto','septiembre','octubre','noviembre','diciembre'];
+    return pad(d.getDate())+' de '+meses[d.getMonth()]+' de '+d.getFullYear()
+      +', '+pad(d.getHours())+':'+pad(d.getMinutes());
+  }
+
+  function _actualizarDisplayFechas() {
+    var dInf = _fechaInformeCustom ? _fechaInformeCustom : new Date();
+    var dVis = _fechaVisitaCustom  ? _fechaVisitaCustom
+               : (_stampaConfig && _stampaConfig.activo && _stampaConfig.fechaInicio
+                  ? _stampaConfig.fechaInicio : new Date());
+    var elInf = document.getElementById('fechaInformeDisplay');
+    var elVis = document.getElementById('fechaVisitaDisplay');
+    if(elInf) elInf.value = _formatFechaDisplay(dInf);
+    if(elVis) elVis.value = _formatFechaDisplay(dVis);
+  }
 
   var siglasProyecto = {
     'CER FASE II':'CPA','URI NORTE':'URN','URI TUNJUELITO':'URT',
@@ -1259,6 +1344,21 @@ document.addEventListener("DOMContentLoaded", function() {
           if(datos.usuario)  usuarioActivo=datos.usuario;
           if(datos.fotosAvanceObra && Array.isArray(datos.fotosAvanceObra)) fotosAvanceObra=datos.fotosAvanceObra;
           if(datos.requerimientos && Array.isArray(datos.requerimientos)) requerimientos=datos.requerimientos;
+          // v3 campos opcionales (retrocompatible con JSONs anteriores)
+          if(datos.anexosDocs && Array.isArray(datos.anexosDocs)) anexosDocs=datos.anexosDocs;
+          else anexosDocs=[];
+          if(datos.noContrato){ noContrato=datos.noContrato; var nc=document.getElementById('noContratoInput'); if(nc) nc.value=noContrato; }
+          else noContrato='';
+          if(datos.anioContrato){ anioContrato=datos.anioContrato; var ac=document.getElementById('anioContratoInput'); if(ac) ac.value=anioContrato; }
+          else anioContrato=String(new Date().getFullYear());
+          if(datos.colaborador){ colaborador=datos.colaborador; var cc=document.getElementById('colaboradorInput'); if(cc) cc.value=colaborador; }
+          else colaborador='';
+          if(datos.colaborador3){ colaborador3=datos.colaborador3; var cc3=document.getElementById('colaborador3Input'); if(cc3) cc3.value=colaborador3; }
+          else colaborador3='';
+          // retrocompatibilidad solicitud en registros
+          if(registros && Array.isArray(registros)){
+            registros.forEach(function(r){ if(!r.solicitud) r.solicitud='Nueva'; });
+          }
           if(datos.comentarioFinal) {
             comentarioFinal = datos.comentarioFinal;
             var inp = document.getElementById('comentarioFinalInput');
@@ -1268,11 +1368,18 @@ document.addEventListener("DOMContentLoaded", function() {
           _fotoGlobalIdx = 0;
           registros.forEach(function(r){ var f=r.fotos||(r.foto?[r.foto]:[]); _fotoGlobalIdx+=f.length; });
           _fotoGlobalIdx += fotosAvanceObra.length;
+          // Restaurar fechas personalizadas si vienen en el JSON
+          if(datos.fechaVisita){
+            var dv = new Date(datos.fechaVisita);
+            if(!isNaN(dv.getTime())) _fechaVisitaCustom = dv; else _fechaVisitaCustom = null;
+          }
           document.getElementById("nombreProyectoDisplay").innerText=nombreProyecto;
           document.getElementById("usuarioDisplay").innerText=formatearUsuario(usuarioActivo);
           actualizarContador();
           if(document.getElementById("contadorReq")) document.getElementById("contadorReq").innerText=requerimientos.length;
-          alert("Sesion cargada: "+registros.length+" observaciones del proyecto "+nombreProyecto);
+          var _cadEl=document.getElementById('contadorAnexosDocs'); if(_cadEl) _cadEl.innerText=(anexosDocs||[]).length;
+          var _cdEl=document.getElementById('contratoDisplay'); if(_cdEl) _cdEl.innerText=(noContrato?noContrato+'-':'')+anioContrato;
+          alert("Sesion cargada: "+registros.length+" observaciones del proyecto "+nombreProyecto+"\n\nRevisa el año del contrato en la pantalla de Proyecto antes de exportar.");
           ir('pantallaRegistro');
         } else { alert("Archivo JSON invalido"); }
       } catch(err){ alert("Error al leer el archivo JSON"); }
@@ -1312,9 +1419,11 @@ document.addEventListener("DOMContentLoaded", function() {
 
   // NUEVA SESIÓN
   document.getElementById("btnNuevaSesion").addEventListener("click", function() {
-    registros=[]; fotosActuales=[]; nombreProyecto=""; requerimientos=[];
+    registros=[]; fotosActuales=[]; nombreProyecto=""; requerimientos=[]; anexosDocs=[];
+    noContrato=''; anioContrato=String(new Date().getFullYear()); colaborador=''; colaborador3='';
     _fotoGlobalIdx = 0;
     if(document.getElementById("contadorReq")) document.getElementById("contadorReq").innerText=0;
+    if(document.getElementById("contadorAnexosDocs")) document.getElementById("contadorAnexosDocs").innerText=0;
     document.getElementById("usuarioActivo").innerText="Usuario: "+formatearUsuario(usuarioActivo);
     ir('pantallaProyecto');
   });
@@ -1342,8 +1451,22 @@ document.addEventListener("DOMContentLoaded", function() {
     var p=document.getElementById("proyectoInput").value.trim();
     if(!p){ alert("Debe seleccionar el proyecto"); return; }
     nombreProyecto=p;
+    noContrato=document.getElementById("noContratoInput").value.trim();
+    anioContrato=document.getElementById("anioContratoInput").value;
+    colaborador=document.getElementById("colaboradorInput").value.trim();
+    // Profesional 3: si ingresó algo, debe tener nombre y apellido (≥2 palabras)
+    var col3raw=document.getElementById("colaborador3Input").value.trim();
+    var col3err=document.getElementById("colaborador3Error");
+    if(col3raw){
+      var col3words=col3raw.split(/\s+/).filter(function(w){return w.length>0;});
+      if(col3words.length<2){ col3err.style.display='block'; document.getElementById("colaborador3Input").focus(); return; }
+    }
+    if(col3err) col3err.style.display='none';
+    colaborador3=col3raw;
     document.getElementById("nombreProyectoDisplay").innerText=p;
+    var cd=document.getElementById("contratoDisplay"); if(cd) cd.innerText=(noContrato?noContrato+"-":"")+anioContrato;
     document.getElementById("usuarioDisplay").innerText=formatearUsuario(usuarioActivo);
+    _actualizarDisplayFechas();
     ir('pantallaRegistro');
   });
 
@@ -1520,8 +1643,9 @@ document.addEventListener("DOMContentLoaded", function() {
     var imp=document.getElementById("impacto").value;
     if(fotosActuales.length===0||!obs||!dis||!lug||!res||!imp){ alert("Complete todos los campos y agregue al menos una foto"); return; }
     if(obs.length<140){ alert("La observacion es muy corta ("+obs.length+" caracteres).\nIncluya mas analisis tecnico: causas, riesgos, estado actual y recomendaciones.\nMinimo 140 caracteres."); return; }
+    var sol=document.getElementById('solicitudTipo').value;
     registros.push({ usuario:usuarioActivo, proyecto:nombreProyecto, fecha:new Date().toLocaleString('es-CO'),
-      fotos:fotosActuales.slice(), observacion:obs, disciplina:dis, lugar:lug, responsable:res, impacto:imp });
+      fotos:fotosActuales.slice(), observacion:obs, disciplina:dis, lugar:lug, responsable:res, impacto:imp, solicitud:sol||'Nueva' });
     // Si hay fecha personalizada activa, aumentar tiempo para la siguiente observacion dentro del rango.
     if(_stampaConfig.activo && _stampaConfig.fecha) {
       var _tFin = _stampaConfig.fechaFin ? _stampaConfig.fechaFin.getTime() : null;
@@ -1567,7 +1691,7 @@ document.addEventListener("DOMContentLoaded", function() {
   });
 
   function limpiarFormulario(){
-    ['observacion','disciplina','lugar','responsable','impacto'].forEach(function(id){ document.getElementById(id).value=""; });
+    ['observacion','disciplina','lugar','responsable','impacto','solicitudTipo'].forEach(function(id){ document.getElementById(id).value=""; });
     document.getElementById("previewFotos").innerHTML="";
     document.getElementById("labelCantFotos").innerText="0 / 4 fotos";
     fotosActuales=[]; fotosActualesOriginales=[];
@@ -1854,6 +1978,11 @@ document.addEventListener("DOMContentLoaded", function() {
     document.getElementById("nombreProyectoDisplay2").innerText=nombreProyecto;
     document.getElementById("totalObs").innerText=registros.length;
     document.getElementById("contadorAnexos").innerText=fotosAvanceObra.length;
+    var _nNuevas=0, _nReiter=0;
+    registros.forEach(function(r){ if((r.solicitud||'Nueva')==='Reiterada') _nReiter++; else _nNuevas++; });
+    var _elN=document.getElementById('contNuevas'), _elR=document.getElementById('contReiteradas');
+    if(_elN) _elN.innerText=_nNuevas+' nueva'+ (_nNuevas===1?'':'s');
+    if(_elR) _elR.innerText=_nReiter+' reiterada'+(_nReiter===1?'':'s');
     obsIndex=0; fotoIndex=0;
     ir('pantallaObservaciones'); renderCarrusel();
   });
@@ -1897,8 +2026,14 @@ document.addEventListener("DOMContentLoaded", function() {
       }
 
       html += '</div>'
-        +'<div style="margin-bottom:12px;">'
-        +'<textarea id="reqNuevoTexto" rows="3" placeholder="Escriba el requerimiento..." style="width:100%;padding:10px 12px;border-radius:8px;border:1.5px solid rgba(106,27,154,0.3);font-family:Open Sans,sans-serif;font-size:13px;resize:vertical;outline:none;box-sizing:border-box;"></textarea>'
+        +'<div style="margin-bottom:4px;">'
+        +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">'
+        +'<span style="font-size:11px;font-weight:700;color:#555;">Nuevo requerimiento:</span>'
+        +'<button id="btnMicReq" style="background:linear-gradient(135deg,#555,#333);color:#fff;border:none;border-radius:7px;padding:4px 10px;font-size:13px;cursor:pointer;" title="Dictar requerimiento por voz">🎤</button>'
+        +'</div>'
+        +'<span id="micStatusReq" style="display:none;color:#c62828;font-size:11px;font-weight:700;">🔴 Grabando requerimiento...</span>'
+        +'<textarea id="reqNuevoTexto" rows="3" placeholder="Escriba el requerimiento (mínimo 50 caracteres)..." style="width:100%;padding:10px 12px;border-radius:8px;border:1.5px solid rgba(106,27,154,0.3);font-family:Open Sans,sans-serif;font-size:13px;resize:vertical;outline:none;box-sizing:border-box;"></textarea>'
+        +'<span id="reqNuevoContador" style="font-size:10.5px;display:block;text-align:right;margin-top:2px;color:#aaa;">0 / mín. 50 caracteres</span>'
         +'</div>'
         +'<div style="display:flex;gap:8px;">'
         +'<button id="btnReqAgregar" style="flex:2;padding:11px;border-radius:9px;border:none;background:linear-gradient(135deg,#555,#333);color:#fff;font-family:Montserrat,sans-serif;font-weight:700;font-size:13px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.2);">➕ Agregar</button>'
@@ -1946,16 +2081,56 @@ document.addEventListener("DOMContentLoaded", function() {
     };
 
     function bindReqModal(){
+      // Contador requerimiento
+      var taReq = document.getElementById('reqNuevoTexto');
+      var cntReq = document.getElementById('reqNuevoContador');
+      function updateReqContador(){
+        if(!taReq||!cntReq) return;
+        var n=taReq.value.length, min=50, falta=min-n;
+        if(n>=min){
+          cntReq.innerText='✅ '+n+' caracteres (mínimo cumplido)';
+          cntReq.style.color='#2e7d32';
+          taReq.style.borderColor='rgba(46,125,50,0.5)';
+        } else {
+          cntReq.innerText=n+' / mín. 50 — faltan '+falta+' caracter'+(falta===1?'':'es');
+          cntReq.style.color=n>0?'#e65100':'#aaa';
+          taReq.style.borderColor=n>0?'rgba(198,40,40,0.4)':'rgba(106,27,154,0.3)';
+        }
+      }
+      if(taReq) taReq.addEventListener('input', updateReqContador);
+
+      // Micrófono requerimientos
+      var btnMicReq = document.getElementById('btnMicReq');
+      var micStReq  = document.getElementById('micStatusReq');
+      if(btnMicReq){
+        var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+        if(!SR){ btnMicReq.style.opacity='0.4'; }
+        else {
+          var recR=new SR(); recR.lang='es-CO'; recR.continuous=false; recR.interimResults=true;
+          var grabR=false, txtAntR='';
+          btnMicReq.addEventListener('click',function(){
+            if(grabR){ recR.stop(); } else { txtAntR=taReq?taReq.value:''; recR.start(); }
+          });
+          recR.onstart=function(){ grabR=true; btnMicReq.textContent='⏹'; if(micStReq) micStReq.style.display='block'; };
+          recR.onresult=function(e){
+            var tr=''; for(var i=e.resultIndex;i<e.results.length;i++) tr+=e.results[i][0].transcript;
+            if(taReq){ taReq.value=txtAntR+(txtAntR&&tr?' ':'')+tr; updateReqContador(); }
+          };
+          recR.onend=function(){ grabR=false; btnMicReq.textContent='🎤'; if(micStReq) micStReq.style.display='none'; txtAntR=taReq?taReq.value:''; };
+          recR.onerror=function(){ grabR=false; btnMicReq.textContent='🎤'; if(micStReq) micStReq.style.display='none'; };
+        }
+      }
+
       document.getElementById('btnReqAgregar').addEventListener('click', function(){
         var txt = document.getElementById('reqNuevoTexto').value.trim();
         if(!txt){ alert('⚠️ Escriba el texto del requerimiento antes de agregar.'); return; }
+        if(txt.length < 50){ alert('El requerimiento debe tener al menos 50 caracteres. Actual: '+txt.length+' caracteres.'); return; }
         requerimientos.push(txt);
         document.getElementById("contadorReq").innerText = requerimientos.length;
         refreshReqModal();
         setTimeout(function(){ var ta=document.getElementById('reqNuevoTexto'); if(ta) ta.focus(); }, 50);
       });
-      var ta = document.getElementById('reqNuevoTexto');
-      if(ta) ta.addEventListener('keydown', function(e){
+      if(taReq) taReq.addEventListener('keydown', function(e){
         if((e.ctrlKey || e.shiftKey) && e.key==='Enter'){
           e.preventDefault();
           document.getElementById('btnReqAgregar').click();
@@ -1970,6 +2145,169 @@ document.addEventListener("DOMContentLoaded", function() {
     document.body.appendChild(overlay);
     bindReqModal();
     setTimeout(function(){ var ta=document.getElementById('reqNuevoTexto'); if(ta) ta.focus(); }, 80);
+  });
+
+  // ===== ANEXOS DOCS MODAL =====
+  document.getElementById("btnVerAnexosDocs").addEventListener("click", function(){
+    var overlay = document.createElement('div');
+    overlay.id = 'anexosDocsOverlay';
+    overlay.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.78);display:flex;align-items:center;justify-content:center;';
+
+    function buildAnexosModal(){
+      var html = '<div style="background:#fff;border-radius:16px;padding:22px 20px;max-width:420px;width:96%;box-shadow:0 10px 40px rgba(0,0,0,0.4);max-height:88vh;overflow-y:auto;">'
+        +'<h3 style="font-family:Montserrat,sans-serif;font-weight:900;color:#c62828;margin:0 0 4px;font-size:1.1rem;">📎 Gestión de Anexos</h3>'
+        +'<p style="font-size:11px;color:#888;margin:0 0 14px;">Adjunte documentos PDF o imágenes como anexos del informe. Cada anexo requiere un nombre descriptivo.</p>'
+        +'<div style="display:flex;gap:8px;margin-bottom:12px;">'
+        +'<button id="btnAnexoPDF" style="flex:1;padding:9px;border-radius:8px;border:none;background:linear-gradient(135deg,#c62828,#a31515);color:#fff;font-family:Montserrat,sans-serif;font-weight:700;font-size:12px;cursor:pointer;">📄 Agregar PDF</button>'
+        +'<button id="btnAnexoImagen" style="flex:1;padding:9px;border-radius:8px;border:none;background:linear-gradient(135deg,#1565c0,#0d47a1);color:#fff;font-family:Montserrat,sans-serif;font-weight:700;font-size:12px;cursor:pointer;">🖼️ Agregar Imagen</button>'
+        +'</div>'
+        +'<input type="file" id="anexoPDFInput" accept=".pdf" style="display:none;margin:0;">'
+        +'<input type="file" id="anexoImagenInput" accept="image/*" multiple style="display:none;margin:0;">'
+        +'<div id="anexosDocsList" style="margin-bottom:14px;">';
+
+      if(anexosDocs.length===0){
+        html+='<p style="font-size:12px;color:#bbb;text-align:center;padding:12px 0;">No hay anexos adjuntos aún.</p>';
+      } else {
+        anexosDocs.forEach(function(a,i){
+          var icono = a.tipo==='pdf' ? '[PDF]' : '[IMG]';
+          var preview = a.tipo==='imagen'
+            ? '<img src="'+a.src+'" style="width:100%;height:70px;object-fit:cover;border-radius:4px;margin-top:6px;">'
+            : '<div style="background:#fff5f5;border:1px solid rgba(198,40,40,0.3);border-radius:4px;padding:10px 8px;margin-top:6px;display:flex;align-items:center;gap:8px;">'
+              + '<svg width="20" height="24" viewBox="0 0 20 24" fill="none"><rect width="20" height="24" rx="2" fill="#c62828" opacity="0.12"/>'
+              + '<rect x="3" y="4" width="14" height="2" rx="1" fill="#c62828"/>'
+              + '<rect x="3" y="8" width="14" height="2" rx="1" fill="#c62828" opacity="0.6"/>'
+              + '<rect x="3" y="12" width="10" height="2" rx="1" fill="#c62828" opacity="0.4"/>'
+              + '<path d="M12 14 L17 14 L17 20 L12 20 Z" fill="#c62828"/>'
+              + '<text x="12.5" y="19" font-size="4" fill="white" font-family="Arial">PDF</text></svg>'
+              + '<div><div style="font-size:10.5px;font-weight:700;color:#c62828;">Documento PDF</div>'
+              + '<div style="font-size:9px;color:#888;margin-top:1px;">'+a.fileName+'</div></div></div>';
+          html+='<div style="background:#fafafa;border-radius:8px;padding:9px 10px;margin-bottom:6px;border:1px solid #e0e0e0;">'
+            +'<div style="display:flex;align-items:center;gap:6px;">'
+            +'<span style="font-size:18px;">'+icono+'</span>'
+            +'<input type="text" id="nombreAnexo_'+i+'" value="'+a.nombre.replace(/"/g,'&quot;').replace(/'/g,'&#39;')+'" oninput="window._nombreAnexo('+i+',this.value)" placeholder="Nombre del anexo" style="flex:1;font-size:12px;padding:4px 8px;border:1.5px solid #ddd;border-radius:6px;font-family:Open Sans,sans-serif;margin:0;pointer-events:auto;position:relative;z-index:1;">'
+            +'<button onclick="window._eliminarAnexo('+i+')" style="background:rgba(198,40,40,0.1);color:#c62828;border:none;border-radius:6px;padding:3px 9px;font-size:11px;cursor:pointer;font-weight:700;">✕</button>'
+            +'</div>'+preview+'</div>';
+        });
+      }
+
+      html+='</div>'
+        +'<button id="btnAnexosGuardar" style="width:100%;padding:10px;border-radius:8px;border:none;background:linear-gradient(135deg,#2e7d32,#1b5e20);color:#fff;font-family:Montserrat,sans-serif;font-weight:700;font-size:13px;cursor:pointer;margin-bottom:6px;">✅ Cerrar y Guardar</button>'
+        +'</div>';
+      return html;
+    }
+
+    overlay.innerHTML = buildAnexosModal();
+    document.body.appendChild(overlay);
+
+    function refreshAnexos(){ overlay.innerHTML=buildAnexosModal(); bindAnexos(); actualizarContadorAnexos(); }
+
+    window._eliminarAnexo=function(i){ anexosDocs.splice(i,1); refreshAnexos(); };
+    window._nombreAnexo=function(i,v){ if(i<anexosDocs.length) anexosDocs[i].nombre=v; };
+
+    function actualizarContadorAnexos(){
+      var el=document.getElementById('contadorAnexosDocs');
+      if(el) el.innerText=anexosDocs.length;
+    }
+
+    function bindAnexos(){
+      document.getElementById('btnAnexoPDF').addEventListener('click',function(){ document.getElementById('anexoPDFInput').click(); });
+      document.getElementById('btnAnexoImagen').addEventListener('click',function(){ document.getElementById('anexoImagenInput').click(); });
+
+      document.getElementById('anexoPDFInput').addEventListener('change',function(e){
+        var file=e.target.files[0]; e.target.value='';
+        if(!file) return;
+        var nombreSugerido=file.name.replace(/\.pdf$/i,'');
+        var reader=new FileReader();
+        reader.onload=function(ev){
+          var srcData=ev.target.result;
+          // Mostrar mini-modal de nombre dentro del overlay
+          var nm=document.createElement('div');
+          nm.id='nombreAnexoModal';
+          nm.style.cssText='position:absolute;inset:0;background:rgba(0,0,0,0.55);display:flex;align-items:center;justify-content:center;z-index:10;border-radius:16px;';
+          nm.innerHTML='<div style="background:#fff;border-radius:12px;padding:20px 18px;max-width:340px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,0.3);">'
+            +'<p style="font-family:Montserrat,sans-serif;font-weight:800;font-size:13px;color:#c62828;margin:0 0 6px;">📄 Nombre del Anexo PDF</p>'
+            +'<p style="font-size:11px;color:#888;margin:0 0 10px;">Ingresa un nombre descriptivo para este documento.</p>'
+            +'<input id="_nmInput" type="text" value="'+nombreSugerido.replace(/"/g,'&quot;')+'" placeholder="Nombre del anexo" style="width:100%;padding:8px 10px;border:1.5px solid #c62828;border-radius:8px;font-size:13px;font-family:Open Sans,sans-serif;box-sizing:border-box;margin:0 0 12px;">'
+            +'<div style="display:flex;gap:8px;">'
+            +'<button id="_nmCancelar" style="flex:1;padding:8px;border-radius:8px;border:1.5px solid #ddd;background:#f5f5f5;font-family:Montserrat,sans-serif;font-weight:700;font-size:12px;cursor:pointer;color:#555;">Cancelar</button>'
+            +'<button id="_nmAceptar" style="flex:2;padding:8px;border-radius:8px;border:none;background:linear-gradient(135deg,#c62828,#a31515);color:#fff;font-family:Montserrat,sans-serif;font-weight:700;font-size:12px;cursor:pointer;">✅ Agregar</button>'
+            +'</div></div>';
+          var modalContainer=document.querySelector('#anexosDocsOverlay > div');
+          if(modalContainer){ modalContainer.style.position='relative'; modalContainer.appendChild(nm); }
+          else { overlay.appendChild(nm); }
+          setTimeout(function(){ var inp=document.getElementById('_nmInput'); if(inp){inp.focus();inp.select();} },60);
+          document.getElementById('_nmCancelar').addEventListener('click',function(){ nm.remove(); });
+          document.getElementById('_nmAceptar').addEventListener('click',function(){
+            var n=document.getElementById('_nmInput').value.trim()||nombreSugerido;
+            nm.remove();
+            anexosDocs.push({nombre:n,tipo:'pdf',src:srcData,fileName:file.name});
+            refreshAnexos();
+          });
+          document.getElementById('_nmInput').addEventListener('keydown',function(e){
+            if(e.key==='Enter'){ document.getElementById('_nmAceptar').click(); }
+            if(e.key==='Escape'){ document.getElementById('_nmCancelar').click(); }
+          });
+        };
+        reader.readAsDataURL(file);
+      });
+
+      document.getElementById('anexoImagenInput').addEventListener('change',function(e){
+        var files=Array.from(e.target.files); e.target.value='';
+        if(!files.length) return;
+        var procesadas=[];
+        var pendientes=files.length;
+        files.forEach(function(file){
+          var nombreSugerido=file.name.replace(/\.[^.]+$/,'');
+          var reader=new FileReader();
+          reader.onload=function(ev){
+            var img=new Image(); img.onload=function(){
+              var MAX=1200,w=img.width,h=img.height;
+              if(w>MAX||h>MAX){ if(w>=h){h=Math.round(h*MAX/w);w=MAX;}else{w=Math.round(w*MAX/h);h=MAX;} }
+              var cv=document.createElement('canvas'); cv.width=w; cv.height=h;
+              cv.getContext('2d').drawImage(img,0,0,w,h);
+              var src=cv.toDataURL('image/jpeg',0.85); cv.width=1;cv.height=1;
+              procesadas.push({nombreSugerido:nombreSugerido,src:src});
+              if(--pendientes===0){ pedirNombreImagen(procesadas,0); }
+            }; img.src=ev.target.result;
+          }; reader.readAsDataURL(file);
+        });
+        function pedirNombreImagen(lista,idx){
+          if(idx>=lista.length){ refreshAnexos(); return; }
+          var item=lista[idx];
+          var nm=document.createElement('div');
+          nm.style.cssText='position:absolute;inset:0;background:rgba(0,0,0,0.55);display:flex;align-items:center;justify-content:center;z-index:10;border-radius:16px;';
+          nm.innerHTML='<div style="background:#fff;border-radius:12px;padding:20px 18px;max-width:340px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,0.3);">'
+            +'<p style="font-family:Montserrat,sans-serif;font-weight:800;font-size:13px;color:#1565c0;margin:0 0 6px;">🖼️ Nombre del Anexo '+(idx+1)+' / '+lista.length+'</p>'
+            +'<img src="'+item.src+'" style="width:100%;height:80px;object-fit:cover;border-radius:6px;margin-bottom:8px;">'
+            +'<input id="_nmInput2" type="text" value="'+item.nombreSugerido.replace(/"/g,'&quot;')+'" placeholder="Nombre del anexo" style="width:100%;padding:8px 10px;border:1.5px solid #1565c0;border-radius:8px;font-size:13px;font-family:Open Sans,sans-serif;box-sizing:border-box;margin:0 0 12px;">'
+            +'<div style="display:flex;gap:8px;">'
+            +'<button id="_nmCancelar2" style="flex:1;padding:8px;border-radius:8px;border:1.5px solid #ddd;background:#f5f5f5;font-family:Montserrat,sans-serif;font-weight:700;font-size:12px;cursor:pointer;color:#555;">Cancelar</button>'
+            +'<button id="_nmAceptar2" style="flex:2;padding:8px;border-radius:8px;border:none;background:linear-gradient(135deg,#1565c0,#0d47a1);color:#fff;font-family:Montserrat,sans-serif;font-weight:700;font-size:12px;cursor:pointer;">✅ Agregar</button>'
+            +'</div></div>';
+          var modalContainer=document.querySelector('#anexosDocsOverlay > div');
+          if(modalContainer){ modalContainer.style.position='relative'; modalContainer.appendChild(nm); }
+          else { overlay.appendChild(nm); }
+          setTimeout(function(){ var inp=document.getElementById('_nmInput2'); if(inp){inp.focus();inp.select();} },60);
+          document.getElementById('_nmCancelar2').addEventListener('click',function(){ nm.remove(); pedirNombreImagen(lista,idx+1); });
+          document.getElementById('_nmAceptar2').addEventListener('click',function(){
+            var n=document.getElementById('_nmInput2').value.trim()||item.nombreSugerido;
+            nm.remove();
+            anexosDocs.push({nombre:n,tipo:'imagen',src:item.src});
+            pedirNombreImagen(lista,idx+1);
+          });
+          document.getElementById('_nmInput2').addEventListener('keydown',function(e){
+            if(e.key==='Enter'){ document.getElementById('_nmAceptar2').click(); }
+            if(e.key==='Escape'){ document.getElementById('_nmCancelar2').click(); }
+          });
+        }
+      });
+
+      document.getElementById('btnAnexosGuardar').addEventListener('click',function(){
+        actualizarContadorAnexos();
+        if(overlay.parentNode) overlay.parentNode.removeChild(overlay);
+      });
+    }
+    bindAnexos();
   });
 
   // CARRUSEL
@@ -1996,13 +2334,16 @@ document.addEventListener("DOMContentLoaded", function() {
     }
     var resp=r.responsable?'<p><strong>Responsable:</strong> '+r.responsable+'</p>':'';
     actualizarLabelFotosObs(r);
+    var rCurr=registros[obsIndex];
+    var obsNombreDisp = (rCurr.disciplina||'')+((rCurr.disciplina&&rCurr.lugar)?' — ':'')+(rCurr.lugar||'');
     document.getElementById("obsCard").innerHTML=
-      '<h3>Observacion #'+(obsIndex+1)+'</h3>'
+      '<h3>Observacion #'+(obsIndex+1)+(obsNombreDisp?' <span style="font-size:11px;color:#888;font-weight:400;">'+obsNombreDisp+'</span>':'')+"</h3>"
       +'<p><strong>Fecha:</strong> '+r.fecha+'</p>'
       +'<p><strong>Disciplina:</strong> '+r.disciplina+'</p>'
       +'<p><strong>Lugar:</strong> '+r.lugar+'</p>'
       +resp
       +'<p><strong>Impacto:</strong> <span class="'+ci+'">'+r.impacto+'</span></p>'
+      +'<p><strong>Solicitud:</strong> <span style="color:'+(r.solicitud==='Reiterada'?'#c62828':'#2e7d32')+';font-weight:700;">'+( r.solicitud||'Nueva')+'</span></p>'
       +fHTML
       +'<p style="margin-top:10px;"><strong>Descripcion:</strong></p><p>'+r.observacion+'</p>'
       +'<button onclick="toggleEditar('+obsIndex+')" class="btn-small btn-secundario" style="width:auto;margin-top:10px;">Editar observacion</button>'
@@ -2018,6 +2359,7 @@ document.addEventListener("DOMContentLoaded", function() {
       +'<label>Impacto:</label><select id="editImpacto_'+obsIndex+'">'
       +['Bajo','Medio','Alto','Crítico'].map(function(imp){ return '<option '+(imp===r.impacto?'selected':'')+'>'+imp+'</option>'; }).join('')
       +'</select>'
+      +'<label>Solicitud:</label><select id="editSolicitud_'+obsIndex+'"><option '+((!r.solicitud||r.solicitud==="Nueva")?'selected':'')+' value="Nueva">Nueva</option><option '+(r.solicitud==="Reiterada"?'selected':'')+' value="Reiterada">Reiterada</option></select>'
       +'<button onclick="guardarEdicion('+obsIndex+')" style="margin-top:6px;">Guardar cambios</button>'
       +'</div>';
   }
@@ -2030,6 +2372,7 @@ document.addEventListener("DOMContentLoaded", function() {
     registros[idx].lugar=document.getElementById('editLugar_'+idx).value.trim();
     registros[idx].responsable=document.getElementById('editResp_'+idx).value.trim();
     registros[idx].impacto=document.getElementById('editImpacto_'+idx).value;
+    var solEl=document.getElementById('editSolicitud_'+idx); if(solEl) registros[idx].solicitud=solEl.value;
     alert("Cambios guardados"); renderCarrusel();
   };
 
@@ -2115,6 +2458,14 @@ document.addEventListener("DOMContentLoaded", function() {
   // ===== EXPORTAR ZIP (PDF + JSON) =====
   function exportarZIP(silencioso) {
     if(registros.length===0){ if(!silencioso) alert("No hay registros para exportar"); return; }
+    // Validar fotos avance de obra
+    var tieneFotosAvance = fotosAvanceObra.length > 0;
+    if(!tieneFotosAvance){ alert("⚠️ El informe requiere al menos una foto de Avance de Obra para exportar."); return; }
+    // Validar requerimientos
+    if(requerimientos.length === 0){ alert("⚠️ El informe requiere al menos un requerimiento para exportar."); return; }
+    // Validar comentario final
+    var _comentFinalCheck = document.getElementById('comentarioFinalInput') ? document.getElementById('comentarioFinalInput').value.trim() : comentarioFinal;
+    if(_comentFinalCheck.length < 50){ alert("El Comentario Final debe tener al menos 50 caracteres antes de exportar. Actual: "+_comentFinalCheck.length+" caracteres."); return; }
     var btnExp = document.getElementById('btnExportar');
     if(btnExp){ btnExp.disabled=true; btnExp.innerText='⏳ Generando...'; }
 
@@ -2134,7 +2485,7 @@ document.addEventListener("DOMContentLoaded", function() {
       doc.setFontSize(8); doc.setTextColor(120,120,120);
       doc.text("Pagina "+pag+" de "+total,pw/2,ph-8,{align:'center'});
       doc.setFontSize(7);
-      doc.text("Desarrollado por: Ing. Johan Manuel Cardenas Leal, MSc  |  © 2026 Todos los derechos reservados",pw/2,ph-4,{align:'center'});
+      doc.text("Ing. Johan Manuel Cardenas Leal, MSc  |  v3.0  |  © "+new Date().getFullYear()+" SDSCJ - Dirección de Bienes",pw/2,ph-4,{align:'center'});
       doc.setTextColor(0,0,0);
     }
 
@@ -2142,7 +2493,8 @@ document.addEventListener("DOMContentLoaded", function() {
     var paginasReq = requerimientos.length > 0 ? 1 : 0;
     var comentarioFinalPDF = document.getElementById('comentarioFinalInput') ? document.getElementById('comentarioFinalInput').value.trim() : comentarioFinal;
     var paginasComentario = comentarioFinalPDF.length > 0 ? 1 : 0;
-    var totalPags=1+registros.length+1+1+paginasReq+paginasAnexo+paginasComentario; // portada + obs + stats + matriz + req + anexo + comentario
+    var paginasAnexosDocs = anexosDocs.length > 0 ? Math.ceil(anexosDocs.length / 2) : 0;
+    var totalPags=1+1+1+registros.length+1+1+paginasReq+paginasAnexo+paginasComentario+paginasAnexosDocs; // portada + intro + TOC + obs + stats + matriz + req + anexo + comentario + anexosDocs
     var y=0;
 
     // ===== PORTADA - layout con coordenadas absolutas fijas =====
@@ -2160,21 +2512,30 @@ document.addEventListener("DOMContentLoaded", function() {
     doc.setFontSize(18); doc.setFont(undefined,'bold'); doc.setTextColor(0,0,0);
     doc.text("REPORTE DE VISITA TECNICA DE OBRA", pw/2, 24, {align:'center'});
 
-    // ZONA 2 — Recuadro (y=32, h=76)
+    // ZONA 2 — Recuadro (y=32, h dinámica según profesionales)
+    var numProfs = (colaborador?1:0)+(colaborador3?1:0);
+    var boxRows = 6 + numProfs;
+    var boxH = 80 + (boxRows-5)*10;
     doc.setFillColor(252,248,248); doc.setDrawColor(198,40,40); doc.setLineWidth(0.5);
-    doc.roundedRect(18, 30, 174, 80, 3, 3, 'FD');
+    doc.roundedRect(18, 30, 174, boxH, 3, 3, 'FD');
 
     doc.setFontSize(11); doc.setFont(undefined,'bold'); doc.setTextColor(198,40,40);
     doc.text("INFORMACION DEL PROYECTO", 28, 40);
 
     doc.setFontSize(10); doc.setTextColor(0,0,0);
+    var contratoLabel = noContrato ? noContrato+'-'+anioContrato : anioContrato;
     var filas2=[
       {k:"Proyecto:",      v:nombreProyecto},
-      {k:"Profesional:",   v:formatearUsuario(usuarioActivo)},
-      {k:"Rol:",           v:"Contratista Apoyo a la Supervision Tecnica"},
-      {k:"Fecha:",         v:new Date().toLocaleString('es-CO')},
-      {k:"Observaciones:", v:String(registros.length)}
+      {k:"Contrato No.:",  v:contratoLabel},
+      {k:(numProfs>0?"Profesional 1:":"Profesional:"),  v:formatearUsuario(usuarioActivo)},
     ];
+    if(colaborador)  filas2.push({k:"Profesional 2:", v:colaborador.replace(/\./g,' ').toUpperCase()});
+    if(colaborador3) filas2.push({k:"Profesional 3:", v:colaborador3.toUpperCase()});
+    filas2 = filas2.concat([
+      {k:"Rol:",           v:"Contratista Apoyo a la Supervision Tecnica"},
+      {k:"Fecha Informe:", v:(_fechaInformeCustom ? _fechaInformeCustom : new Date()).toLocaleString('es-CO')},
+      {k:"Observaciones:", v:String(registros.length)}
+    ]);
     var ry2=50;
     filas2.forEach(function(f){
       doc.setFont(undefined,'bold');   doc.text(f.k, 28, ry2);
@@ -2184,62 +2545,204 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // ZONA 3 — Firmas (fijas en y=122)
     doc.setDrawColor(220,220,220); doc.setLineWidth(0.3);
-    doc.line(30, 117, 180, 117);
+    doc.line(30, 130, 180, 130);
 
     doc.setFontSize(9); doc.setFont(undefined,'bold'); doc.setTextColor(0,0,0);
-    doc.text("ARQ. JULIO CESAR CASTELLANOS REYES", pw/2, 126, {align:'center'});
+    doc.text("CORONEL GUSTAVO MONROY ACUÑA", pw/2, 139, {align:'center'});
     doc.setFont(undefined,'normal'); doc.setFontSize(8);
-    doc.text("DIRECTOR DE BIENES ENCARGADO", pw/2, 132, {align:'center'});
+    doc.text("DIRECTOR DE BIENES", pw/2, 145, {align:'center'});
 
     doc.setFont(undefined,'bold'); doc.setFontSize(9);
-    doc.text("DRA. NATALIA ROMAN DUQUE", pw/2, 144, {align:'center'});
+    doc.text("DRA. NATALIA ROMAN DUQUE", pw/2, 157, {align:'center'});
     doc.setFont(undefined,'normal'); doc.setFontSize(7.5);
-    doc.text("SUBSECRETARIA DE INVERSIONES Y FORTALECIMIENTO DE CAPACIDADES OPERATIVAS", pw/2, 150, {align:'center'});
+    doc.text("SUBSECRETARIA DE INVERSIONES Y FORTALECIMIENTO DE CAPACIDADES OPERATIVAS", pw/2, 163, {align:'center'});
 
     // ZONA 4 — Secretaria / Direccion / Año (cerca del final de hoja, y=225)
     doc.setDrawColor(198,40,40); doc.setLineWidth(0.6);
-    doc.line(30, 225, 180, 225);
+    doc.line(30, 228, 180, 228);
 
     doc.setFontSize(12); doc.setFont(undefined,'bold'); doc.setTextColor(198,40,40);
-    doc.text("SECRETARIA DISTRITAL DE SEGURIDAD,", pw/2, 235, {align:'center'});
-    doc.text("CONVIVENCIA Y JUSTICIA",              pw/2, 243, {align:'center'});
+    doc.text("SECRETARIA DISTRITAL DE SEGURIDAD,", pw/2, 238, {align:'center'});
+    doc.text("CONVIVENCIA Y JUSTICIA",              pw/2, 246, {align:'center'});
 
     doc.setFontSize(11); doc.setFont(undefined,'normal'); doc.setTextColor(0,0,0);
-    doc.text("Direccion de Bienes", pw/2, 252, {align:'center'});
+    doc.text("Direccion de Bienes", pw/2, 255, {align:'center'});
     doc.setFont(undefined,'bold'); doc.setFontSize(14);
-    doc.text("2026", pw/2, 261, {align:'center'});
+    var anioLabel=String(new Date().getFullYear());
+    doc.text(anioLabel, pw/2, 264, {align:'center'});
+
+    // Otro Profesional ya incluido en filas2 arriba
 
     pie(1,totalPags);
+
+    // ===== TABLA DE CONTENIDO =====
+    doc.addPage(); enc();
+    var yTOC=18;
+    doc.setFillColor(30,30,60); doc.rect(10,yTOC,190,11,'F');
+    doc.setFontSize(12); doc.setFont(undefined,'bold'); doc.setTextColor(255,255,255);
+    doc.text('TABLA DE CONTENIDO', pw/2, yTOC+7.5, {align:'center'});
+    doc.setTextColor(0,0,0); yTOC+=18;
+
+    var tocEntries=[];
+    tocEntries.push({num:'1.', titulo:'TABLA DE CONTENIDO', pag:2});
+    tocEntries.push({num:'2.', titulo:'INTRODUCCIÓN', pag:3});
+    registros.forEach(function(r,i){
+      var obsNombre = (r.disciplina||'OBS')+' — '+(r.lugar||'Ubicación');
+      tocEntries.push({num:'3.'+(i+1)+'.', titulo:'OBSERVACIÓN #'+(i+1)+': '+obsNombre.toUpperCase(), pag:4+i});
+    });
+    tocEntries.push({num:'4.', titulo:'ESTADÍSTICAS DEL PROYECTO', pag:4+registros.length});
+    tocEntries.push({num:'5.', titulo:'MATRIZ GENERAL DE OBSERVACIONES', pag:4+registros.length+1});
+    var secNum=6;
+    if(requerimientos.length>0){ tocEntries.push({num:secNum+'.', titulo:'REQUERIMIENTOS DE LA VISITA', pag:4+registros.length+2}); secNum++; }
+    if(fotosAvanceObra.length>0){ tocEntries.push({num:secNum+'.', titulo:'ANEXO — REGISTRO FOTOGRÁFICO DE AVANCE DE OBRA', pag:4+registros.length+2+(requerimientos.length>0?1:0)}); secNum++; }
+    if(comentarioFinalPDF.length>0){ tocEntries.push({num:secNum+'.', titulo:'COMENTARIO FINAL', pag:totalPags}); secNum++; }
+    anexosDocs.forEach(function(a,ai){
+      tocEntries.push({num:secNum+'.', titulo:'ANEXO '+(ai+1)+': '+a.nombre.toUpperCase(), pag:totalPags});
+      secNum++;
+    });
+
+    var tocLineH=8;
+    doc.setFontSize(9); doc.setFont(undefined,'normal'); doc.setTextColor(20,20,20);
+    tocEntries.forEach(function(entry, ti){
+      if(yTOC>ph-mB-16) return;
+      var isObs = entry.titulo.indexOf('OBSERVACIÓN')===0;
+      if(isObs){
+        doc.setFont(undefined,'normal'); doc.setFontSize(8.5); doc.setTextColor(60,60,60);
+      } else {
+        doc.setFont(undefined,'bold'); doc.setFontSize(9.5); doc.setTextColor(20,20,20);
+      }
+      // Número
+      doc.text(entry.num, 15, yTOC);
+      // Título (truncado si muy largo)
+      var tit=doc.splitTextToSize(entry.titulo, 155)[0];
+      doc.text(tit, 28, yTOC);
+      // Puntos relleno
+      doc.setFont(undefined,'normal'); doc.setFontSize(8); doc.setTextColor(180,180,180);
+      var dots='';
+      var titW=doc.getTextWidth(tit)+28;
+      var dotW=doc.getTextWidth('.');
+      while(titW + dots.length*dotW < pw-22) dots+='.';
+      doc.text(dots, 28+doc.getTextWidth(tit)+2, yTOC);
+      // Página
+      doc.setFont(undefined,'bold'); doc.setFontSize(9); doc.setTextColor(198,40,40);
+      doc.text(String(entry.pag), pw-14, yTOC, {align:'right'});
+      doc.setTextColor(20,20,20);
+      // Línea separadora suave
+      doc.setDrawColor(230,230,230); doc.setLineWidth(0.2);
+      doc.line(14, yTOC+2.5, pw-14, yTOC+2.5);
+      yTOC += tocLineH;
+    });
+    pie(2, totalPags);
+
+    // ===== INTRODUCCIÓN =====
+    doc.addPage(); enc();
+    var yInt = 18;
+    doc.setFillColor(198,40,40); doc.rect(10,yInt,190,11,'F');
+    doc.setFontSize(12); doc.setFont(undefined,'bold'); doc.setTextColor(255,255,255);
+    doc.text('INTRODUCCIÓN', pw/2, yInt+7.5, {align:'center'});
+    doc.setTextColor(0,0,0); yInt += 18;
+
+    var numContratoIntro = noContrato ? noContrato+'-'+anioContrato : 'XXXX-'+anioContrato;
+    var introTexto = [
+      'El presente informe consigna las observaciones técnicas evidenciadas durante las visitas de obra realizadas en el marco del seguimiento al proyecto. Estas visitas tienen como finalidad registrar las condiciones constructivas observadas en sitio y documentar aquellas situaciones que, por su naturaleza, resultan atípicas o requieren aclaración por parte de los actores responsables del proceso constructivo.',
+      '',
+      'El documento se presenta en calidad de apoyo a la supervisión del Contrato No. '+numContratoIntro+', con el propósito de aportar insumos para el adecuado seguimiento de la ejecución de la obra. En este sentido, las observaciones aquí consignadas se limitan al registro objetivo de lo evidenciado en campo, sin que ello implique la emisión de conceptos técnicos vinculantes, validaciones o aprobaciones sobre las condiciones constructivas.',
+      '',
+      'Se precisa que no se ejercen funciones propias de la interventoría ni se asumen responsabilidades asociadas a dicho rol. En consecuencia, cualquier análisis técnico detallado, pronunciamiento formal o verificación de la conformidad del proyecto con los parámetros contractuales y normativos aplicables es competencia exclusiva del interventor contractual, conforme a las obligaciones establecidas en el respectivo contrato.',
+      '',
+      'Este informe podrá ser actualizado en la medida en que se realicen nuevas visitas de obra o se disponga de información adicional, con el fin de mantener un registro preciso y trazable del estado observado en sitio.',
+      '',
+      'ENFOQUE ESTRATÉGICO DE TRANSFORMACIÓN DIGITAL',
+      '',
+      'La Dirección de Bienes se enmarca en una visión estratégica orientada a la transformación digital de la gestión contractual, promoviendo la sistematización, estandarización y digitalización de la información técnica y administrativa. Como parte de este enfoque, se impulsa la reducción progresiva del uso de documentos físicos y soportes en papel, en concordancia con los principios de eficiencia administrativa y racionalización documental establecidos en la política de Gobierno Digital y la estrategia institucional de cero papel en la gestión pública.',
+      '',
+      'Este enfoque fortalece la transparencia, la oportunidad en la toma de decisiones y la disponibilidad permanente de información estructurada para el seguimiento y control de los proyectos, contribuyendo a una gestión más eficiente, trazable y sostenible.'
+    ];
+    var intLineH=5.4, intMaxW=175;
+    doc.setFont(undefined,'normal'); doc.setFontSize(9.5); doc.setTextColor(30,30,30);
+    introTexto.forEach(function(parrafo){
+      if(parrafo===''){yInt+=3;return;}
+      if(parrafo==='ENFOQUE ESTRATÉGICO DE TRANSFORMACIÓN DIGITAL'){
+        yInt+=2;
+        doc.setFont(undefined,'bold'); doc.setFontSize(10); doc.setTextColor(50,50,100);
+        doc.text(parrafo, pw/2, yInt, {align:'center'}); yInt+=intLineH+1;
+        doc.setFont(undefined,'normal'); doc.setFontSize(9.5); doc.setTextColor(30,30,30);
+        return;
+      }
+      var lines=doc.splitTextToSize(parrafo, intMaxW);
+      lines.forEach(function(linea,li){
+        if(yInt>ph-mB-16){return;}
+        var esUlt=(li===lines.length-1);
+        if(esUlt||linea.trim()===''){
+          doc.text(linea,15,yInt);
+        } else {
+          var pals=linea.split(' '); var np=pals.length;
+          if(np<=1){doc.text(linea,15,yInt);}
+          else{
+            var aw=doc.getTextWidth(linea); var ex=(intMaxW-aw)/(np-1); var cxI=15;
+            pals.forEach(function(p,pi){doc.text(p,cxI,yInt);cxI+=doc.getTextWidth(p)+(pi<np-1?doc.getTextWidth(' ')+ex:0);});
+          }
+        }
+        yInt+=intLineH;
+      });
+    });
+    pie(3, totalPags);
 
     // ===== OBSERVACIONES =====
     registros.forEach(function(r,idx){
       doc.addPage(); enc();
-      var pag=idx+2; y=18;
+      var pag=idx+4; y=18;
       // Título
+      var obsNombrePDF = ((r.disciplina||'') + ' — ' + (r.lugar||'')).toUpperCase();
       doc.setFillColor(198,40,40); doc.rect(10,y,190,11,'F');
       doc.setFontSize(12); doc.setFont(undefined,'bold'); doc.setTextColor(255,255,255);
-      doc.text("OBSERVACION #"+(idx+1),15,y+7.5); doc.setTextColor(0,0,0); y+=17;
+      doc.text("OBSERVACION #"+(idx+1),15,y+7.5);
+      doc.setFontSize(8); doc.setFont(undefined,'normal');
+      var obsNombreLines=doc.splitTextToSize(obsNombrePDF, 120);
+      doc.text(obsNombreLines[0]||'', pw-14, y+7.5, {align:'right'});
+      doc.setTextColor(0,0,0); y+=17;
 
       var fotos=r.fotos||(r.foto?[r.foto]:[]);
       var nFotos=Math.min(fotos.length,4);
       var lugarLines=doc.splitTextToSize(r.lugar||'-',150);
 
+      // Tabla de metadatos alineada verticalmente
       doc.setFontSize(9.5); y+=2;
-      [["Fecha:",r.fecha],["Usuario:",r.usuario]].forEach(function(kv){
-        doc.setFont(undefined,'bold'); doc.text(kv[0],15,y);
-        doc.setFont(undefined,'normal'); doc.text(kv[1],35,y); y+=6;
-      });
-      doc.setFont(undefined,'bold'); doc.text("Disciplina:",15,y);
-      doc.setFont(undefined,'normal'); doc.text(r.disciplina,38,y);
-      doc.setFont(undefined,'bold'); doc.text("Impacto:",115,y);
+      var LBL=47, VAL=50; // columna etiqueta y valor (x)
+      var metaRows=[
+        {k:'Fecha:',       v:r.fecha||'-',          color:null},
+        {k:'Usuario:',     v:r.usuario||'-',         color:null},
+        {k:'Disciplina:',  v:r.disciplina||'-',      color:null},
+        {k:'Lugar:',       v:(r.lugar||'-'),          color:null, wrap:true},
+        {k:'Responsable:', v:r.responsable||'-',     color:null},
+      ];
+      // Impacto y Solicitud en la misma fila
       var ci={'Critico':[198,40,40],'Crítico':[198,40,40],'Alto':[255,140,0],'Medio':[200,140,0],'Bajo':[46,125,50]}[r.impacto]||[0,0,0];
+      var solColor=(r.solicitud==='Reiterada')?[198,40,40]:[46,125,50];
+      metaRows.forEach(function(row){
+        doc.setFont(undefined,'bold'); doc.setFontSize(9); doc.setTextColor(60,60,60);
+        doc.text(row.k, 15, y);
+        if(row.wrap){
+          var wrappedLines = doc.splitTextToSize(row.v, 145);
+          doc.setFont(undefined,'normal'); doc.setTextColor(0,0,0);
+          doc.text(wrappedLines, LBL, y);
+          y += 5.5 + (wrappedLines.length-1)*5;
+        } else {
+          doc.setFont(undefined,'normal'); doc.setTextColor(0,0,0);
+          doc.text(String(row.v), LBL, y);
+          y += 5.5;
+        }
+      });
+      // Fila Impacto | Solicitud
+      doc.setFont(undefined,'bold'); doc.setFontSize(9); doc.setTextColor(60,60,60);
+      doc.text('Impacto:', 15, y);
       doc.setTextColor(ci[0],ci[1],ci[2]); doc.setFont(undefined,'bold');
-      doc.text(r.impacto,133,y); doc.setTextColor(0,0,0); y+=6;
-      doc.setFont(undefined,'bold'); doc.text("Responsable:",15,y);
-      doc.setFont(undefined,'normal'); doc.text(r.responsable||'-',43,y); y+=6;
-      doc.setFont(undefined,'bold'); doc.text("Lugar:",15,y);
-      doc.setFont(undefined,'normal'); doc.text(lugarLines,32,y);
-      y+=6+(lugarLines.length-1)*5+8;
+      doc.text(r.impacto||'-', LBL, y);
+      doc.setFont(undefined,'bold'); doc.setTextColor(60,60,60);
+      doc.text('Solicitud:', 110, y);
+      doc.setTextColor(solColor[0],solColor[1],solColor[2]); doc.setFont(undefined,'bold');
+      doc.text(r.solicitud||'Nueva', 135, y);
+      doc.setTextColor(0,0,0); y+=8;
 
       // ===== FOTOS LAYOUT =====
       var limitY=ph-mB-16;
@@ -2321,7 +2824,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // ===== ESTADÍSTICAS =====
     doc.addPage(); enc();
-    var pagEst=registros.length+2; y=18;
+    var pagEst=registros.length+4; y=18;
     doc.setFillColor(198,40,40); doc.rect(10,y,190,11,'F');
     doc.setFontSize(12); doc.setFont(undefined,'bold'); doc.setTextColor(255,255,255);
     doc.text("ESTADISTICAS DEL PROYECTO",pw/2,y+7.5,{align:'center'});
@@ -2445,11 +2948,39 @@ document.addEventListener("DOMContentLoaded", function() {
       doc.setTextColor(0,0,0); y+=tRowH;
       doc.setDrawColor(220,220,220); doc.line(tsx,y-2,200,y-2);
     });
+    // --- Gráfica 3: Nueva vs Reiterada ---
+    y += 4;
+    if(y + 55 > ph-mB-16){ doc.addPage(); enc(); pie(pagEst,totalPags); pagEst++; y=18; }
+    {
+      doc.setFontSize(10); doc.setFont(undefined,'bold'); doc.setTextColor(0,0,0);
+      doc.text("Solicitudes: Nueva vs Reiterada",pw/2,y,{align:'center'}); y+=8;
+      var numNuevas=0, numReiteradas=0;
+      registros.forEach(function(r){ if((r.solicitud||'Nueva')==='Reiterada') numReiteradas++; else numNuevas++; });
+      var barW=50, barMaxH=30;
+      var totalSol=Math.max(1,numNuevas+numReiteradas);
+      var bNueva=Math.max(2,(numNuevas/totalSol)*barMaxH);
+      var bReiter=Math.max(2,(numReiteradas/totalSol)*barMaxH);
+      var xBars=(pw-barW*2-16)/2;
+      // Barra Nuevas
+      doc.setFillColor(46,125,50); doc.rect(xBars,y+barMaxH-bNueva,barW,bNueva,'F');
+      doc.setFontSize(9); doc.setFont(undefined,'bold'); doc.setTextColor(46,125,50);
+      doc.text(String(numNuevas),xBars+barW/2,y+barMaxH-bNueva-2,{align:'center'});
+      doc.setFontSize(8); doc.setFont(undefined,'normal'); doc.setTextColor(60,60,60);
+      doc.text('Nuevas',xBars+barW/2,y+barMaxH+5,{align:'center'});
+      // Barra Reiteradas
+      doc.setFillColor(198,40,40); doc.rect(xBars+barW+16,y+barMaxH-bReiter,barW,bReiter,'F');
+      doc.setFontSize(9); doc.setFont(undefined,'bold'); doc.setTextColor(198,40,40);
+      doc.text(String(numReiteradas),xBars+barW+16+barW/2,y+barMaxH-bReiter-2,{align:'center'});
+      doc.setFontSize(8); doc.setFont(undefined,'normal'); doc.setTextColor(60,60,60);
+      doc.text('Reiteradas',xBars+barW+16+barW/2,y+barMaxH+5,{align:'center'});
+      doc.setTextColor(0,0,0); y+=barMaxH+14;
+    }
+
     pie(pagEst,totalPags);
 
     // ===== MATRIZ GENERAL =====
     doc.addPage(); enc();
-    var pagMat=registros.length+3; y=16;
+    var pagMat=registros.length+5; y=16;
 
     doc.setFillColor(40,40,40); doc.rect(10,y,190,11,'F');
     doc.setFontSize(12); doc.setFont(undefined,'bold'); doc.setTextColor(255,255,255);
@@ -2457,14 +2988,15 @@ document.addEventListener("DOMContentLoaded", function() {
     doc.setTextColor(0,0,0); y+=15;
 
     // Definición columnas (total ancho=190, desde x=10 hasta x=200)
-    // #  | Disc | Resp | Imp | Lugar | Observacion
+    // #  | Disc | Resp | Imp | Solicitud | Lugar | Descripcion
     var mDefs=[
-      {label:'#',        w:10},
-      {label:'Disciplina', w:30},
-      {label:'Responsable',w:35},
-      {label:'Impacto',  w:20},
-      {label:'Ubicacion',w:38},
-      {label:'Descripcion',w:57}
+      {label:'#',        w:8},
+      {label:'Disciplina', w:27},
+      {label:'Responsable',w:28},
+      {label:'Impacto',  w:18},
+      {label:'Solicitud',w:20},
+      {label:'Ubicacion',w:34},
+      {label:'Descripcion',w:55}
     ]; // suma=190
     var mStartX=10;
     var limitMat=ph-mB-16;
@@ -2494,8 +3026,8 @@ document.addEventListener("DOMContentLoaded", function() {
 
     function drawRow(r, idx, yy){
       var fotos=r.fotos||(r.foto?[r.foto]:[]);
-      var descWrap =doc.splitTextToSize(r.observacion||'-', mDefs[5].w-3);
-      var lugarWrap=doc.splitTextToSize(r.lugar||'-',       mDefs[4].w-3);
+      var descWrap =doc.splitTextToSize(r.observacion||'-', mDefs[6].w-3);
+      var lugarWrap=doc.splitTextToSize(r.lugar||'-',       mDefs[5].w-3);
       var respWrap =doc.splitTextToSize(r.responsable||'-', mDefs[2].w-3);
       var discWrap =doc.splitTextToSize(r.disciplina||'-',  mDefs[1].w-3);
       var maxL=Math.max(descWrap.length,lugarWrap.length,respWrap.length,discWrap.length,1);
@@ -2529,6 +3061,15 @@ document.addEventListener("DOMContentLoaded", function() {
       doc.text(r.impacto||'-', cx+mDefs[3].w/2, yy+5, {align:'center'}); cx+=mDefs[3].w;
       doc.setTextColor(40,40,40);
 
+      // Solicitud (badge Nueva=verde, Reiterada=rojo)
+      var solVal = r.solicitud||'Nueva';
+      var solFill = solVal==='Reiterada' ? [198,40,40] : [46,125,50];
+      doc.setFillColor(solFill[0],solFill[1],solFill[2]);
+      doc.roundedRect(cx+1,yy+1.5,mDefs[4].w-2,5,1,1,'F');
+      doc.setFont(undefined,'bold'); doc.setFontSize(5.8); doc.setTextColor(255,255,255);
+      doc.text(solVal, cx+mDefs[4].w/2, yy+5, {align:'center'}); cx+=mDefs[4].w;
+      doc.setTextColor(40,40,40);
+
       // Ubicacion — justificado
       doc.setFont(undefined,'normal'); doc.setFontSize(6.5);
       (function renderJustCol(lines, colX, colW){
@@ -2543,7 +3084,7 @@ document.addEventListener("DOMContentLoaded", function() {
           var cx2=colX;
           pals.forEach(function(p,pi){doc.text(p,cx2,cellY+li*lh);cx2+=doc.getTextWidth(p)+(pi<np-1?doc.getTextWidth(' ')+ex:0);});
         });
-      })(lugarWrap, cx+2, mDefs[4].w); cx+=mDefs[4].w;
+      })(lugarWrap, cx+2, mDefs[5].w); cx+=mDefs[5].w;
 
       // Descripcion — justificado
       doc.setFont(undefined,'normal'); doc.setFontSize(6.5);
@@ -2559,7 +3100,7 @@ document.addEventListener("DOMContentLoaded", function() {
           var cx2=colX;
           pals.forEach(function(p,pi){doc.text(p,cx2,cellY+li*lh);cx2+=doc.getTextWidth(p)+(pi<np-1?doc.getTextWidth(' ')+ex:0);});
         });
-      })(descWrap, cx+2, mDefs[5].w);
+      })(descWrap, cx+2, mDefs[6].w);
 
       // Líneas verticales de la fila
       var vx=mStartX;
@@ -2578,8 +3119,8 @@ document.addEventListener("DOMContentLoaded", function() {
 
     registros.forEach(function(r,idx){
       // Estimar altura necesaria
-      var descWrap =doc.splitTextToSize(r.observacion||'-', mDefs[5].w-3);
-      var lugarWrap=doc.splitTextToSize(r.lugar||'-',       mDefs[4].w-3);
+      var descWrap =doc.splitTextToSize(r.observacion||'-', mDefs[6].w-3);
+      var lugarWrap=doc.splitTextToSize(r.lugar||'-',       mDefs[5].w-3);
       var respWrap =doc.splitTextToSize(r.responsable||'-', mDefs[2].w-3);
       var discWrap =doc.splitTextToSize(r.disciplina||'-',  mDefs[1].w-3);
       var maxL=Math.max(descWrap.length,lugarWrap.length,respWrap.length,discWrap.length,1);
@@ -2764,12 +3305,83 @@ document.addEventListener("DOMContentLoaded", function() {
       pie(pagCom, totalPags);
     }
 
+    // ===== ANEXOS DOCS (PDF e Imágenes adjuntas) =====
+    if(anexosDocs.length > 0){
+      var pagAnexosDocsBase = totalPags - paginasAnexosDocs + 1;
+      for(var adi=0; adi<anexosDocs.length; adi+=2){
+        doc.addPage(); enc();
+        var pagAD = pagAnexosDocsBase + Math.floor(adi/2);
+        var ayAD = 18;
+        doc.setFillColor(198,40,40); doc.rect(10,ayAD,190,11,'F');
+        doc.setFontSize(11); doc.setFont(undefined,'bold'); doc.setTextColor(255,255,255);
+        doc.text('ANEXOS ADJUNTOS', pw/2, ayAD+7.5, {align:'center'});
+        doc.setTextColor(0,0,0); ayAD+=16;
+
+        for(var adj=0; adj<2; adj++){
+          var gAD=adi+adj; if(gAD>=anexosDocs.length) break;
+          var anexoItem=anexosDocs[gAD];
+          // Título del anexo
+          doc.setFontSize(10); doc.setFont(undefined,'bold'); doc.setTextColor(198,40,40);
+          doc.text('Anexo '+(gAD+1)+': '+anexoItem.nombre, 15, ayAD);
+          doc.setTextColor(0,0,0); ayAD+=7;
+
+          if(anexoItem.tipo==='imagen' && anexoItem.src){
+            var aIWdoc=170, aIHdoc=100;
+            doc.setDrawColor(180,180,180); doc.setLineWidth(0.4);
+            doc.roundedRect(15, ayAD, aIWdoc, aIHdoc, 2, 2, 'S');
+            try{ doc.addImage(anexoItem.src,'JPEG',15,ayAD,aIWdoc,aIHdoc); }catch(eAD){}
+            ayAD+=aIHdoc+8;
+          } else if(anexoItem.tipo==='pdf'){
+            doc.setFontSize(9); doc.setFont(undefined,'normal'); doc.setTextColor(80,80,80);
+            doc.setFillColor(252,248,248); doc.setDrawColor(198,40,40); doc.setLineWidth(0.4);
+            doc.roundedRect(15,ayAD,170,16,3,3,'FD');
+            doc.text('[ PDF ] '+(anexoItem.fileName||anexoItem.nombre),20,ayAD+10);
+            doc.setTextColor(0,0,0); ayAD+=24;
+          }
+        }
+        pie(pagAD, totalPags);
+      }
+    }
+
     // Generar ZIP con PDF + JSON + Fotos
-    var pdfBlob = doc.output('blob');
+    var reportePdfBlob = doc.output('blob');
     var nombreBase = generarNombreBase();
-    var datos = {proyecto:nombreProyecto, usuario:usuarioActivo, fecha:new Date().toLocaleString('es-CO'), registros:registros, fotosAvanceObra:fotosAvanceObra, requerimientos:requerimientos, comentarioFinal:comentarioFinalPDF};
+    var datos = {proyecto:nombreProyecto, usuario:usuarioActivo, fecha:new Date().toLocaleString('es-CO'), registros:registros, fotosAvanceObra:fotosAvanceObra, requerimientos:requerimientos, comentarioFinal:comentarioFinalPDF, noContrato:noContrato, anioContrato:anioContrato, colaborador:colaborador, colaborador3:colaborador3, anexosDocs:anexosDocs.map(function(a){return {nombre:a.nombre,tipo:a.tipo,src:a.tipo==='imagen'?a.src:'',fileName:a.fileName||''};}) };
     var jsonStr = JSON.stringify(datos, null, 2);
 
+    // Merge PDF annexes using pdf-lib
+    var pdfAnnexes = anexosDocs.filter(function(a){ return a.tipo==='pdf' && a.src; });
+    var btnExp2 = document.getElementById('btnExportar');
+
+    async function mergePDFsAndZip(reporteBlob) {
+      // Si no hay anexos PDF o PDFLib no cargó, devolver el blob original directamente
+      if(pdfAnnexes.length === 0 || window._pdfLibFailed || typeof PDFLib === 'undefined') {
+        return reporteBlob;
+      }
+      var finalPdfBytes;
+      try {
+        var { PDFDocument } = PDFLib;
+        var mainBytes = await reporteBlob.arrayBuffer();
+        var mergedDoc = await PDFDocument.load(mainBytes);
+        for(var pi=0; pi<pdfAnnexes.length; pi++){
+          try {
+            var b64 = pdfAnnexes[pi].src.split(',')[1];
+            if(!b64) continue;
+            var annexBytes = Uint8Array.from(atob(b64), c=>c.charCodeAt(0));
+            var annexDoc = await PDFDocument.load(annexBytes, {ignoreEncryption:true});
+            var pages = await mergedDoc.copyPages(annexDoc, annexDoc.getPageIndices());
+            pages.forEach(function(p){ mergedDoc.addPage(p); });
+          } catch(eAnn){ console.warn('Annexe PDF skip:', eAnn); }
+        }
+        finalPdfBytes = await mergedDoc.save();
+        return new Blob([finalPdfBytes], {type:'application/pdf'});
+      } catch(eMerge){
+        console.warn('PDF merge failed, using original:', eMerge);
+        return reporteBlob;
+      }
+    }
+
+    mergePDFsAndZip(reportePdfBlob).then(function(pdfBlob){
     var zip = new JSZip();
     zip.file(nombreBase+'.pdf', pdfBlob);
     zip.file(nombreBase+'.json', jsonStr);
@@ -2796,6 +3408,21 @@ document.addEventListener("DOMContentLoaded", function() {
         var base64 = dataUrl.split(',')[1];
         carpetaAvance.file('avance_foto'+String(fi+1).padStart(2,'0')+'.jpg', base64, {base64:true});
         totalFotos++;
+      });
+    }
+
+    // Carpeta de anexos (imágenes adjuntas)
+    if(anexosDocs.length > 0){
+      var carpetaAnexos = zip.folder('anexos');
+      anexosDocs.forEach(function(a, ai){
+        var nombreAnexo = String(ai+1).padStart(2,'0')+'_'+(a.nombre||'anexo').replace(/[^a-zA-Z0-9_\-\.]/g,'_');
+        if(a.tipo === 'imagen' && a.src){
+          var b64img = a.src.split(',')[1];
+          if(b64img) carpetaAnexos.file(nombreAnexo+'.jpg', b64img, {base64:true});
+        } else if(a.tipo === 'pdf' && a.src){
+          var b64pdf = a.src.split(',')[1];
+          if(b64pdf) carpetaAnexos.file(nombreAnexo+'.pdf', b64pdf, {base64:true});
+        }
       });
     }
 
@@ -2856,7 +3483,7 @@ document.addEventListener("DOMContentLoaded", function() {
         document.body.appendChild(a);a.click();document.body.removeChild(a);
         if(btnExp){btnExp.disabled=false;btnExp.innerText='📦 Exportar (.zip)';}
         if(!silencioso){
-          alert('✅ ZIP exportado: '+registros.length+' observaciones | '+totalFotos+' fotos\n📄 PDF + 📋 JSON + 🖼️ Fotos + 📝 SIGA.docx incluidos');
+          alert('✅ Informe exportado correctamente\n'+registros.length+' observaciones | '+totalFotos+' fotos');
         } else {
           var st=document.getElementById('autoExportStatus');
           if(st){st.innerText='⏱ Auto-guardado: '+new Date().toLocaleTimeString('es-CO');}
@@ -2868,6 +3495,18 @@ document.addEventListener("DOMContentLoaded", function() {
       if(docxBlob) zip.file(nombreBase+'-SIGA.docx',docxBlob);
       finalizarZIP();
     });
+    }).catch(function(errZip){
+      console.error('Error en generación ZIP:', errZip);
+      var zip2 = new JSZip();
+      zip2.file(nombreBase+'.pdf', reportePdfBlob);
+      zip2.file(nombreBase+'.json', jsonStr);
+      zip2.generateAsync({type:'blob'}).then(function(zipBlob){
+        var a=document.createElement('a'); a.href=URL.createObjectURL(zipBlob);
+        a.download=nombreBase+'.zip'; document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        var btnE=document.getElementById('btnExportar'); if(btnE){btnE.disabled=false;btnE.innerText='📦 Exportar (.zip)';}
+        alert('✅ ZIP exportado (modo básico)\n'+registros.length+' observaciones');
+      });
+    }); // end mergePDFsAndZip .then/.catch
   }
   // ===== BOTÓN EXPORTAR ZIP =====
   document.getElementById("btnExportar").addEventListener("click", function(){
@@ -2878,7 +3517,16 @@ document.addEventListener("DOMContentLoaded", function() {
   document.getElementById("btnExportarJSON").addEventListener("click", function(){
     if(registros.length===0){ alert("No hay registros para exportar"); return; }
     var comentarioGuardar = document.getElementById('comentarioFinalInput') ? document.getElementById('comentarioFinalInput').value.trim() : comentarioFinal;
-    var datos = {proyecto:nombreProyecto, usuario:usuarioActivo, fecha:new Date().toLocaleString('es-CO'), registros:registros, fotosAvanceObra:fotosAvanceObra, requerimientos:requerimientos, comentarioFinal:comentarioGuardar};
+    // Incluir anexosDocs completos (con src de imágenes y PDFs) para que al reimportar se conserven
+    var datos = {
+      proyecto:nombreProyecto, usuario:usuarioActivo,
+      fecha:(_fechaInformeCustom ? _fechaInformeCustom : new Date()).toLocaleString('es-CO'),
+      fechaVisita:(_fechaVisitaCustom ? _fechaVisitaCustom : (_stampaConfig && _stampaConfig.activo && _stampaConfig.fechaInicio ? _stampaConfig.fechaInicio : new Date())).toLocaleString('es-CO'),
+      registros:registros, fotosAvanceObra:fotosAvanceObra, requerimientos:requerimientos,
+      comentarioFinal:comentarioGuardar, noContrato:noContrato, anioContrato:anioContrato,
+      colaborador:colaborador, colaborador3:colaborador3,
+      anexosDocs:anexosDocs  // guarda src completo (imágenes y PDFs)
+    };
     var jsonStr = JSON.stringify(datos, null, 2);
     var blob = new Blob([jsonStr], {type:'application/json'});
     var pad = function(n){ return String(n).padStart(2,'0'); };
@@ -2891,16 +3539,14 @@ document.addEventListener("DOMContentLoaded", function() {
     alert("✅ JSON guardado: "+registros.length+" observaciones\n📋 Cárguelo luego para continuar editando");
   });
 
+  // ===== BOTÓN EXPORTAR ZIP desde pantallaRegistro =====
+  document.getElementById("btnExportarZIPReg").addEventListener("click", function(){
+    exportarZIP(false);
+  });
+
   // ===== CÓDIGO OCULTO: editar estampa de fotos =====
-  // Móvil: toque 5 veces rápido en el título de la app | PC: Ctrl+M
-  var _stampaConfig = {
-    activo: false,
-    lat: null, lng: null,
-    fecha: null,
-    fechaInicio: null,
-    fechaFin: null,
-    usuario: null
-  };
+  // Activar estampa: toque 5 veces rápido en el título del login
+  // (_stampaConfig ya declarado al inicio junto a _fechaInformeCustom)
 
   // Contador global de fotos cargadas en la sesión (para distribuir el rango)
   var _fotoGlobalIdx = 0;
@@ -2947,10 +3593,21 @@ document.addEventListener("DOMContentLoaded", function() {
 
     var overlay = document.createElement('div');
     overlay.id = 'stampaOverlay';
-    overlay.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;';
-    overlay.innerHTML = '<div style="background:#fff;border-radius:14px;padding:24px 20px;max-width:340px;width:92%;box-shadow:0 8px 32px rgba(0,0,0,0.3);">'
+    overlay.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;overflow-y:auto;';
+    overlay.innerHTML = '<div style="background:#fff;border-radius:14px;padding:24px 20px;max-width:360px;width:94%;box-shadow:0 8px 32px rgba(0,0,0,0.3);margin:20px auto;">'
       +'<h3 style="font-family:Montserrat,sans-serif;font-weight:900;color:#c62828;margin:0 0 4px;">⚙️ Estampa de Fotos</h3>'
       +'<p style="font-size:11px;color:#888;margin:0 0 14px;">Modo avanzado — las horas se distribuyen automáticamente en el rango indicado (mín. 3 min entre observaciones)</p>'
+      +'<div style="background:#fff8f0;border:1.5px solid rgba(198,40,40,0.25);border-radius:9px;padding:12px 12px 10px;margin-bottom:14px;">'
+      +'<div style="font-size:11px;font-weight:700;color:#c62828;margin-bottom:8px;">📅 FECHA DEL INFORME (portada PDF)</div>'
+      +'<label style="font-size:12px;font-weight:600;display:block;margin-bottom:2px;">Nueva fecha y hora del informe</label>'
+      +'<input id="stampaFechaInforme" type="datetime-local" style="width:100%;padding:8px;border:1.5px solid #ddd;border-radius:8px;margin-bottom:8px;font-size:13px;" title="Fecha que aparece en la portada del PDF">'
+      +'<div style="display:flex;gap:6px;">'
+      +'<button id="stampaAplicarInforme" style="flex:1;padding:7px;border-radius:7px;border:none;font-family:Montserrat,sans-serif;font-weight:700;font-size:12px;cursor:pointer;background:linear-gradient(135deg,#c62828,#a31515);color:#fff;">✅ Aplicar</button>'
+      +'<button id="stampaResetInforme" style="flex:1;padding:7px;border-radius:7px;border:1.5px solid #ddd;background:#fff;font-family:Montserrat,sans-serif;font-weight:600;font-size:12px;cursor:pointer;color:#555;">↺ Usar hora PC</button>'
+      +'</div>'
+      +'<p id="stampaFechaInformeEstado" style="font-size:10.5px;margin:6px 0 0;font-weight:700;text-align:center;"></p>'
+      +'</div>'
+      +'<div style="font-size:11px;font-weight:700;color:#555;margin-bottom:8px;">📸 ESTAMPA DE FOTOS (GPS + horario visita)</div>'
       +'<label style="font-size:12px;font-weight:600;display:block;margin-bottom:2px;">Coordenadas (lat,lng)</label>'
       +'<input id="stampaLat" type="text" placeholder="Ej: 4.60971,-74.08175" style="width:100%;padding:8px;border:1.5px solid #ddd;border-radius:8px;margin-bottom:10px;font-size:13px;">'
       +'<label style="font-size:12px;font-weight:600;display:block;margin-bottom:2px;">🕐 Hora inicio de visita</label>'
@@ -2958,7 +3615,6 @@ document.addEventListener("DOMContentLoaded", function() {
       +'<label style="font-size:12px;font-weight:600;display:block;margin-bottom:2px;">🕔 Hora fin de visita</label>'
       +'<input id="stampaFechaFin" type="datetime-local" style="width:100%;padding:8px;border:1.5px solid #ddd;border-radius:8px;margin-bottom:10px;font-size:13px;" title="Fin de la visita">'
       +'<p id="stampaRangoInfo" style="font-size:11px;color:#1565c0;background:#e3f2fd;border-radius:6px;padding:6px 10px;margin:0 0 10px;display:none;"></p>'
-
       +'<div style="display:flex;gap:8px;">'
       +'<button id="stampaActivar" style="flex:1;padding:9px;border-radius:8px;border:none;font-family:Montserrat,sans-serif;font-weight:700;font-size:13px;cursor:pointer;background:linear-gradient(135deg,#c62828,#a31515);color:#fff;">✅ Activar</button>'
       +'<button id="stampaDesactivar" style="flex:1;padding:9px;border-radius:8px;border:none;font-family:Montserrat,sans-serif;font-weight:700;font-size:13px;cursor:pointer;background:linear-gradient(135deg,#757575,#555);color:#fff;">❌ Desactivar</button>'
@@ -2968,9 +3624,36 @@ document.addEventListener("DOMContentLoaded", function() {
       +'</div>';
     document.body.appendChild(overlay);
 
-    // Rellenar con estado actual (solo si está activo)
+    // Rellenar con estado actual
     var pad2 = function(n){ return String(n).padStart(2,'0'); };
     function fechaToLocal(d){ return d.getFullYear()+'-'+pad2(d.getMonth()+1)+'-'+pad2(d.getDate())+'T'+pad2(d.getHours())+':'+pad2(d.getMinutes()); }
+    // Pre-cargar fecha del informe (custom o PC)
+    var dInfPre = _fechaInformeCustom ? _fechaInformeCustom : new Date();
+    document.getElementById('stampaFechaInforme').value = fechaToLocal(dInfPre);
+    var estInfEl = document.getElementById('stampaFechaInformeEstado');
+    if(_fechaInformeCustom){
+      if(estInfEl){ estInfEl.innerText='🟢 Fecha personalizada activa'; estInfEl.style.color='#2e7d32'; }
+    } else {
+      if(estInfEl){ estInfEl.innerText='⚪ Usando fecha y hora del sistema'; estInfEl.style.color='#757575'; }
+    }
+    // Botón Aplicar fecha informe
+    document.getElementById('stampaAplicarInforme').addEventListener('click', function(){
+      var val = document.getElementById('stampaFechaInforme').value;
+      if(!val){ alert('⚠️ Seleccione una fecha y hora para el informe.'); return; }
+      _fechaInformeCustom = new Date(val);
+      _fechaVisitaCustom  = _fechaInformeCustom; // fecha de visita = inicio configurado
+      _actualizarDisplayFechas();
+      if(estInfEl){ estInfEl.innerText='🟢 Fecha personalizada activa: '+_formatFechaDisplay(_fechaInformeCustom); estInfEl.style.color='#2e7d32'; }
+      alert('✅ Fecha del informe actualizada: '+_formatFechaDisplay(_fechaInformeCustom));
+    });
+    // Botón Reset fecha informe
+    document.getElementById('stampaResetInforme').addEventListener('click', function(){
+      _fechaInformeCustom = null;
+      _fechaVisitaCustom  = null;
+      _actualizarDisplayFechas();
+      if(estInfEl){ estInfEl.innerText='⚪ Usando fecha y hora del sistema'; estInfEl.style.color='#757575'; }
+      alert('⚪ Fecha del informe restablecida a la hora del sistema.');
+    });
     if(_stampaConfig.activo) {
       if(_stampaConfig.lat) document.getElementById('stampaLat').value = _stampaConfig.lat+','+_stampaConfig.lng;
       if(_stampaConfig.fechaInicio) document.getElementById('stampaFechaInicio').value = fechaToLocal(_stampaConfig.fechaInicio);
@@ -3041,6 +3724,9 @@ document.addEventListener("DOMContentLoaded", function() {
       }
 
       _stampaConfig.activo = true;
+      // Actualizar fecha de visita con la hora inicio
+      _fechaVisitaCustom = _stampaConfig.fechaInicio ? new Date(_stampaConfig.fechaInicio.getTime()) : null;
+      _actualizarDisplayFechas();
       document.getElementById('stampaEstado').innerText = '🟢 Estampa personalizada ACTIVA';
       document.getElementById('stampaEstado').style.color = '#2e7d32';
       // Re-estampar fotos del formulario actual
@@ -3058,7 +3744,9 @@ document.addEventListener("DOMContentLoaded", function() {
       document.getElementById('stampaFechaInicio').value = '';
       document.getElementById('stampaFechaFin').value = '';
       document.getElementById('stampaRangoInfo').style.display='none';
-
+      // Si no hay fecha de informe personalizada, también limpiar visita
+      if(!_fechaInformeCustom) _fechaVisitaCustom = null;
+      _actualizarDisplayFechas();
       document.getElementById('stampaEstado').innerText = '⚪ Usando estampa automática (GPS + fecha actual)';
       document.getElementById('stampaEstado').style.color = '#757575';
       // Re-estampar fotos del formulario actual con config automática
@@ -3076,22 +3764,56 @@ document.addEventListener("DOMContentLoaded", function() {
     var inp = document.getElementById('comentarioFinalInput');
     var cnt = document.getElementById('comentarioContador');
     if(!inp) return;
-    inp.addEventListener('input', function(){
+    function updateComentario(){
       comentarioFinal = inp.value;
       var n = inp.value.length;
-      if(cnt) cnt.innerText = n + ' caracter' + (n===1?'':'es');
-    });
+      var min = 50;
+      if(cnt){
+        if(n >= min){
+          cnt.innerText = '✅ ' + n + ' caracteres (mínimo cumplido)';
+          cnt.style.color = '#2e7d32';
+          inp.style.borderColor = 'rgba(46,125,50,0.5)';
+        } else {
+          var falta = min - n;
+          cnt.innerText = n + ' / mín. 50 — faltan ' + falta + ' caracter' + (falta===1?'':'es');
+          cnt.style.color = n > 0 ? '#e65100' : '#aaa';
+          inp.style.borderColor = n > 0 ? 'rgba(198,40,40,0.4)' : 'rgba(100,60,180,0.25)';
+        }
+      }
+    }
+    inp.addEventListener('input', updateComentario);
+    updateComentario();
   })();
 
-  // PC: Ctrl+M  /  Ctrl+Shift+E  /  Alt+E  (por si el navegador bloquea alguno)
-  document.addEventListener('keydown', function(e){
-    var esCtrlM      = e.ctrlKey  && !e.shiftKey && (e.key==='m' || e.key==='M');
-    var esCtrlShiftE = e.ctrlKey  &&  e.shiftKey && (e.key==='e' || e.key==='E');
-    var esAltE       = e.altKey   && !e.ctrlKey  && (e.key==='e' || e.key==='E');
-    if(esCtrlM || esCtrlShiftE || esAltE){ e.preventDefault(); mostrarPanelEstampa(); }
-  });
+  // ===== MIC COMENTARIO FINAL =====
+  (function(){
+    var btnMicC = document.getElementById('btnMicComentario');
+    var micSt   = document.getElementById('micStatusComentario');
+    var taC     = document.getElementById('comentarioFinalInput');
+    if(!btnMicC) return;
+    var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if(!SR){ btnMicC.title='Voz no disponible'; btnMicC.style.opacity='0.4'; return; }
+    var rec = new SR(); rec.lang='es-CO'; rec.continuous=false; rec.interimResults=true;
+    var grabando=false, textoAnt='';
+    btnMicC.addEventListener('click',function(){
+      if(grabando){ rec.stop(); } else { textoAnt=taC.value; rec.start(); }
+    });
+    rec.onstart=function(){ grabando=true; btnMicC.textContent='⏹'; if(micSt) micSt.style.display='block'; };
+    rec.onresult=function(e){
+      var tr=''; for(var i=e.resultIndex;i<e.results.length;i++) tr+=e.results[i][0].transcript;
+      taC.value=textoAnt+(textoAnt&&tr?' ':'')+tr;
+      taC.dispatchEvent(new Event('input'));
+    };
+    rec.onend=function(){ grabando=false; btnMicC.textContent='🎤'; if(micSt) micSt.style.display='none'; textoAnt=taC.value; };
+    rec.onerror=function(e){ grabando=false; btnMicC.textContent='🎤'; if(micSt) micSt.style.display='none'; };
+  })();
 
-  // Móvil: 5 toques rápidos en el h1 del login
+  // Estampa: Ctrl+M (PC/móvil con teclado) o 5 toques rápidos en el título del login
+  document.addEventListener('keydown', function(e){
+    if(e.ctrlKey && !e.shiftKey && !e.altKey && (e.key==='m' || e.key==='M')){
+      e.preventDefault(); mostrarPanelEstampa();
+    }
+  });
   var _toquesEstampa=0, _timerEstampa=null;
   var h1Login = document.querySelector('#pantallaLogin h1');
   if(h1Login){
