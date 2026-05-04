@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Visita Técnica de Obra v3.0</title>
+<title>Visita Técnica de Obra v3.1</title>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;900&family=Open+Sans:wght@400;600&family=Bebas+Neue&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{ --rojo:#c62828; --rojo-oscuro:#a31515; --rojo-sutil:rgba(198,40,40,0.07); --gris:#757575; --fondo:#f5f5f5; }
@@ -787,7 +787,7 @@ button:active { transform:translateY(0); }
   </div>
 
   <!-- Badge versión -->
-  <div id="loginVersionBadge">v3.0</div>
+  <div id="loginVersionBadge">v3.1</div>
 
   <!-- Panel lateral de login -->
   <div id="loginPanel">
@@ -827,6 +827,10 @@ button:active { transform:translateY(0); }
           </svg>
         </span>
         <input type="text" id="usuarioInput" class="login-input" placeholder="Nombre de usuario" autocomplete="off" autofocus>
+      </div>
+      <div id="usuarioBloqueadoMsg" style="display:none;margin-top:7px;padding:9px 13px;background:rgba(198,40,40,0.09);border:1.5px solid rgba(198,40,40,0.35);border-radius:10px;font-family:'Space Grotesk',sans-serif;font-size:0.72rem;font-weight:600;color:#c62828;letter-spacing:0.3px;line-height:1.45;">
+        🚫 <strong>Usuario deshabilitado.</strong><br>
+        <span style="font-weight:400;color:#a00;font-size:0.68rem;">Este usuario no realizó el uso de la App para el cual le fue habilitado el acceso. Comuníquese con el administrador.</span>
       </div>
     </div>
 
@@ -910,11 +914,13 @@ button:active { transform:translateY(0); }
   <div style="margin-top:10px;">
     <label style="display:block;margin-bottom:4px;font-size:13px;">Profesional 2 <span style="font-size:11px;color:#888;font-weight:400;">(opcional — nombre y apellido)</span></label>
     <input type="text" id="colaboradorInput" placeholder="Ej: Simón García" style="margin:0;width:100%;padding:9px 12px;">
+    <p id="colaboradorBloqueadoMsg" style="display:none;color:#c62828;font-size:11px;margin:5px 0 0;padding:7px 10px;background:rgba(198,40,40,0.07);border:1px solid rgba(198,40,40,0.3);border-radius:8px;">🚫 <strong>Usuario deshabilitado.</strong> Este usuario no realizó el uso de la App para el cual le fue habilitado el acceso.</p>
   </div>
   <div style="margin-top:10px;">
     <label style="display:block;margin-bottom:4px;font-size:13px;">Profesional 3 <span style="font-size:11px;color:#888;font-weight:400;">(opcional — nombre y apellido)</span></label>
     <input type="text" id="colaborador3Input" placeholder="Ej: Ana Martínez" style="margin:0;width:100%;padding:9px 12px;">
     <p id="colaborador3Error" style="display:none;color:#c62828;font-size:11px;margin:4px 0 0;">⚠️ Ingresa nombre y apellido (mínimo dos palabras).</p>
+    <p id="colaborador3BloqueadoMsg" style="display:none;color:#c62828;font-size:11px;margin:5px 0 0;padding:7px 10px;background:rgba(198,40,40,0.07);border:1px solid rgba(198,40,40,0.3);border-radius:8px;">🚫 <strong>Usuario deshabilitado.</strong> Este usuario no realizó el uso de la App para el cual le fue habilitado el acceso.</p>
   </div>
   <input type="text" id="fechaInformeDisplay" style="display:none;">
   <input type="text" id="fechaVisitaDisplay" style="display:none;">
@@ -1298,6 +1304,58 @@ document.addEventListener("DOMContentLoaded", function() {
     draw();
   })();
 
+  // ===== USUARIOS BLOQUEADOS — v3.1 =====
+  // Cubre cualquier variante / fragmento de:
+  //   ANDRES HERNANDEZ MONTOYA  →  andres, hernandez, montoya, a.h.m, ahm, andreshtoya, etc.
+  //   DAVID FERNANDO BARRIOS SANCHEZ → david, barrios, sanchez, d.f.b.s, dfbs, fernandob, etc.
+  var _TOKENS_BLOQUEADOS = [
+    // Andres Hernandez Montoya
+    'andres','hernandez','montoya',
+    'a.h.m','ahm','a_h_m','andreshtoya','hernandezm','a.hernandez','andresfernando',
+    // David Fernando Barrios Sanchez
+    'david','barrios','sanchez',
+    'd.f.b.s','dfbs','d_f_b_s','davidb','david.barrios','d.barrios',
+    'davidf','dbarrios','davidbarrios','barrioss','dfbarrios','fernandob',
+    'davidfernando','davidfs','d.f.barrios'
+  ];
+
+  function _estaUsuarioBloqueado(val) {
+    // Normalizar: minúsculas, sin tildes, sin espacios/puntos/guiones
+    var norm = val.toLowerCase()
+      .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+      .replace(/[\s\.\-_]+/g,'');
+    // 1) Coincidencia exacta o contenida con token normalizado
+    for (var i=0; i<_TOKENS_BLOQUEADOS.length; i++) {
+      var t = _TOKENS_BLOQUEADOS[i].toLowerCase()
+        .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+        .replace(/[\s\.\-_]+/g,'');
+      if (norm === t || norm.indexOf(t) !== -1 || t.indexOf(norm) !== -1) {
+        if (norm.length >= 4) return true; // evitar falsos positivos en strings muy cortos
+      }
+    }
+    // 2) Verificar si contiene siglas características (dfbs, ahm, etc.)
+    var siglasBloq = ['dfbs','ahm','dfb','ahmon'];
+    for (var j=0; j<siglasBloq.length; j++) {
+      if (norm.indexOf(siglasBloq[j]) !== -1) return true;
+    }
+    return false;
+  }
+
+  // Mostrar/ocultar mensaje en tiempo real mientras el usuario escribe
+  document.getElementById('usuarioInput').addEventListener('input', function() {
+    var v = this.value.trim();
+    var msg = document.getElementById('usuarioBloqueadoMsg');
+    if (v.length >= 4 && _estaUsuarioBloqueado(v)) {
+      msg.style.display = 'block';
+      this.style.borderColor = 'rgba(198,40,40,0.7)';
+      this.style.background  = '#fff5f5';
+    } else {
+      msg.style.display = 'none';
+      this.style.borderColor = '';
+      this.style.background  = '';
+    }
+  });
+
   // ===== ENTER en campos login =====
   document.getElementById('usuarioInput').addEventListener('keydown', function(e){
     if(e.key==='Enter') document.getElementById('passwordInput').focus();
@@ -1310,6 +1368,17 @@ document.addEventListener("DOMContentLoaded", function() {
     var u = document.getElementById("usuarioInput").value.trim().toLowerCase();
     var p = document.getElementById("passwordInput").value;
     if (!u) {
+      document.getElementById('usuarioInput').classList.add('login-shake');
+      setTimeout(function(){ document.getElementById('usuarioInput').classList.remove('login-shake'); }, 400);
+      document.getElementById('usuarioInput').focus();
+      return;
+    }
+    // Bloqueo de usuarios deshabilitados — verificación final en submit
+    if (_estaUsuarioBloqueado(u)) {
+      var msg = document.getElementById('usuarioBloqueadoMsg');
+      msg.style.display = 'block';
+      document.getElementById('usuarioInput').style.borderColor = 'rgba(198,40,40,0.7)';
+      document.getElementById('usuarioInput').style.background  = '#fff5f5';
       document.getElementById('usuarioInput').classList.add('login-shake');
       setTimeout(function(){ document.getElementById('usuarioInput').classList.remove('login-shake'); }, 400);
       document.getElementById('usuarioInput').focus();
@@ -1447,13 +1516,51 @@ document.addEventListener("DOMContentLoaded", function() {
   });
 
   // PROYECTO
+  // ===== BLOQUEO USUARIOS EN CAMPOS PROFESIONAL 2 y 3 =====
+  (function(){
+    function _bindColaboradorBloqueo(inputId, msgId) {
+      var inp = document.getElementById(inputId);
+      var msg = document.getElementById(msgId);
+      if (!inp || !msg) return;
+      inp.addEventListener('input', function() {
+        var v = this.value.trim();
+        if (v.length >= 4 && _estaUsuarioBloqueado(v)) {
+          msg.style.display = 'block';
+          this.style.borderColor = 'rgba(198,40,40,0.7)';
+          this.style.background  = '#fff5f5';
+        } else {
+          msg.style.display = 'none';
+          this.style.borderColor = '';
+          this.style.background  = '';
+        }
+      });
+    }
+    _bindColaboradorBloqueo('colaboradorInput',  'colaboradorBloqueadoMsg');
+    _bindColaboradorBloqueo('colaborador3Input', 'colaborador3BloqueadoMsg');
+  })();
+
   document.getElementById("btnGuardarProyecto").addEventListener("click", function() {
     var p=document.getElementById("proyectoInput").value.trim();
     if(!p){ alert("Debe seleccionar el proyecto"); return; }
     nombreProyecto=p;
     noContrato=document.getElementById("noContratoInput").value.trim();
     anioContrato=document.getElementById("anioContratoInput").value;
-    colaborador=document.getElementById("colaboradorInput").value.trim();
+    // Verificar usuarios bloqueados en campos Profesional
+    var col2val = document.getElementById("colaboradorInput").value.trim();
+    var col3valChk = document.getElementById("colaborador3Input").value.trim();
+    if (col2val && _estaUsuarioBloqueado(col2val)) {
+      document.getElementById('colaboradorBloqueadoMsg').style.display='block';
+      document.getElementById('colaboradorInput').style.borderColor='rgba(198,40,40,0.7)';
+      document.getElementById('colaboradorInput').focus();
+      return;
+    }
+    if (col3valChk && _estaUsuarioBloqueado(col3valChk)) {
+      document.getElementById('colaborador3BloqueadoMsg').style.display='block';
+      document.getElementById('colaborador3Input').style.borderColor='rgba(198,40,40,0.7)';
+      document.getElementById('colaborador3Input').focus();
+      return;
+    }
+    colaborador=col2val;
     // Profesional 3: si ingresó algo, debe tener nombre y apellido (≥2 palabras)
     var col3raw=document.getElementById("colaborador3Input").value.trim();
     var col3err=document.getElementById("colaborador3Error");
