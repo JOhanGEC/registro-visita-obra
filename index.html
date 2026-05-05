@@ -1307,16 +1307,10 @@ document.addEventListener("DOMContentLoaded", function() {
   // ===== USUARIOS BLOQUEADOS — v3.1 =====
   // Cubre cualquier variante / fragmento de:
   //   ANDRES HERNANDEZ MONTOYA  →  andres, hernandez, montoya, a.h.m, ahm, andreshtoya, etc.
-  //   DAVID FERNANDO BARRIOS SANCHEZ → david, barrios, sanchez, d.f.b.s, dfbs, fernandob, etc.
   var _TOKENS_BLOQUEADOS = [
     // Andres Hernandez Montoya
     'andres','hernandez','montoya',
-    'a.h.m','ahm','a_h_m','andreshtoya','hernandezm','a.hernandez','andresfernando',
-    // David Fernando Barrios Sanchez
-    'david','barrios','sanchez',
-    'd.f.b.s','dfbs','d_f_b_s','davidb','david.barrios','d.barrios',
-    'davidf','dbarrios','davidbarrios','barrioss','dfbarrios','fernandob',
-    'davidfernando','davidfs','d.f.barrios'
+    'a.h.m','ahm','a_h_m','andreshtoya','hernandezm','a.hernandez','andresfernando'
   ];
 
   function _estaUsuarioBloqueado(val) {
@@ -1334,7 +1328,7 @@ document.addEventListener("DOMContentLoaded", function() {
       }
     }
     // 2) Verificar si contiene siglas características (dfbs, ahm, etc.)
-    var siglasBloq = ['dfbs','ahm','dfb','ahmon'];
+    var siglasBloq = ['ahm','ahmon'];
     for (var j=0; j<siglasBloq.length; j++) {
       if (norm.indexOf(siglasBloq[j]) !== -1) return true;
     }
